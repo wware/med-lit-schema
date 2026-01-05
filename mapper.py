@@ -59,10 +59,10 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
     # Common fields for all entities
     base_data = {
         "id": domain.entity_id,
-        "entity_type": domain.entity_type.value if hasattr(domain.entity_type, "value") else domain.entity_type,
+        "entity_type": (domain.entity_type.value if hasattr(domain.entity_type, "value") else domain.entity_type),
         "name": domain.name,
         "synonyms": json.dumps(domain.synonyms) if domain.synonyms else None,
-        "abbreviations": json.dumps(domain.abbreviations) if domain.abbreviations else None,
+        "abbreviations": (json.dumps(domain.abbreviations) if domain.abbreviations else None),
         "embedding": json.dumps(domain.embedding) if domain.embedding else None,
         "created_at": domain.created_at,
         "source": domain.source,
@@ -74,7 +74,7 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
             {
                 "umls_id": domain.umls_id,
                 "mesh_id": domain.mesh_id,
-                "icd10_codes": json.dumps(domain.icd10_codes) if domain.icd10_codes else None,
+                "icd10_codes": (json.dumps(domain.icd10_codes) if domain.icd10_codes else None),
                 "disease_category": domain.category,
             }
         )
@@ -91,7 +91,7 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
         base_data.update(
             {
                 "rxnorm_id": domain.rxnorm_id,
-                "brand_names": json.dumps(domain.brand_names) if domain.brand_names else None,
+                "brand_names": (json.dumps(domain.brand_names) if domain.brand_names else None),
                 "drug_class": domain.drug_class,
                 "mechanism": domain.mechanism,
             }
@@ -141,7 +141,7 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
                 "kegg_id": domain.kegg_id,
                 "reactome_id": domain.reactome_id,
                 "pathway_category": domain.category,
-                "genes_involved": json.dumps(domain.genes_involved) if domain.genes_involved else None,
+                "genes_involved": (json.dumps(domain.genes_involved) if domain.genes_involved else None),
             }
         )
     elif isinstance(domain, Hypothesis):
@@ -161,7 +161,7 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
         base_data.update(
             {
                 "description": domain.description,
-                "assumptions": json.dumps(domain.assumptions) if domain.assumptions else None,
+                "assumptions": (json.dumps(domain.assumptions) if domain.assumptions else None),
             }
         )
     elif isinstance(domain, EvidenceLine):
@@ -169,7 +169,7 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
             {
                 "supports": json.dumps(domain.supports) if domain.supports else None,
                 "refutes": json.dumps(domain.refutes) if domain.refutes else None,
-                "evidence_items": json.dumps(domain.evidence_items) if domain.evidence_items else None,
+                "evidence_items": (json.dumps(domain.evidence_items) if domain.evidence_items else None),
             }
         )
 
@@ -221,7 +221,7 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
             **base_data,
             umls_id=persistence.umls_id,
             mesh_id=persistence.mesh_id,
-            icd10_codes=json.loads(persistence.icd10_codes) if persistence.icd10_codes else [],
+            icd10_codes=(json.loads(persistence.icd10_codes) if persistence.icd10_codes else []),
             category=persistence.disease_category,
         )
     elif entity_type_str == EntityType.GENE.value:
@@ -236,7 +236,7 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
         return Drug(
             **base_data,
             rxnorm_id=persistence.rxnorm_id,
-            brand_names=json.loads(persistence.brand_names) if persistence.brand_names else [],
+            brand_names=(json.loads(persistence.brand_names) if persistence.brand_names else []),
             drug_class=persistence.drug_class,
             mechanism=persistence.mechanism,
         )
@@ -280,7 +280,7 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
             kegg_id=persistence.kegg_id,
             reactome_id=persistence.reactome_id,
             category=persistence.pathway_category,
-            genes_involved=json.loads(persistence.genes_involved) if persistence.genes_involved else [],
+            genes_involved=(json.loads(persistence.genes_involved) if persistence.genes_involved else []),
         )
     elif entity_type_str == EntityType.HYPOTHESIS.value:
         return Hypothesis(
@@ -297,14 +297,14 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
         return StatisticalMethod(
             **base_data,
             description=persistence.description,
-            assumptions=json.loads(persistence.assumptions) if persistence.assumptions else [],
+            assumptions=(json.loads(persistence.assumptions) if persistence.assumptions else []),
         )
     elif entity_type_str == EntityType.EVIDENCE_LINE.value:
         return EvidenceLine(
             **base_data,
             supports=json.loads(persistence.supports) if persistence.supports else [],
             refutes=json.loads(persistence.refutes) if persistence.refutes else [],
-            evidence_items=json.loads(persistence.evidence_items) if persistence.evidence_items else [],
+            evidence_items=(json.loads(persistence.evidence_items) if persistence.evidence_items else []),
         )
     else:
         raise ValueError(f"Unknown entity type: {persistence.entity_type}")

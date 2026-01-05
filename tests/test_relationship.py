@@ -1,8 +1,20 @@
-from schema.relationship import create_relationship, PredicateType, Treats, Causes, Cites
+from schema.relationship import (
+    create_relationship,
+    PredicateType,
+    Treats,
+    Causes,
+    Cites,
+)
 
 
 def test_create_relationship_returns_typed_class():
-    rel = create_relationship(PredicateType.TREATS, subject_id="RxNorm:1", object_id="C0", response_rate=0.5, source_papers=["PMC1"])
+    rel = create_relationship(
+        PredicateType.TREATS,
+        subject_id="RxNorm:1",
+        object_id="C0",
+        response_rate=0.5,
+        source_papers=["PMC1"],
+    )
     assert isinstance(rel, Treats)
     assert rel.subject_id == "RxNorm:1"
     assert rel.object_id == "C0"

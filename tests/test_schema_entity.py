@@ -8,7 +8,18 @@ from schema.entity import (
 
 
 def test_entity_models_basic_validation(small_entities):
-    d = Disease(**{**small_entities["disease"], "umls_id": "C0006142", "title": "unused", "entity_type": "disease"} if False else small_entities["disease"])
+    d = Disease(
+        **(
+            {
+                **small_entities["disease"],
+                "umls_id": "C0006142",
+                "title": "unused",
+                "entity_type": "disease",
+            }
+            if False
+            else small_entities["disease"]
+        )
+    )
     # Check basic properties are present
     assert d.entity_id == "C0006142"
     assert "Breast" in d.name or "Breast" in d.entity_id or True  # simple sanity check
@@ -17,9 +28,21 @@ def test_entity_models_basic_validation(small_entities):
 def test_entity_collection_add_get_and_counts(tmp_path, small_entities):
     c = EntityCollection()
     # create typed models
-    disease = Disease(entity_id=small_entities["disease"]["entity_id"], name=small_entities["disease"]["name"], entity_type="disease")
-    gene = Gene(entity_id=small_entities["gene"]["entity_id"], name=small_entities["gene"]["name"], entity_type="gene")
-    drug = Drug(entity_id=small_entities["drug"]["entity_id"], name=small_entities["drug"]["name"], entity_type="drug")
+    disease = Disease(
+        entity_id=small_entities["disease"]["entity_id"],
+        name=small_entities["disease"]["name"],
+        entity_type="disease",
+    )
+    gene = Gene(
+        entity_id=small_entities["gene"]["entity_id"],
+        name=small_entities["gene"]["name"],
+        entity_type="gene",
+    )
+    drug = Drug(
+        entity_id=small_entities["drug"]["entity_id"],
+        name=small_entities["drug"]["name"],
+        entity_type="drug",
+    )
 
     c.add_disease(disease)
     c.add_gene(gene)

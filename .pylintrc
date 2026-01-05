@@ -1,0 +1,10 @@
+[MAIN]
+# Ignore Pydantic-generated code
+extension-pkg-whitelist=pydantic
+
+[TYPECHECK]
+# Ignore missing members on Pydantic models (they're dynamically generated)
+generated-members=pydantic.*
+
+# Specific ignores for common false positives
+ignored-classes=Field,FieldInfo

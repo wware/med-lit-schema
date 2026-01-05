@@ -404,7 +404,10 @@ class PaperMetadata(BaseModel):
     pmid: Optional[str] = Field(None, description="PubMed ID")
 
     # Indexing and categorization
-    mesh_terms: List[str] = Field(default_factory=list, description="Medical Subject Headings - NLM's controlled vocabulary for indexing")
+    mesh_terms: List[str] = Field(
+        default_factory=list,
+        description="Medical Subject Headings - NLM's controlled vocabulary for indexing",
+    )
 
 
 # ============================================================================
@@ -454,8 +457,18 @@ class Paper(BaseModel):
                 "publication_date": "2023-06-15",
                 "journal": "New England Journal of Medicine",
                 "entities": [
-                    {"id": "DRUG: olaparib", "name": "Olaparib", "type": "drug", "canonical_id": "RxNorm:1187832"},
-                    {"id": "DISEASE:breast_cancer", "name": "Breast Cancer", "type": "disease", "canonical_id": "UMLS:C0006142"},
+                    {
+                        "id": "DRUG: olaparib",
+                        "name": "Olaparib",
+                        "type": "drug",
+                        "canonical_id": "RxNorm:1187832",
+                    },
+                    {
+                        "id": "DISEASE:breast_cancer",
+                        "name": "Breast Cancer",
+                        "type": "disease",
+                        "canonical_id": "UMLS:C0006142",
+                    },
                 ],
                 "relationships": [
                     {
@@ -475,7 +488,11 @@ class Paper(BaseModel):
                     "clinical_phase": "III",
                     "journal": "New England Journal of Medicine",
                     "publication_date": "2023-06-15",
-                    "mesh_terms": ["Breast Neoplasms", "BRCA1 Protein", "PARP Inhibitors"],
+                    "mesh_terms": [
+                        "Breast Neoplasms",
+                        "BRCA1 Protein",
+                        "PARP Inhibitors",
+                    ],
                 },
                 "extraction_provenance": {
                     "extraction_pipeline": {
@@ -488,11 +505,26 @@ class Paper(BaseModel):
                         "repo_url": "https://github.com/wware/med-lit-graph",
                     },
                     "models": {
-                        "llm": {"name": "llama3.1:70b", "provider": "ollama", "temperature": 0.1},
-                        "embeddings": {"name": "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext", "provider": "huggingface"},
+                        "llm": {
+                            "name": "llama3.1:70b",
+                            "provider": "ollama",
+                            "temperature": 0.1,
+                        },
+                        "embeddings": {
+                            "name": "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext",
+                            "provider": "huggingface",
+                        },
                     },
-                    "prompt": {"version": "v1_detailed", "template": "medical_extraction_prompt_v1"},
-                    "execution": {"timestamp": "2025-12-15T14:30:00Z", "hostname": "extraction-server-01", "python_version": "3.12.0", "duration_seconds": 45.3},
+                    "prompt": {
+                        "version": "v1_detailed",
+                        "template": "medical_extraction_prompt_v1",
+                    },
+                    "execution": {
+                        "timestamp": "2025-12-15T14:30:00Z",
+                        "hostname": "extraction-server-01",
+                        "python_version": "3.12.0",
+                        "duration_seconds": 45.3,
+                    },
                 },
             }
         },
@@ -527,7 +559,10 @@ class Paper(BaseModel):
 
     # ========== STUDY METADATA ==========
 
-    metadata: PaperMetadata = Field(default_factory=PaperMetadata, description="Extended metadata including study type, sample size, MeSH terms")
+    metadata: PaperMetadata = Field(
+        default_factory=PaperMetadata,
+        description="Extended metadata including study type, sample size, MeSH terms",
+    )
 
     # ========== EXTRACTION PROVENANCE ==========
 

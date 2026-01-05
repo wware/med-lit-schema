@@ -23,3 +23,28 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["schema"]
 package-dir = {"schema" = "."}
+
+[tool.black]
+line-length = 200
+
+[tool.ruff]
+line-length = 200
+
+[tool.ruff.lint]
+ignore = ["E402"]
+
+[tool.pylint.main]
+max-line-length = 200
+
+[tool.flake8]
+line-length = 200
+ignore = ["E203", "E266", "E501", "W503", "E402"]
+
+[dependency-groups]
+dev = [
+    "black>=25.11.0",
+    "flake8>=7.3.0",
+    "pylint>=3.3.9",
+    "pytest>=8.4.2",
+    "ruff>=0.14.10",
+]
