@@ -7,7 +7,7 @@ The schema directory implements a **Domain/Persistence separation pattern** that
 This document explains:
 1. The current architecture and design rationale
 2. What has been implemented
-3. What is missing (the mapper layer)
+3. What is missing (integration examples)
 4. Implementation roadmap to complete the architecture
 
 ## Architecture Layers
@@ -155,7 +155,7 @@ The mapper layer is implemented and tested.
 
 6.  **Testing**
     - ✅ Domain model tests (`tests/test_schema_entity.py`)
-    - ✅ Persistence model tests (`schema/test_entity_sqlmodel.py`)
+    - ✅ Persistence model tests (`tests/test_entity_sqlmodel.py`)
     - ✅ Validation tests for entity creation and queries
     - ✅ Mapper tests for entities (`tests/test_mapper.py`)
     - ✅ Mapper tests for relationships (`tests/test_relationship_mapper.py`)
@@ -174,7 +174,7 @@ The mapper layer is implemented and tested.
     - This feature proved difficult to implement correctly with `SQLModel` due to subtle instrumentation issues.
     - For now, polymorphic queries are **disabled and will not be pursued further** due to complexity vs. benefit.
     - Explicit filtering (`WHERE entity_type = 'disease'`) is used instead.
-    - See [`schema/POLYMORPHIC_QUERIES.md`](POLYMORPHIC_QUERIES.md) for detailed findings and decision rationale.
+    - Polymorphic queries are not supported; explicit filtering by `entity_type` is used instead.
 
 ## Implementation Roadmap
 
@@ -204,7 +204,7 @@ The mapper layer is implemented and tested.
 
 **Goal**: Determine if polymorphic SQLAlchemy configuration should be enabled.
 
-**Decision**: Abandoned due to implementation complexities. Explicit filtering by `entity_type` will be used instead. Refer to [`schema/POLYMORPHIC_QUERIES.md`](POLYMORPHIC_QUERIES.md) for details.
+**Decision**: Abandoned due to implementation complexities. Explicit filtering by `entity_type` is used instead.
 
 ### Phase 4: Relationship Persistence (COMPLETE)
 
@@ -314,13 +314,13 @@ def to_persistence(disease: Disease) -> Entity:
 
 ## Related Documentation
 
-- **[schema/README.md](README.md)** - Schema overview and design philosophy
-- **[schema/entity.py](entity.py)** - Domain model implementations
-- **[schema/entity_sqlmodel.py](entity_sqlmodel.py)** - Persistence model implementation
-- **[schema/relationship.py](relationship.py)** - Relationship domain models
-- **[docs/DESIGN_DECISIONS.md](../docs/DESIGN_DECISIONS.md)** - Overall architectural decisions
-- **[tests/test_schema_entity.py](../tests/test_schema_entity.py)** - Domain model tests
-- **[schema/test_entity_sqlmodel.py](test_entity_sqlmodel.py)** - Persistence model tests
+- **[README.md](README.md)** - Schema overview and design philosophy
+- **[entity.py](entity.py)** - Domain model implementations
+- **[entity_sqlmodel.py](entity_sqlmodel.py)** - Persistence model implementation
+- **[relationship.py](relationship.py)** - Relationship domain models
+- **[mapper.py](mapper.py)** - Mapper functions for domain/persistence conversion
+- **[tests/test_schema_entity.py](tests/test_schema_entity.py)** - Domain model tests
+- **[tests/test_entity_sqlmodel.py](tests/test_entity_sqlmodel.py)** - Persistence model tests
 
 ## Summary
 

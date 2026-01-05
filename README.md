@@ -218,7 +218,7 @@ refutes = Refutes(
 )
 ```
 
-## Design Principles (from DESIGN_DECISIONS.md)
+## Design Principles
 
 1. **Clinical utility first** - Schema supports queries doctors actually ask
 2. **Provenance always** - Every relationship traces back to source papers
@@ -311,8 +311,7 @@ evidence=[
 
 ## Related Documentation
 
-- **[DESIGN_DECISIONS.md](../docs/DESIGN_DECISIONS.md)** - Full rationale for architectural choices
-- **[tests/README.md](../tests/README.md)** - Test coverage and validation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Detailed architecture documentation and implementation status
 
 ## Validation Philosophy
 
