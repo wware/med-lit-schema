@@ -47,6 +47,16 @@ uv run pylint *.py tests/*.py || true  # Don't fail on pylint warnings
 
 echo ""
 echo "=========================================="
+echo "Stopping any existing containers..."
+echo "=========================================="
+# Stop and remove any existing containers to avoid conflicts
+docker compose down 2>/dev/null || true
+# Also try to stop containers by name in case they're from a different compose file
+docker stop med-lit-postgres med-lit-redis 2>/dev/null || true
+docker rm med-lit-postgres med-lit-redis 2>/dev/null || true
+
+echo ""
+echo "=========================================="
 echo "Starting Docker services (PostgreSQL & Redis)..."
 echo "=========================================="
 docker compose up -d postgres redis
