@@ -6,29 +6,57 @@ Tests:
 2. Queries by type
 3. Field access
 4. Database persistence
+
+NOTE: These tests require PostgreSQL with JSONB support.
+SQLite is not supported due to JSONB field requirements.
+These tests use the PostgreSQL database from docker-compose.
 """
 
 import json
+import os
 
 import pytest
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from schema.entity_sqlmodel import Entity, EntityType
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def engine():
-    """Create in-memory SQLite database for testing"""
-    engine = create_engine("sqlite:///:memory:", echo=False)
+    """Create PostgreSQL database connection for testing"""
+    # Use DATABASE_URL from environment or default to docker-compose connection
+    database_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit")
+    engine = create_engine(database_url, echo=False)
+
+    # Create tables if they don't exist
     SQLModel.metadata.create_all(engine)
-    return engine
+
+    # Enable pgvector extension if not already enabled
+    with engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+        conn.commit()
+
+    yield engine
+
+    # Cleanup: drop all tables after tests
+    SQLModel.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest.fixture
 def session(engine):
     """Create database session"""
+    # Clean up any existing data before each test
     with Session(engine) as session:
+        # Clear all entities
+        session.exec(text("TRUNCATE TABLE entities CASCADE"))
+        session.commit()
+
         yield session
+
+        # Clean up after test
+        session.rollback()
 
 
 def test_create_disease(session):

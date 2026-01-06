@@ -16,7 +16,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Column, Index, text
+from sqlalchemy import Column, DateTime, Index, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
 
@@ -133,10 +133,11 @@ class Entity(SQLModel, table=True):
     canonical_id: Optional[str] = Field(default=None, description="Duplicate of ID for easy access")
 
     # Store properties as JSONB for flexible schema
-    properties: dict = Field(
-        default_factory=dict,
-        sa_column=Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
-    )
+    properties: dict = Field(default_factory=dict, sa_column=Column(JSONB, nullable=False, server_default=text("'{}'::jsonb")))
+
+    # Common entity fields stored as JSON strings
+    synonyms: Optional[str] = Field(default=None, description="Synonyms (JSON array)")
+    abbreviations: Optional[str] = Field(default=None, description="Abbreviations (JSON array)")
 
     # pgvector embedding - stored as TEXT, will be cast to vector(768) in database
     # The vector extension must be enabled: CREATE EXTENSION IF NOT EXISTS vector;
@@ -146,14 +147,8 @@ class Entity(SQLModel, table=True):
     mentions: int = Field(default=0, description="Aggregate mention count")
 
     # Metadata with auto-updating timestamps
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        sa_column=Column("created_at", nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        sa_column=Column("updated_at", nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")))
+    updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")))
     source: str = Field(default="extracted", description="Origin (umls, mesh, rxnorm, etc.)")
 
     # ========== DISEASE-SPECIFIC FIELDS ==========
@@ -225,8 +220,8 @@ class Entity(SQLModel, table=True):
     # Note: Vector index for embeddings must be created separately after table creation
     # See setup_database.py: CREATE INDEX idx_entities_embedding ON entities USING hnsw (embedding vector_cosine_ops);
     __table_args__ = (
-        Index('idx_entities_type', 'entity_type'),
-        Index('idx_entities_name', 'name'),
+        Index("idx_entities_type", "entity_type"),
+        Index("idx_entities_name", "name"),
         # Vector index requires pgvector extension and must be created via raw SQL
         # See setup_database.py for HNSW index creation
     )
