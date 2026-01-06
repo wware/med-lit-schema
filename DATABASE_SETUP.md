@@ -37,27 +37,6 @@ python setup_database.py --database-url postgresql://user:pass@localhost:5432/me
 #### Triggers
 - **Auto-updating timestamps** - `updated_at` columns automatically update on row modification
 
-## Migration from `migration.sql`
-
-The old `migration.sql` file is **now redundant**. All schema definitions live in:
-- `entity_sqlmodel.py`
-- `relationship_sqlmodel.py`
-- `evidence_sqlmodel.py`
-- `paper_sqlmodel.py`
-
-### Key Differences
-
-| Feature | Old (migration.sql) | New (SQLModel) |
-|---------|---------------------|----------------|
-| Schema definition | Hand-written SQL DDL | Python SQLModel classes |
-| Foreign keys | ✅ | ✅ |
-| CASCADE delete | ✅ | ✅ |
-| Vector index | ✅ | ✅ (via setup script) |
-| Triggers | ✅ | ✅ (via setup script) |
-| JSONB properties | ❌ | ✅ |
-| Type safety | ❌ | ✅ |
-| Single source of truth | ❌ | ✅ |
-
 ## Advanced Usage
 
 ### Custom Setup

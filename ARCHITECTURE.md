@@ -134,7 +134,6 @@ The mapper layer is implemented and tested.
     - ✅ Single `Entity` table with polymorphic discriminator
     - ✅ All entity-specific fields as nullable columns
     - ✅ JSON serialization for arrays and embeddings
-    - ✅ Matches existing `migration.sql` schema
     - ✅ SQLModel integration (SQLAlchemy + Pydantic)
 
 3.  **Relationship Domain Models (`schema/relationship.py`)**
