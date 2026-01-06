@@ -1,6 +1,10 @@
 .venv/
 build/
-med_graph_schema.egg-info/
+med_lit_schema.egg-info/
+med_lit_schema.egg-info/
+dist/
+build/
+*.egg-info/
 __pycache__/
 *.pyc
 *.pyo

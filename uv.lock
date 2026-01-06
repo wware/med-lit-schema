@@ -433,7 +433,7 @@ wheels = [
 ]
 
 [[package]]
-name = "med-graph-schema"
+name = "med-lit-schema"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -2,7 +2,7 @@
 SQLModel-based entity schema with single table inheritance.
 
 This module defines the **Persistence Models** used for database storage.
-It maps the rich Domain Models from `schema/entity.py` into a flattened, efficient database structure.
+It maps the rich Domain Models from `med_lit_schema/entity.py` into a flattened, efficient database structure.
 while preserving all the rich domain modeling from the original Pydantic schema.
 
 Design:

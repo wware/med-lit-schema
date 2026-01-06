@@ -1,4 +1,4 @@
-from schema.entity import (
+from med_lit_schema.entity import (
     Disease,
     Gene,
     Drug,

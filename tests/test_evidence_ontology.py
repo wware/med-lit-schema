@@ -5,7 +5,7 @@ The Evidence class now supports standardized classification of evidence types,
 study designs, and statistical methods using biomedical ontology IDs.
 """
 
-from schema.entity import EvidenceItem
+from med_lit_schema.entity import EvidenceItem
 
 
 def test_evidence_with_eco_type():

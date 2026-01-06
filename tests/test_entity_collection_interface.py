@@ -1,6 +1,6 @@
 """Tests for EntityCollectionInterface and InMemoryEntityCollection."""
 
-from schema.entity import (
+from med_lit_schema.entity import (
     EntityCollectionInterface,
     InMemoryEntityCollection,
     EntityCollection,

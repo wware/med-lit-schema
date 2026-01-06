@@ -5,7 +5,7 @@ Tests for mapper functions converting between domain and persistence models.
 import json
 import pytest
 
-from schema.entity import (
+from med_lit_schema.entity import (
     Disease,
     Gene,
     Drug,
@@ -21,8 +21,8 @@ from schema.entity import (
     EvidenceLine,
     EntityType,
 )
-from schema.entity_sqlmodel import Entity
-from schema.mapper import to_persistence, to_domain
+from med_lit_schema.entity_sqlmodel import Entity
+from med_lit_schema.mapper import to_persistence, to_domain
 
 
 def test_disease_roundtrip():

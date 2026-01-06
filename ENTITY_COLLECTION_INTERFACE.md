@@ -13,7 +13,7 @@ The `EntityCollection` has been refactored to use an interface pattern that enab
 The built-in implementation using Python dictionaries:
 
 ```python
-from schema.entity import InMemoryEntityCollection, Disease
+from med_lit_schema.entity import InMemoryEntityCollection, Disease
 
 # Create an in-memory collection
 collection = InMemoryEntityCollection()
@@ -51,7 +51,7 @@ loaded = InMemoryEntityCollection.load("entities.jsonl")
 The `EntityCollection` name is now an alias for `InMemoryEntityCollection`. All existing code continues to work:
 
 ```python
-from schema.entity import EntityCollection  # Still works!
+from med_lit_schema.entity import EntityCollection  # Still works!
 
 collection = EntityCollection()  # Creates InMemoryEntityCollection
 ```
@@ -63,7 +63,7 @@ To create a custom storage backend, implement the `EntityCollectionInterface`:
 ### PostgreSQL Example
 
 ```python
-from schema.entity import EntityCollectionInterface, Disease, Gene, BaseMedicalEntity
+from med_lit_schema.entity import EntityCollectionInterface, Disease, Gene, BaseMedicalEntity
 import psycopg2
 import json
 
@@ -267,7 +267,7 @@ class RedisEntityCollection(EntityCollectionInterface):
 The interface pattern enables clean dependency injection:
 
 ```python
-from schema.entity import EntityCollectionInterface
+from med_lit_schema.entity import EntityCollectionInterface
 
 def extract_entities_from_paper(
     paper_text: str,
@@ -295,7 +295,7 @@ def extract_entities_from_paper(
     collection.add_gene(gene)
 
 # Development/Testing
-from schema.entity import InMemoryEntityCollection
+from med_lit_schema.entity import InMemoryEntityCollection
 dev_collection = InMemoryEntityCollection()
 extract_entities_from_paper("paper text...", dev_collection)
 
@@ -320,7 +320,7 @@ No changes required! The `EntityCollection` alias ensures backward compatibility
 
 ```python
 # Old code - still works
-from schema.entity import EntityCollection
+from med_lit_schema.entity import EntityCollection
 collection = EntityCollection()
 ```
 
@@ -330,14 +330,14 @@ Use the explicit implementation name:
 
 ```python
 # New code - be explicit
-from schema.entity import InMemoryEntityCollection
+from med_lit_schema.entity import InMemoryEntityCollection
 collection = InMemoryEntityCollection()
 ```
 
 Or use the interface for type hints:
 
 ```python
-from schema.entity import EntityCollectionInterface, InMemoryEntityCollection
+from med_lit_schema.entity import EntityCollectionInterface, InMemoryEntityCollection
 
 def process_entities(collection: EntityCollectionInterface):
     """Accepts any storage backend implementation."""
@@ -413,6 +413,6 @@ def test_custom_implementation(your_collection: EntityCollectionInterface):
 
 ## See Also
 
-- API Reference: `schema.entity.EntityCollectionInterface`
-- Implementation: `schema.entity.InMemoryEntityCollection`
+- API Reference: `med_lit_schema.entity.EntityCollectionInterface`
+- Implementation: `med_lit_schema.entity.InMemoryEntityCollection`
 - Tests: `tests/test_entity_collection_interface.py`

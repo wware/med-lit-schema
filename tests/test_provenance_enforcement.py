@@ -8,13 +8,13 @@ actually enforced by Pydantic validation, not just documentation.
 import pytest
 from pydantic import ValidationError
 
-from schema.relationship import (
+from med_lit_schema.relationship import (
     Treats,
     Causes,
     IncreasesRisk,
     PredicateType,
 )
-from schema.entity import EvidenceItem
+from med_lit_schema.entity import EvidenceItem
 
 
 def test_relationship_without_evidence_or_source_papers():

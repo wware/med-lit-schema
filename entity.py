@@ -3,7 +3,7 @@
 
 This schema defines the **Domain Models** for the knowledge graph.
 These are the Pydantic classes used by application code, pipelines, and the API.
-For database storage, these are mapped to the Persistence Models in `schema/entity_sqlmodel.py`.
+For database storage, these are mapped to the Persistence Models in `med_lit_schema/entity_sqlmodel.py`.
 
 This schema is designed to support clinical decision-making by representing medical knowledge
 extracted from research papers. The graph enables multi-hop reasoning, contradiction detection,
@@ -1160,7 +1160,7 @@ class EntityCollectionInterface(ABC):
 
     ### PostgreSQL Example
     ```python
-    from schema import EntityCollectionInterface, BaseMedicalEntity, Disease, Gene
+    from med_lit_schema.entity import EntityCollectionInterface, BaseMedicalEntity, Disease, Gene
     import psycopg2
     import json
 

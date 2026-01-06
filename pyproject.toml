@@ -1,9 +1,40 @@
 [project]
-name = "med-graph-schema"
+name = "med-lit-schema"
 version = "0.1.0"
 description = "Domain and persistence models for the Medical Knowledge Graph"
 readme = "README.md"
 requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "William Ware", email = "wware@example.com"}
+]
+keywords = [
+    "medical",
+    "knowledge-graph",
+    "biomedical",
+    "pydantic",
+    "postgresql",
+    "entity-extraction",
+    "evidence-tracking",
+    "ontology",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Database",
+]
 dependencies = [
     "pydantic>=2.10.3",
     "sqlmodel>=0.0.31",
@@ -17,13 +48,19 @@ dev = [
     "pytest>=7.0.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/wware/med-lit-schema"
+Documentation = "https://github.com/wware/med-lit-schema#readme"
+Repository = "https://github.com/wware/med-lit-schema"
+Issues = "https://github.com/wware/med-lit-schema/issues"
+
 [build-system]
 requires = ["setuptools>=61.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["schema"]
-package-dir = {"schema" = "."}
+packages = ["med_lit_schema"]
+package-dir = {"med_lit_schema" = "."}
 
 [tool.black]
 line-length = 200

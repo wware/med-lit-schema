@@ -1,4 +1,4 @@
-from schema.relationship import (
+from med_lit_schema.relationship import (
     create_relationship,
     PredicateType,
     Treats,

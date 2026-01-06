@@ -2,7 +2,7 @@
 SQLModel-based relationship schema with single table inheritance.
 
 This module defines the Persistence Models for relationships, mapping the rich
-Domain Models from `schema/relationship.py` to a flattened database structure.
+Domain Models from `med_lit_schema/relationship.py` to a flattened database structure.
 """
 
 from datetime import datetime

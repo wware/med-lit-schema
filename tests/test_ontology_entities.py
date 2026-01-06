@@ -6,7 +6,7 @@ structured representation of scientific methodology and evidence.
 """
 
 import pytest
-from schema.entity import (
+from med_lit_schema.entity import (
     Hypothesis,
     StudyDesign,
     StatisticalMethod,

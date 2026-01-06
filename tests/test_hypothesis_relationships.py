@@ -5,7 +5,7 @@ These relationships enable tracking scientific hypotheses and their validation t
 """
 
 import pytest
-from schema.relationship import (
+from med_lit_schema.relationship import (
     Predicts,
     Refutes,
     TestedBy,
@@ -13,7 +13,7 @@ from schema.relationship import (
     PredicateType,
     create_relationship,
 )
-from schema.entity import EvidenceItem
+from med_lit_schema.entity import EvidenceItem
 
 
 def test_predicts_relationship():

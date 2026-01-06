@@ -1,0 +1,10 @@
+include LICENSE
+include README.md
+include ARCHITECTURE.md
+include DATABASE_SETUP.md
+include DOCKER_COMPOSE_GUIDE.md
+include ENTITY_COLLECTION_INTERFACE.md
+include REDIS_ENTITY_COLLECTION.md
+recursive-include tests *.py
+global-exclude __pycache__
+global-exclude *.py[co]

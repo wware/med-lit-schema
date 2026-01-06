@@ -4,7 +4,7 @@ Comprehensive tests for EntityCollection functionality.
 Tests entity resolution, ontology lookups, synonyms, and edge cases.
 """
 
-from schema.entity import (
+from med_lit_schema.entity import (
     Disease,
     Gene,
     Drug,

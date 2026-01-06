@@ -12,7 +12,7 @@ This document explains:
 
 ## Architecture Layers
 
-### 1. Domain Models (`schema/entity.py`)
+### 1. Domain Models (`med_lit_schema/entity.py`)
 
 **Purpose**: "How the code thinks about entities."
 
@@ -34,8 +34,8 @@ This document explains:
 
 **Example**:
 ```python
-from schema.entity import Disease
-from schema.base import EntityType
+from med_lit_schema.entity import Disease
+from med_lit_schema.base import EntityType
 
 disease = Disease(
     entity_id="C0006142",
@@ -51,7 +51,7 @@ disease = Disease(
 )
 ```
 
-### 2. Persistence Models (`schema/entity_sqlmodel.py`)
+### 2. Persistence Models (`med_lit_schema/entity_sqlmodel.py`)
 
 **Purpose**: "How the database stores entities."
 
@@ -76,8 +76,8 @@ disease = Disease(
 
 **Example**:
 ```python
-from schema.entity_sqlmodel import Entity
-from schema.base import EntityType
+from med_lit_schema.entity_sqlmodel import Entity
+from med_lit_schema.base import EntityType
 import json
 
 # Flattened persistence model
@@ -95,11 +95,11 @@ entity = Entity(
 )
 ```
 
-### 3. Mapper Layer (`schema/mapper.py`)
+### 3. Mapper Layer (`med_lit_schema/mapper.py`)
 
 **Purpose**: Convert between Domain and Persistence representations.
 
-**Expected Location**: `schema/mapper.py`
+**Expected Location**: `med_lit_schema/mapper.py`
 
 **Expected Functions**:
 ```python
@@ -112,7 +112,7 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
     ...
 ```
 
-**The Documented Workflow** (from `schema/README.md`):
+**The Documented Workflow** (from `README.md`):
 ```
 Data enters as Domain Objects → Mapper converts to Persistence Objects → Saved to DB
 ```
@@ -124,7 +124,7 @@ The mapper layer is implemented and tested.
 
 ### ✅ What's Implemented
 
-1.  **Domain Models (`schema/entity.py`)**
+1.  **Domain Models (`med_lit_schema/entity.py`)**
     - ✅ Complete entity hierarchy with 14+ entity types
     - ✅ `BaseMedicalEntity` base class with common fields
     - ✅ Rich Pydantic validation
@@ -132,24 +132,24 @@ The mapper layer is implemented and tested.
     - ✅ `InMemoryEntityCollection` (with `EntityCollectionInterface` for custom backends) for canonical entity management
     - ✅ Full ontology support (UMLS, HGNC, RxNorm, UniProt, etc.)
 
-2.  **Persistence Models (`schema/entity_sqlmodel.py`)**
+2.  **Persistence Models (`med_lit_schema/entity_sqlmodel.py`)**
     - ✅ Single `Entity` table with polymorphic discriminator
     - ✅ All entity-specific fields as nullable columns
     - ✅ JSON serialization for arrays and embeddings
     - ✅ SQLModel integration (SQLAlchemy + Pydantic)
 
-3.  **Relationship Domain Models (`schema/relationship.py`)**
+3.  **Relationship Domain Models (`med_lit_schema/relationship.py`)**
     - ✅ Domain models for relationships (`Treats`, `Causes`, etc.)
     - ✅ Mandatory evidence tracking (provenance-first design)
     - ✅ `BaseMedicalRelationship` with confidence scoring
     - ✅ 30+ relationship types across clinical/molecular/provenance domains
 
-4.  **Mapper Layer (`schema/mapper.py`)**
+4.  **Mapper Layer (`med_lit_schema/mapper.py`)**
     - ✅ `to_persistence()` and `to_domain()` functions for entities
     - ✅ `relationship_to_persistence()` and `relationship_to_domain()` functions for relationships
     - ✅ Handles JSON serialization/deserialization for arrays and embeddings
 
-5.  **Persistence Models for Relationships (`schema/relationship_sqlmodel.py`)**
+5.  **Persistence Models for Relationships (`med_lit_schema/relationship_sqlmodel.py`)**
     - ✅ Single `Relationship` table with predicate as discriminator
     - ✅ All relationship-specific fields as nullable columns
     - ✅ SQLModel integration
@@ -184,7 +184,7 @@ The mapper layer is implemented and tested.
 **Goal**: Implement the missing mapper layer to complete the documented architecture.
 
 **Tasks**:
-1. Create `schema/mapper.py` with core functions
+1. Create `med_lit_schema/mapper.py` with core functions
 2. Implement `to_persistence()` for all entity types
 3. Implement `to_domain()` for all entity types
 4. Handle JSON serialization for arrays and embeddings
@@ -212,7 +212,7 @@ The mapper layer is implemented and tested.
 **Goal**: Add persistence layer for relationships (not just entities).
 
 **Tasks**:
-1. Create `schema/relationship_sqlmodel.py`
+1. Create `med_lit_schema/relationship_sqlmodel.py`
 2. Design single-table or multi-table approach for relationships
 3. Implement relationship persistence models
 4. Add mapper functions for relationships

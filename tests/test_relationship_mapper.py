@@ -2,10 +2,10 @@
 Tests for relationship mapper functions.
 """
 
-from schema.relationship import Treats
-from schema.base import PredicateType
-from schema.relationship_sqlmodel import Relationship as PersistenceRelationship
-from schema.mapper import relationship_to_persistence, relationship_to_domain
+from med_lit_schema.relationship import Treats
+from med_lit_schema.base import PredicateType
+from med_lit_schema.relationship_sqlmodel import Relationship as PersistenceRelationship
+from med_lit_schema.mapper import relationship_to_persistence, relationship_to_domain
 
 
 def test_treats_roundtrip():

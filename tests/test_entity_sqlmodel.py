@@ -19,7 +19,7 @@ import pytest
 from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from schema.entity_sqlmodel import Entity, EntityType
+from med_lit_schema.entity_sqlmodel import Entity, EntityType
 
 
 @pytest.fixture(scope="module")

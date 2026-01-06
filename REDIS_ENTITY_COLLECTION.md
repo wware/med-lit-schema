@@ -227,7 +227,7 @@ class EntityCollection:
 
 
 # Example usage
-from schema.entity import Disease, Gene, InMemoryEntityCollection
+from med_lit_schema.entity import Disease, Gene, InMemoryEntityCollection
 
 collection = InMemoryEntityCollection()
 
@@ -624,7 +624,7 @@ aws memorydb create-cluster \
 
 ```python
 import json
-from schema.entity import Disease, Gene, Drug
+from med_lit_schema.entity import Disease, Gene, Drug
 from typing import Iterator
 
 def load_entities_from_jsonl(filepath: str) -> Iterator[dict]:
@@ -660,7 +660,7 @@ def populate_redis(collection, entities_file: str):
     print(f"Total loaded: {count} entities")
 
 # Usage
-from schema.entity import InMemoryEntityCollection
+from med_lit_schema.entity import InMemoryEntityCollection
 
 collection = InMemoryEntityCollection()
 populate_redis(collection, 'entities.jsonl')

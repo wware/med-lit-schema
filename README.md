@@ -64,14 +64,14 @@ All data models use **Pydantic v2** for runtime validation, ensuring it's imposs
 
 The schema uses a clean separation between **Domain Models** (for application logic) and **Persistence Models** (for database storage).
 
-### 1. Domain Models (`schema/entity.py`)
+### 1. Domain Models (`med_lit_schema/entity.py`)
 - **Purpose**: "How the code thinks about entities."
 - **Class Structure**: Rich hierarchy (`Disease`, `Gene`, `Drug` inherit from `BaseMedicalEntity`).
 - **Use Case**: Ingestion pipelines, API responses, complex business logic.
 - **Technology**: Pure Pydantic v2.
 - **Why**: Allows for Pythonic OO programming, flexible validation, and clean code without ORM baggage.
 
-### 2. Persistence Models (`schema/entity_sqlmodel.py`)
+### 2. Persistence Models (`med_lit_schema/entity_sqlmodel.py`)
 - **Purpose**: "How the database stores entities."
 - **Class Structure**: Single flattened `Entity` class (Single-Table Inheritance).
 - **Use Case**: Saving to/loading from PostgreSQL.
@@ -136,9 +136,9 @@ Defines all relationship types between entities.
 ## Quick Start
 
 ```python
-from schema.entity import Disease, Drug
-from schema.relationship import Treats, create_relationship
-from schema.base import PredicateType
+from med_lit_schema.entity import Disease, Drug
+from med_lit_schema.relationship import Treats, create_relationship
+from med_lit_schema.base import PredicateType
 
 # Create entities
 disease = Disease(
@@ -168,9 +168,9 @@ treats = create_relationship(
 ### Hypothesis Tracking Example
 
 ```python
-from schema.entity import Hypothesis
-from schema.relationship import Predicts, TestedBy, Refutes
-from schema.base import PredicateType
+from med_lit_schema.entity import Hypothesis
+from med_lit_schema.relationship import Predicts, TestedBy, Refutes
+from med_lit_schema.base import PredicateType
 
 # Create a hypothesis
 hypothesis = Hypothesis(
@@ -257,7 +257,7 @@ These ontologies enable:
 ### Example: Hypothesis Entity with Ontology References
 
 ```python
-from schema.entity import Hypothesis, StudyDesign
+from med_lit_schema.entity import Hypothesis, StudyDesign
 
 # Track a hypothesis across literature
 hypothesis = Hypothesis(
@@ -350,7 +350,7 @@ Every entity has a **canonical ID** from an established medical ontology:
 The `InMemoryEntityCollection` class (aliased as `EntityCollection` for backward compatibility) maintains the **authoritative set** of canonical entities that paper extractions link to.
 
 ```python
-from schema.entity import InMemoryEntityCollection, Disease, Gene, Drug
+from med_lit_schema.entity import InMemoryEntityCollection, Disease, Gene, Drug
 
 # Create master entity collection
 collection = InMemoryEntityCollection()
@@ -405,7 +405,7 @@ For a production deployment, `InMemoryEntityCollection` can be implemented in va
 
 #### Development/Small Scale
 ```python
-from schema.entity import InMemoryEntityCollection
+from med_lit_schema.entity import InMemoryEntityCollection
 
 # Load from local JSONL file
 collection = InMemoryEntityCollection.load("entities.jsonl")

@@ -2,8 +2,8 @@
 Mapper functions to convert between Domain Models and Persistence Models.
 
 This module bridges the gap between:
-- Domain Models (schema/entity.py) - Rich Pydantic classes for application logic
-- Persistence Models (schema/entity_sqlmodel.py) - Flattened SQLModel for database
+- Domain Models (med_lit_schema/entity.py) - Rich Pydantic classes for application logic
+- Persistence Models (med_lit_schema/entity_sqlmodel.py) - Flattened SQLModel for database
 """
 
 import json
