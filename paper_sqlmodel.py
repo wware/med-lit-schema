@@ -1,28 +1,23 @@
-from datetime import date, datetime
-from typing import List, Optional
-
-from sqlalchemy import Column, String
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import Field, SQLModel
+from datetime import datetime
+from typing import Optional
+from sqlalchemy import text
 
 
 class Paper(SQLModel, table=True):
-    """
-    Persistence model for research papers.
-    Matches the 'papers' table in migration.sql.
-    """
-
     __tablename__ = "papers"
-
-    id: str = Field(primary_key=True, description="PMC ID or DOI")
-    title: str
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str = Field(index=True)
+    authors: str
     abstract: Optional[str] = None
-
-    # Store authors as Postgres ARRAY
-    authors: Optional[List[str]] = Field(default=None, sa_column=Column(ARRAY(String)))
-
-    publication_date: Optional[date] = None
+    publication_date: Optional[datetime] = None
     journal: Optional[str] = None
-    entity_count: int = Field(default=0)
-    relationship_count: int = Field(default=0)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    doi: Optional[str] = Field(default=None, index=True)
+    pubmed_id: Optional[str] = Field(default=None, index=True)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        server_default=text("CURRENT_TIMESTAMP"),
+        nullable=False
+    )
+    updated_at: Optional[datetime] = None
