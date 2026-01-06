@@ -34,7 +34,8 @@ This document explains:
 
 **Example**:
 ```python
-from schema import Disease, EntityType
+from schema.entity import Disease
+from schema.base import EntityType
 
 disease = Disease(
     entity_id="C0006142",
@@ -75,7 +76,8 @@ disease = Disease(
 
 **Example**:
 ```python
-from schema.entity_sqlmodel import Entity, EntityType
+from schema.entity_sqlmodel import Entity
+from schema.base import EntityType
 import json
 
 # Flattened persistence model
@@ -127,7 +129,7 @@ The mapper layer is implemented and tested.
     - ✅ `BaseMedicalEntity` base class with common fields
     - ✅ Rich Pydantic validation
     - ✅ Evidence tracking with `EvidenceItem` class
-    - ✅ `EntityCollection` for canonical entity management
+    - ✅ `InMemoryEntityCollection` (with `EntityCollectionInterface` for custom backends) for canonical entity management
     - ✅ Full ontology support (UMLS, HGNC, RxNorm, UniProt, etc.)
 
 2.  **Persistence Models (`schema/entity_sqlmodel.py`)**
@@ -162,9 +164,9 @@ The mapper layer is implemented and tested.
 ### ❌ What's Missing
 
 1.  **Integration**
-    - ❌ `EntityCollection` doesn't use persistence layer
-    - ❌ No database connection examples
-    - ❌ No API layer demonstrating the full workflow
+    - ❌ `InMemoryEntityCollection` doesn't use persistence layer (by design - it's in-memory)
+    - ❌ No database connection examples showing full workflow
+    - ❌ No API layer demonstrating the complete domain → persistence → database workflow
 
 ### ⚠️ Known Issues
 
@@ -221,11 +223,13 @@ The mapper layer is implemented and tested.
 **Goal**: Demonstrate the full workflow in production-like scenarios.
 
 **Tasks**:
-1. Update `EntityCollection` to use persistence layer
-2. Add database connection examples
-3. Create end-to-end example: load entities → query → save
-4. Add API examples using FastAPI with mapper
-5. Document best practices for using the architecture
+1. Add database connection examples showing domain → mapper → persistence workflow
+2. Create end-to-end example: create domain entities → convert to persistence → save to DB → query → convert back to domain
+3. Add API examples using FastAPI with mapper
+4. Document best practices for using the architecture
+5. Show how `EntityCollectionInterface` can be implemented with persistence layer for production
+
+**Note**: `InMemoryEntityCollection` is intentionally separate from the persistence layer - it's for entity resolution/linking, not storage. For production, implement `EntityCollectionInterface` with a database-backed backend if needed.
 
 **Estimated Effort**: 2-3 days
 

@@ -115,7 +115,7 @@ Defines all entity types in the knowledge graph:
 - Standards-based IDs (UMLS, MeSH, RxNorm, HGNC, UniProt)
 - Ontology references (IAO, OBI, STATO, ECO, SEPIO) for scientific methodology
 - Pre-computed embeddings for semantic search
-- `EntityCollection` for efficient storage and retrieval
+- `InMemoryEntityCollection` (aliased as `EntityCollection`) for efficient storage and retrieval
 
 ### `relationship.py`
 Defines all relationship types between entities.
@@ -133,13 +133,12 @@ Defines all relationship types between entities.
 - `INTERACTS_WITH`
 - `LOCATED_IN`, `AFFECTS`
 
-### `__init__.py`
-Provides a clean public API with all entity and relationship classes exported.
-
 ## Quick Start
 
 ```python
-from schema import Disease, Drug, Treats, PredicateType, create_relationship
+from schema.entity import Disease, Drug
+from schema.relationship import Treats, create_relationship
+from schema.base import PredicateType
 
 # Create entities
 disease = Disease(
@@ -169,7 +168,9 @@ treats = create_relationship(
 ### Hypothesis Tracking Example
 
 ```python
-from schema import Hypothesis, Predicts, TestedBy, Refutes, PredicateType
+from schema.entity import Hypothesis
+from schema.relationship import Predicts, TestedBy, Refutes
+from schema.base import PredicateType
 
 # Create a hypothesis
 hypothesis = Hypothesis(
@@ -256,7 +257,7 @@ These ontologies enable:
 ### Example: Hypothesis Entity with Ontology References
 
 ```python
-from schema import Hypothesis, StudyDesign
+from schema.entity import Hypothesis, StudyDesign
 
 # Track a hypothesis across literature
 hypothesis = Hypothesis(
@@ -346,13 +347,13 @@ Every entity has a **canonical ID** from an established medical ontology:
 
 ### EntityCollection: The Master Entity Registry
 
-The `EntityCollection` class maintains the **authoritative set** of canonical entities that paper extractions link to.
+The `InMemoryEntityCollection` class (aliased as `EntityCollection` for backward compatibility) maintains the **authoritative set** of canonical entities that paper extractions link to.
 
 ```python
-from schema import EntityCollection, Disease, Gene, Drug
+from schema.entity import InMemoryEntityCollection, Disease, Gene, Drug
 
 # Create master entity collection
-collection = EntityCollection()
+collection = InMemoryEntityCollection()
 
 # Add canonical entities
 collection.add_disease(Disease(
@@ -400,12 +401,14 @@ entity = collection.get_by_umls("C0006142")
 
 ### Example Production Implementation
 
-For a production deployment, `EntityCollection` can be implemented in various ways:
+For a production deployment, `InMemoryEntityCollection` can be implemented in various ways, or you can use the `EntityCollectionInterface` to create custom backends:
 
 #### Development/Small Scale
 ```python
+from schema.entity import InMemoryEntityCollection
+
 # Load from local JSONL file
-collection = EntityCollection.load("entities.jsonl")
+collection = InMemoryEntityCollection.load("entities.jsonl")
 entity = collection.get_by_id("C0006142")
 ```
 
@@ -473,7 +476,7 @@ Paper Processing Flow:
          │
          ▼
 ┌─────────────────┐
-│ Entity Linking  │ ← EntityCollection / Key-Value Store
+│ Entity Linking  │ ← EntityCollectionInterface / Key-Value Store
 │ "T2DM"→C0011860 │
 └────────┬────────┘
          │
