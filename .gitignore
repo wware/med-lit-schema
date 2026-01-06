@@ -1,3 +1,8 @@
 .venv/
 build/
 med_graph_schema.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
