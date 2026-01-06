@@ -252,7 +252,7 @@ services:
   postgres:
     environment:
       POSTGRES_PASSWORD: my-secure-password
-    
+
   redis:
     command: redis-server --maxmemory 4gb
 ```

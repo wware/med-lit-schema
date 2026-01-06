@@ -76,7 +76,7 @@ The schema uses a clean separation between **Domain Models** (for application lo
 - **Class Structure**: Single flattened `Entity` class (Single-Table Inheritance).
 - **Use Case**: Saving to/loading from PostgreSQL.
 - **Technology**: SQLModel (SQLAlchemy + Pydantic).
-- **Why**: 
+- **Why**:
     - **Single Table**: Optimizes performance (no joins to query "all entities").
     - **Robustness**: Flattened structure is easier to migrate and index.
     - **JSON Fields**: Complex fields (`synonyms`, `embeddings`) are serialized for storage efficiency.

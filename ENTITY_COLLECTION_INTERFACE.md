@@ -69,11 +69,11 @@ import json
 
 class PostgresEntityCollection(EntityCollectionInterface):
     """PostgreSQL-backed entity collection for production use."""
-    
+
     def __init__(self, connection_string: str):
         self.conn = psycopg2.connect(connection_string)
         self._create_tables()
-    
+
     def _create_tables(self):
         """Create entities table if it doesn't exist."""
         with self.conn.cursor() as cur:
@@ -88,41 +88,41 @@ class PostgresEntityCollection(EntityCollectionInterface):
                 )
             """)
             cur.execute("""
-                CREATE INDEX IF NOT EXISTS idx_entity_type 
+                CREATE INDEX IF NOT EXISTS idx_entity_type
                 ON entities(entity_type)
             """)
         self.conn.commit()
-    
+
     def add_disease(self, entity: Disease) -> None:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO entities (id, entity_type, name, properties)
                 VALUES (%s, %s, %s, %s)
-                ON CONFLICT (id) DO UPDATE 
+                ON CONFLICT (id) DO UPDATE
                 SET name = EXCLUDED.name, properties = EXCLUDED.properties
                 """,
-                (entity.entity_id, "disease", entity.name, 
+                (entity.entity_id, "disease", entity.name,
                  json.dumps(entity.model_dump()))
             )
         self.conn.commit()
-    
+
     def add_gene(self, entity: Gene) -> None:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO entities (id, entity_type, name, properties)
                 VALUES (%s, %s, %s, %s)
-                ON CONFLICT (id) DO UPDATE 
+                ON CONFLICT (id) DO UPDATE
                 SET name = EXCLUDED.name, properties = EXCLUDED.properties
                 """,
-                (entity.entity_id, "gene", entity.name, 
+                (entity.entity_id, "gene", entity.name,
                  json.dumps(entity.model_dump()))
             )
         self.conn.commit()
-    
+
     # ... implement other add_* methods similarly ...
-    
+
     def get_by_id(self, entity_id: str) -> BaseMedicalEntity | None:
         with self.conn.cursor() as cur:
             cur.execute(
@@ -133,7 +133,7 @@ class PostgresEntityCollection(EntityCollectionInterface):
             if row:
                 data = json.loads(row[0])
                 entity_type = data.get('entity_type')
-                
+
                 # Reconstruct the appropriate entity type
                 if entity_type == 'disease':
                     return Disease.model_validate(data)
@@ -141,13 +141,13 @@ class PostgresEntityCollection(EntityCollectionInterface):
                     return Gene.model_validate(data)
                 # ... handle other types ...
         return None
-    
+
     def get_by_umls(self, umls_id: str) -> Disease | None:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT properties FROM entities 
-                WHERE entity_type = 'disease' 
+                SELECT properties FROM entities
+                WHERE entity_type = 'disease'
                 AND properties->>'umls_id' = %s
                 """,
                 (umls_id,)
@@ -156,13 +156,13 @@ class PostgresEntityCollection(EntityCollectionInterface):
             if row:
                 return Disease.model_validate(json.loads(row[0]))
         return None
-    
+
     def get_by_hgnc(self, hgnc_id: str) -> Gene | None:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT properties FROM entities 
-                WHERE entity_type = 'gene' 
+                SELECT properties FROM entities
+                WHERE entity_type = 'gene'
                 AND properties->>'hgnc_id' = %s
                 """,
                 (hgnc_id,)
@@ -171,10 +171,10 @@ class PostgresEntityCollection(EntityCollectionInterface):
             if row:
                 return Gene.model_validate(json.loads(row[0]))
         return None
-    
+
     def find_by_embedding(
-        self, 
-        query_embedding: list[float], 
+        self,
+        query_embedding: list[float],
         top_k: int = 5,
         threshold: float = 0.85
     ) -> list[tuple[BaseMedicalEntity, float]]:
@@ -183,7 +183,7 @@ class PostgresEntityCollection(EntityCollectionInterface):
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT properties, 
+                SELECT properties,
                        1 - (embedding <=> %s::vector) as similarity
                 FROM entities
                 WHERE embedding IS NOT NULL
@@ -197,18 +197,18 @@ class PostgresEntityCollection(EntityCollectionInterface):
             for row in cur.fetchall():
                 data = json.loads(row[0])
                 entity_type = data.get('entity_type')
-                
+
                 # Reconstruct entity
                 if entity_type == 'disease':
                     entity = Disease.model_validate(data)
                 elif entity_type == 'gene':
                     entity = Gene.model_validate(data)
                 # ... handle other types ...
-                
+
                 results.append((entity, row[1]))
-            
+
             return results
-    
+
     @property
     def entity_count(self) -> int:
         with self.conn.cursor() as cur:
@@ -224,39 +224,39 @@ import json
 
 class RedisEntityCollection(EntityCollectionInterface):
     """Redis-backed entity collection for fast caching."""
-    
+
     def __init__(self, redis_client: redis.Redis):
         self.redis = redis_client
-    
+
     def add_disease(self, entity: Disease) -> None:
         key = f"entity:{entity.entity_id}"
         value = entity.model_dump_json()
-        
+
         # Store entity
         self.redis.set(key, value)
-        
+
         # Add to type-specific index
         self.redis.sadd("entities:disease", entity.entity_id)
-        
+
         # Add to global entity set
         self.redis.sadd("entities:all", entity.entity_id)
-    
+
     def get_by_id(self, entity_id: str) -> BaseMedicalEntity | None:
         key = f"entity:{entity_id}"
         data = self.redis.get(key)
-        
+
         if data:
             obj = json.loads(data)
             entity_type = obj.get('entity_type')
-            
+
             if entity_type == 'disease':
                 return Disease.model_validate(obj)
             elif entity_type == 'gene':
                 return Gene.model_validate(obj)
             # ... handle other types ...
-        
+
         return None
-    
+
     @property
     def entity_count(self) -> int:
         return self.redis.scard("entities:all")
@@ -275,7 +275,7 @@ def extract_entities_from_paper(
 ) -> None:
     """
     Extract entities from paper text and store them.
-    
+
     This function doesn't need to know which storage backend is used.
     """
     # Extract disease entities
@@ -285,7 +285,7 @@ def extract_entities_from_paper(
         entity_type="disease"
     )
     collection.add_disease(disease)
-    
+
     # Extract gene entities
     gene = Gene(
         entity_id="G0001",
@@ -384,19 +384,19 @@ When creating a custom implementation, ensure it passes these basic tests:
 ```python
 def test_custom_implementation(your_collection: EntityCollectionInterface):
     """Generic test suite for any EntityCollectionInterface implementation."""
-    
+
     # Test adding entities
     disease = Disease(entity_id="TEST001", name="Test", entity_type="disease")
     your_collection.add_disease(disease)
-    
+
     # Test retrieval
     retrieved = your_collection.get_by_id("TEST001")
     assert retrieved is not None
     assert retrieved.name == "Test"
-    
+
     # Test count
     assert your_collection.entity_count > 0
-    
+
     # Test adding more entity types
     gene = Gene(entity_id="TEST002", name="Gene", entity_type="gene")
     your_collection.add_gene(gene)

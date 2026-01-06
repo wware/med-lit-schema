@@ -41,25 +41,41 @@ This document summarizes the changes made to prepare the package for PyPI public
    ```bash
    # Build the package
    uv build
-   
+
    # Test installation from local wheel
    pip install dist/med_lit_schema-0.1.0-py3-none-any.whl
-   
+
    # Verify imports work
-   python -c "from med_lit_schema.entity import Disease; print('OK')"
+   uv run python -c "from med_lit_schema.entity import Disease; print('OK')"
    ```
 
 3. **Test on TestPyPI First** (Recommended)
+
+   **Get TestPyPI API Token:**
+   1. Create account at https://test.pypi.org/account/register/ (separate from PyPI)
+   2. Log in to https://test.pypi.org/manage/account/
+   3. Go to "API tokens" section
+   4. Click "Add API token"
+   5. Give it a name (e.g., "med-lit-schema-upload")
+   6. Set scope to "Entire account" (or specific project)
+   7. Copy the token (you'll only see it once!)
+
+   **Upload to TestPyPI:**
    ```bash
-   # Install twine if needed
-   pip install twine
-   
-   # Upload to TestPyPI
-   twine upload --repository testpypi dist/*
-   
+   # Upload to TestPyPI (will prompt for username and token)
+   uv run twine upload --repository testpypi dist/*
+   # Username: __token__
+   # Password: <paste your API token here>
+
    # Test installation from TestPyPI
-   pip install --index-url https://test.pypi.org/simple/ med-lit-schema
+   # Note: Use --extra-index-url so dependencies come from regular PyPI
+   pip install --extra-index-url https://test.pypi.org/simple/ med-lit-schema
+
+   # Or with uv:
+   uv add med-lit-schema --extra-index-url https://test.pypi.org/simple/
    ```
+
+   **Note:** TestPyPI requires a separate account from PyPI. You can use the same username/email, but you need to register separately.
 
 4. **Verify Package Contents**
    - Check that all necessary files are included
@@ -89,25 +105,50 @@ This document summarizes the changes made to prepare the package for PyPI public
 
 ## Publishing to PyPI
 
-Once ready:
+**Get Twine:**
+```bash
+uv add twine
+```
 
+**Get PyPI API Token:**
+1. Create account at https://pypi.org/account/register/ (if you don't have one)
+2. Log in to https://pypi.org/manage/account/
+3. Go to "API tokens" section
+4. Click "Add API token"
+5. Give it a name (e.g., "med-lit-schema-production")
+6. Set scope to "Entire account" (or specific project: `med-lit-schema`)
+7. Copy the token (you'll only see it once!)
+
+**Upload to PyPI:**
 ```bash
 # Build the package
 uv build
-
-# Upload to PyPI (requires PyPI account and API token)
-twine upload dist/*
-
-# Or use uv publish (if available)
-uv publish
+# Upload to PyPI (will prompt for username and token)
+uv run twine upload dist/*
+# Username: __token__
+# Password: <paste your PyPI API token here>
 ```
+
+**Using API Token:**
+- Username should always be: `__token__`
+- Password is your API token (starts with `pypi-`)
+- You can also set these as environment variables:
+  ```bash
+  export TWINE_USERNAME=__token__
+  export TWINE_PASSWORD=pypi-your-token-here
+  uv run twine upload dist/*
+  ```
 
 ## Post-Publication
 
 1. **Verify Installation**
    ```bash
-   pip install med-lit-schema
-   python -c "from med_lit_schema.entity import Disease; print('Success!')"
+   cd ../some-other-project
+   # For TestPyPI (use --extra-index-url so dependencies come from regular PyPI):
+   uv add med-lit-schema --extra-index-url https://test.pypi.org/simple/
+   # For production PyPI:
+   # uv add med-lit-schema
+   uv run python -c "from med_lit_schema.entity import Disease; print('Success')"
    ```
 
 2. **Update README**
