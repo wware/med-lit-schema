@@ -1,0 +1,17 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Make test script executable (if necessary)
+        run: chmod +x ./lint_and_test.sh
+
+      - name: Execute the test script
+        run: ./lint_and_test.sh
