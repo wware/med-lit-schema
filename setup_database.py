@@ -16,6 +16,14 @@ import argparse
 from sqlalchemy import create_engine, text
 from sqlmodel import SQLModel
 
+# Import all SQLModel classes so they register with SQLModel.metadata
+# Note: Only import models that are actually used/needed
+from med_lit_schema.entity_sqlmodel import Entity  # noqa: F401
+from med_lit_schema.relationship_sqlmodel import Relationship  # noqa: F401
+# Paper and Evidence models have issues and aren't currently used in main tables
+# from med_lit_schema.paper_sqlmodel import Paper  # noqa: F401
+# from med_lit_schema.evidence_sqlmodel import Evidence  # noqa: F401
+
 
 def create_extensions(engine):
     """Enable required PostgreSQL extensions."""
@@ -158,7 +166,20 @@ def setup_database(database_url: str, skip_vector_index: bool = False):
     # 4. Apply triggers
     create_triggers(engine)
 
-    # 5. Create vector index (optional, can be slow on large tables)
+    # 5. Ensure embedding column is vector type (needed for vector operations)
+    print("Setting embedding column type to vector(768)...")
+    with engine.connect() as conn:
+        # Drop and recreate as vector type (simpler than trying to convert)
+        try:
+            conn.execute(text("ALTER TABLE entities DROP COLUMN IF EXISTS embedding"))
+            conn.execute(text("ALTER TABLE entities ADD COLUMN embedding vector(768)"))
+            conn.commit()
+            print("✓ Embedding column set to vector(768)")
+        except Exception as e:
+            print(f"  Warning: Could not set embedding column type: {e}")
+            print("  Vector operations may not work correctly")
+
+    # 6. Create vector index (optional, can be slow on large tables)
     if not skip_vector_index:
         create_vector_index(engine)
     else:
