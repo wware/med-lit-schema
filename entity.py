@@ -1477,7 +1477,7 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
                     f.write(json.dumps(record) + "\n")
 
     @classmethod
-    def load(cls, path: str) -> "EntityCollection":
+    def load(cls, path: str) -> "InMemoryEntityCollection":
         """Load from JSONL with type information"""
         collection = cls()
 
@@ -1566,20 +1566,20 @@ EntityCollection = InMemoryEntityCollection
 # =====================
 
 
-def generate_embeddings_for_entities(collection: EntityCollectionInterface, embedding_function, batch_size: int = 25) -> EntityCollectionInterface:
+def generate_embeddings_for_entities(collection: InMemoryEntityCollection, embedding_function, batch_size: int = 25) -> InMemoryEntityCollection:
     """
-    Generate embeddings for all entities across all types.
+    Generate embeddings for all entities in an InMemoryEntityCollection.
 
-    Note: This function currently only works with InMemoryEntityCollection.
+    Note: This function is specific to InMemoryEntityCollection.
     Custom implementations should provide their own embedding generation.
 
     Args:
-        collection: EntityCollectionInterface to process (must be InMemoryEntityCollection)
+        collection: InMemoryEntityCollection to process
         embedding_function: Callable that takes text and returns embedding vector
         batch_size: Number of entities to process in each batch
 
     Returns:
-        Updated EntityCollectionInterface with embeddings
+        Updated InMemoryEntityCollection with embeddings
 
     Example:
         >>> def my_embedding_fn(text: str) -> List[float]:
