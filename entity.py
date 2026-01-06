@@ -1148,36 +1148,36 @@ class ProcessedPaper(BaseModel):
 
 class EntityCollectionInterface(ABC):
     """Abstract interface for entity storage and retrieval.
-    
+
     Applications can provide concrete implementations backed by:
     - In-memory dictionaries (for testing/small datasets)
     - PostgreSQL (for production relational storage)
     - Redis (for caching and fast lookups)
     - DynamoDB (for serverless deployments)
     - etc.
-    
+
     Example implementations:
-    
+
     ### PostgreSQL Example
     ```python
     from schema import EntityCollectionInterface, BaseMedicalEntity, Disease, Gene
     import psycopg2
     import json
-    
+
     class PostgresEntityCollection(EntityCollectionInterface):
         def __init__(self, connection_string: str):
             self.conn = psycopg2.connect(connection_string)
-        
+
         def add_disease(self, entity: Disease) -> None:
             with self.conn.cursor() as cur:
                 cur.execute(
                     "INSERT INTO entities (id, entity_type, name, properties) "
                     "VALUES (%s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET name = %s",
-                    (entity.entity_id, "disease", entity.name, 
+                    (entity.entity_id, "disease", entity.name,
                      json.dumps(entity.model_dump()), entity.name)
                 )
             self.conn.commit()
-        
+
         def get_by_id(self, entity_id: str) -> BaseMedicalEntity | None:
             with self.conn.cursor() as cur:
                 cur.execute("SELECT properties FROM entities WHERE id = %s", (entity_id,))
@@ -1191,27 +1191,27 @@ class EntityCollectionInterface(ABC):
                         return Gene.model_validate(data)
                     # ... handle other types
             return None
-        
+
         @property
         def entity_count(self) -> int:
             with self.conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM entities")
                 return cur.fetchone()[0]
     ```
-    
+
     ### Redis Example
     ```python
     class RedisEntityCollection(EntityCollectionInterface):
         def __init__(self, redis_client):
             self.redis = redis_client
-        
+
         def add_disease(self, entity: Disease) -> None:
             key = f"entity:{entity.entity_id}"
             value = entity.model_dump_json()
             self.redis.set(key, value)
             # Add to type-specific index
             self.redis.sadd("entities:disease", entity.entity_id)
-        
+
         def get_by_id(self, entity_id: str) -> BaseMedicalEntity | None:
             key = f"entity:{entity_id}"
             data = self.redis.get(key)
@@ -1223,95 +1223,90 @@ class EntityCollectionInterface(ABC):
                 # ... handle other types
             return None
     ```
-    
+
     ### Usage with Dependency Injection
     ```python
     # Development/Testing
     collection = InMemoryEntityCollection()
-    
+
     # Production with PostgreSQL
     collection = PostgresEntityCollection("postgresql://user:pass@localhost/medgraph")
-    
+
     # Production with Redis
     import redis
     r = redis.Redis(host='localhost', port=6379, db=0)
     collection = RedisEntityCollection(r)
-    
+
     # Code using collection doesn't need to know which implementation
     def process_paper(collection: EntityCollectionInterface):
         disease = collection.get_by_id("C0006142")
         # ... use disease
     ```
     """
-    
+
     @abstractmethod
     def add_disease(self, entity: "Disease") -> None:
         """Add a disease entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_gene(self, entity: "Gene") -> None:
         """Add a gene entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_drug(self, entity: "Drug") -> None:
         """Add a drug entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_protein(self, entity: "Protein") -> None:
         """Add a protein entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_hypothesis(self, entity: "Hypothesis") -> None:
         """Add a hypothesis entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_study_design(self, entity: "StudyDesign") -> None:
         """Add a study design entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_statistical_method(self, entity: "StatisticalMethod") -> None:
         """Add a statistical method entity to the collection"""
         pass
-    
+
     @abstractmethod
     def add_evidence_line(self, entity: "EvidenceLine") -> None:
         """Add an evidence line entity to the collection"""
         pass
-    
+
     @abstractmethod
     def get_by_id(self, entity_id: str) -> "BaseMedicalEntity | None":
         """Get entity by ID, searching across all types"""
         pass
-    
+
     @abstractmethod
     def get_by_umls(self, umls_id: str) -> "Disease | None":
         """Get disease by UMLS ID"""
         pass
-    
+
     @abstractmethod
     def get_by_hgnc(self, hgnc_id: str) -> "Gene | None":
         """Get gene by HGNC ID"""
         pass
-    
+
     @abstractmethod
-    def find_by_embedding(
-        self, 
-        query_embedding: list[float], 
-        top_k: int = 5, 
-        threshold: float = 0.85
-    ) -> list[tuple["BaseMedicalEntity", float]]:
+    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
         """Find entities similar to query embedding.
-        
+
         Returns list of (entity, similarity_score) tuples sorted by similarity.
         """
         pass
-    
+
     @property
     @abstractmethod
     def entity_count(self) -> int:
@@ -1321,17 +1316,17 @@ class EntityCollectionInterface(ABC):
 
 class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
     """In-memory implementation of EntityCollection using dictionaries.
-    
+
     Suitable for:
     - Testing
     - Small datasets (< 100k entities)
     - Development environments
     - Prototyping
-    
+
     For production use with large datasets, consider:
     - PostgresEntityCollection (for relational storage)
     - RedisEntityCollection (for fast caching)
-    
+
     Manages the master set of normalized entities that extracted mentions
     are linked to. Stores typed entities (Disease, Gene, Drug, etc.) with
     methods for adding, querying, and persisting the collection.
@@ -1574,7 +1569,7 @@ EntityCollection = InMemoryEntityCollection
 def generate_embeddings_for_entities(collection: EntityCollectionInterface, embedding_function, batch_size: int = 25) -> EntityCollectionInterface:
     """
     Generate embeddings for all entities across all types.
-    
+
     Note: This function currently only works with InMemoryEntityCollection.
     Custom implementations should provide their own embedding generation.
 
