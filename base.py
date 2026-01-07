@@ -6,13 +6,68 @@ from pydantic import BaseModel, Field
 
 # TODO - define these here
 
+# ============================================================================
+# Predicate Types
+# ============================================================================
+
+
+class PredicateType(str, Enum):
+    AUTHORED_BY = "authored_by"
+    CITES = "cites"
+    CITED_BY = "cited_by"
+    CONTRADICTS = "contradicts"
+    REFUTES = "refutes"
+    STUDIED_IN = "studied_in"
+    PREDICTS = "predicts"
+    TESTED_BY = "tested_by"
+    PART_OF = "part_of"
+    GENERATES = "generates"
+    CAUSES = "causes"
+    PREVENTS = "prevents"
+    INCREASES_RISK = "increases_risk"
+    DECREASES_RISK = "decreases_risk"
+    TREATS = "treats"
+    MANAGES = "manages"
+    CONTRAINDICATED_FOR = "contraindicated_for"
+    SIDE_EFFECT = "side_effect"
+    BINDS_TO = "binds_to"
+    INHIBITS = "inhibits"
+    ACTIVATES = "activates"
+    UPREGULATES = "upregulates"
+    DOWNREGULATES = "downregulates"
+    ENCODES = "encodes"
+    METABOLIZES = "metabolizes"
+    PARTICIPATES_IN = "participates_in"
+    DIAGNOSES = "diagnoses"
+    DIAGNOSED_BY = "diagnosed_by"
+    INDICATES = "indicates"
+    PRECEDES = "precedes"
+    CO_OCCURS_WITH = "co_occurs_with"
+    ASSOCIATED_WITH = "associated_with"
+    INTERACTS_WITH = "interacts_with"
+    LOCATED_IN = "located_in"
+    AFFECTS = "affects"
+    SUPPORTS = "supports"
+
 
 class ClaimPredicate(BaseModel):
-    pass  # what fields?
+    """
+    Describes the nature of a claim made in a paper.
+    """
+
+    predicate_type: PredicateType = Field(..., description="The type of relationship asserted in the claim.")
+    description: str = Field(..., description="A natural language description of the predicate as it appears in the text.")
 
 
 class Provenance(BaseModel):
-    pass  # what fields?
+    """
+    Information about the origin of a piece of data.
+    """
+
+    source_type: str = Field(..., description="The type of source (e.g., 'paper', 'database', 'model_extraction').")
+    source_id: str = Field(..., description="An identifier for the source (e.g., a DOI for a paper, a database record ID).")
+    source_version: Optional[str] = Field(None, description="The version of the source, if applicable.")
+    notes: Optional[str] = Field(None, description="Additional notes about the provenance.")
 
 
 PaperId = uuid.UUID
@@ -27,7 +82,13 @@ class Polarity(Enum):
 
 
 class EvidenceType(BaseModel):
-    pass  # what fields?
+    """
+    The type of evidence supporting a relationship, potentially linked to an ontology.
+    """
+
+    ontology_id: str = Field(..., description="Identifier from an evidence ontology (e.g., SEPIO, Evidence & Conclusion Ontology).")
+    ontology_label: str = Field(..., description="Human-readable label for the ontology term.")
+    description: Optional[str] = Field(None, description="A fuller description of the evidence type.")
 
 
 class ModelInfo(BaseModel):
