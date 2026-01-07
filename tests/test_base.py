@@ -13,7 +13,12 @@ from med_lit_schema.base import (
 
 
 def test_claim_predicate_validation():
-    """Test that ClaimPredicate validates predicate_type correctly."""
+    """
+    Test that the `ClaimPredicate` model successfully validates correct `predicate_type`
+    enum members and raises a `ValidationError` for invalid string inputs.
+
+    This ensures that only predefined predicate types are accepted.
+    """
     # Valid case
     cp = ClaimPredicate(
         predicate_type=PredicateType.CAUSES,
@@ -30,7 +35,14 @@ def test_claim_predicate_validation():
 
 
 def test_provenance_model():
-    """Test that Provenance model correctly handles required and optional fields."""
+    """
+    Test the `Provenance` model's data validation.
+
+    It checks that a minimal instance with only required fields (`source_type`,
+    `source_id`) is valid, a full instance with all optional fields is correctly
+    populated, and that `ValidationError` is raised if any of the required
+    fields are missing.
+    """
     # Minimal valid case
     prov = Provenance(source_type="paper", source_id="doi:12345")
     assert prov.source_type == "paper"
@@ -56,7 +68,13 @@ def test_provenance_model():
 
 
 def test_evidence_type_model():
-    """Test that EvidenceType model enforces required fields."""
+    """
+    Test the `EvidenceType` model's data validation.
+
+    It ensures that an instance with all required fields (`ontology_id`,
+    `ontology_label`) is created successfully and that a `ValidationError`
+    is raised if any of these fields are missing.
+    """
     # Valid case
     et = EvidenceType(
         ontology_id="ECO:0000059",
@@ -74,7 +92,15 @@ def test_evidence_type_model():
 
 
 def test_model_info_validation():
-    """Test that ModelInfo model validates required and optional fields."""
+    """
+    Test the `ModelInfo` model's data validation.
+
+    This test verifies that a `ModelInfo` instance can be created with all
+    required (`name`, `provider`) and optional (`temperature`, `version`)
+    fields. It also confirms that an instance is valid with only the required
+    fields, and that a `ValidationError` is raised if any of the required
+    fields are missing.
+    """
     # Valid case
     mi = ModelInfo(
         name="gemini-1.5-pro",
