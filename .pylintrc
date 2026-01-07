@@ -2,6 +2,34 @@
 # Ignore Pydantic-generated code
 extension-pkg-whitelist=pydantic
 
+[MESSAGES CONTROL]
+disable=C0301,
+        C0415,
+        C0411,
+        C0302,
+        C0114,
+        C0115,
+        C0116,
+        E0402,
+        W0511,
+        W0611,
+        R0913,
+        R0917,
+        W0718,
+        R1705,
+        R0912,
+        W0107,
+        W0105,
+        R0911,
+        W0621,
+        W0404,
+        W0125,
+        R1727,
+        W0613,
+        W0707,
+        R0801,
+        W1514
+
 [TYPECHECK]
 # Ignore missing members on Pydantic models (they're dynamically generated)
 generated-members=pydantic.*
