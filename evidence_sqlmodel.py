@@ -1,7 +1,6 @@
-from sqlalchemy import DateTime
-from sqlmodel import Field, SQLModel
-from sqlalchemy import Column, ForeignKey, text
+from sqlalchemy import DateTime, Column, ForeignKey, text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlmodel import Field, SQLModel
 from typing import Optional, Dict, Any
 from datetime import datetime
 
