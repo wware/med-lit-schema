@@ -1,19 +1,25 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Column
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import text
+from sqlalchemy import text, DateTime
 
 
 class Paper(SQLModel, table=True):
     __tablename__ = "papers"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    # Changed ID type from Optional[int] to str to match PMC IDs
+    id: str = Field(primary_key=True, description="Canonical paper ID (e.g. PMC ID)")
     title: str = Field(index=True)
-    authors: str
+    authors: Optional[str] = None  # Assuming authors might not always be available
     abstract: Optional[str] = None
-    publication_date: Optional[datetime] = None
+    publication_date: Optional[str] = None  # Changed to str as LLM extracts it as string
     journal: Optional[str] = None
     doi: Optional[str] = Field(default=None, index=True)
     pubmed_id: Optional[str] = Field(default=None, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow, server_default=text("CURRENT_TIMESTAMP"), nullable=False)
-    updated_at: Optional[datetime] = None
+    entity_count: int = Field(default=0)  # Changed to int, default 0
+    relationship_count: int = Field(default=0)  # Changed to int, default 0
+
+    created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")))
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    )

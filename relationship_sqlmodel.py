@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, UniqueConstraint
 
 
 class Relationship(SQLModel, table=True):
@@ -19,6 +19,8 @@ class Relationship(SQLModel, table=True):
     """
 
     __tablename__ = "relationships"
+    __table_args__ = (UniqueConstraint("subject_id", "object_id", "predicate", name="uq_relationship"),) # Add this line
+
 
     # Core fields
     id: UUID = Field(default_factory=uuid4, primary_key=True)

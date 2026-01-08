@@ -22,8 +22,8 @@ from med_lit_schema.entity_sqlmodel import Entity  # noqa: F401
 from med_lit_schema.relationship_sqlmodel import Relationship  # noqa: F401
 
 # Paper and Evidence models have issues and aren't currently used in main tables
-# from med_lit_schema.paper_sqlmodel import Paper  # noqa: F401
-# from med_lit_schema.evidence_sqlmodel import Evidence  # noqa: F401
+from med_lit_schema.paper_sqlmodel import Paper  # noqa: F401
+from med_lit_schema.evidence_sqlmodel import Evidence  # noqa: F401
 
 
 def create_extensions(engine):

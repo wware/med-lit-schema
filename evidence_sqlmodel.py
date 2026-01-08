@@ -1,3 +1,4 @@
+from sqlalchemy import DateTime
 from sqlmodel import Field, SQLModel
 from sqlalchemy import Column, ForeignKey, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -23,7 +24,7 @@ class Evidence(SQLModel, table=True):
     metadata_: Dict[str, Any] = Field(default_factory=dict, sa_column=Column("metadata_", JSONB, server_default=text("'{}'::jsonb"), nullable=False))
 
     # Timestamp with server_default
-    created_at: datetime = Field(sa_column=Column("created_at", server_default=text("CURRENT_TIMESTAMP"), nullable=False))
+    created_at: datetime = Field(sa_column=Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP"), nullable=False))
 
     # Relationships (if needed)
     # relationship: Optional["Relationship"] = Relationship(back_populates="evidence")

@@ -212,10 +212,27 @@ class Entity(SQLModel, table=True):
 
     description: Optional[str] = Field(default=None, description="Description for various entity types")
     predicts: Optional[str] = Field(default=None, description="Hypothesis predictions (JSON array)")
+
+    iao_id: Optional[str] = Field(default=None, description="IAO identifier for Hypothesis")
+    sepio_id: Optional[str] = Field(default=None, description="SEPIO identifier for Hypothesis or EvidenceLine")
+    proposed_by: Optional[str] = Field(default=None, description="Paper ID where Hypothesis was proposed")
+    proposed_date: Optional[str] = Field(default=None, description="Date when Hypothesis was proposed (ISO date string)")
+    status: Optional[str] = Field(default=None, description="Status of Hypothesis (proposed, supported, controversial, refuted)")
+
+    obi_id: Optional[str] = Field(default=None, description="OBI identifier for StudyDesign")
+    stato_id: Optional[str] = Field(default=None, description="STATO identifier for StudyDesign or StatisticalMethod")
+    design_type: Optional[str] = Field(default=None, description="Design type of StudyDesign (interventional, observational, etc.)")
+    evidence_level: Optional[str] = Field(default=None, description="Evidence quality level (1-5) for StudyDesign")
+
+    method_type: Optional[str] = Field(default=None, description="Category of StatisticalMethod (hypothesis_test, regression, etc.)")
     assumptions: Optional[str] = Field(default=None, description="Method assumptions (JSON array)")
-    supports: Optional[str] = Field(default=None, description="Evidence supports (JSON array)")
-    refutes: Optional[str] = Field(default=None, description="Evidence refutes (JSON array)")
-    evidence_items: Optional[str] = Field(default=None, description="Evidence items (JSON array)")
+
+    eco_type: Optional[str] = Field(default=None, description="ECO evidence type ID for EvidenceLine")
+    assertion_id: Optional[str] = Field(default=None, description="Assertion ID this EvidenceLine supports")
+    supports: Optional[str] = Field(default=None, description="Hypothesis IDs this EvidenceLine supports (JSON array)")
+    refutes: Optional[str] = Field(default=None, description="Hypothesis IDs this EvidenceLine refutes (JSON array)")
+    evidence_items: Optional[str] = Field(default=None, description="Paper IDs providing evidence for EvidenceLine (JSON array)")
+    strength: Optional[str] = Field(default=None, description="Evidence strength classification for EvidenceLine (strong, moderate, weak)")
 
     # Note: Vector index for embeddings must be created separately after table creation
     # See setup_database.py: CREATE INDEX idx_entities_embedding ON entities USING hnsw (embedding vector_cosine_ops);
