@@ -51,7 +51,7 @@ disease = Disease(
 )
 ```
 
-### 2. Persistence Models (`med_lit_schema/entity_sqlmodel.py`)
+### 2. Persistence Models (`med_lit_schema/storage/models/`)
 
 **Purpose**: "How the database stores entities."
 
@@ -76,7 +76,7 @@ disease = Disease(
 
 **Example**:
 ```python
-from med_lit_schema.entity_sqlmodel import Entity
+from med_lit_schema.storage.models.entity import Entity
 from med_lit_schema.base import EntityType
 import json
 
@@ -132,7 +132,7 @@ The mapper layer is implemented and tested.
     - ✅ `InMemoryEntityCollection` (with `EntityCollectionInterface` for custom backends) for canonical entity management
     - ✅ Full ontology support (UMLS, HGNC, RxNorm, UniProt, etc.)
 
-2.  **Persistence Models (`med_lit_schema/entity_sqlmodel.py`)**
+2.  **Persistence Models (`med_lit_schema/storage/models/`)**
     - ✅ Single `Entity` table with polymorphic discriminator
     - ✅ All entity-specific fields as nullable columns
     - ✅ JSON serialization for arrays and embeddings
@@ -149,14 +149,21 @@ The mapper layer is implemented and tested.
     - ✅ `relationship_to_persistence()` and `relationship_to_domain()` functions for relationships
     - ✅ Handles JSON serialization/deserialization for arrays and embeddings
 
-5.  **Persistence Models for Relationships (`med_lit_schema/relationship_sqlmodel.py`)**
+5.  **Persistence Models for Relationships (`med_lit_schema/storage/models/relationship.py`)**
     - ✅ Single `Relationship` table with predicate as discriminator
     - ✅ All relationship-specific fields as nullable columns
     - ✅ SQLModel integration
 
-6.  **Testing**
+6.  **Storage Layer (`med_lit_schema/storage/`)**
+    - ✅ Abstract interfaces for storage backends
+    - ✅ SQLite implementation for development/testing
+    - ✅ PostgreSQL+pgvector implementation for production
+    - ✅ Clean separation of storage concerns from domain logic
+
+7.  **Testing**
     - ✅ Domain model tests (`tests/test_schema_entity.py`)
-    - ✅ Persistence model tests (`tests/test_entity_sqlmodel.py`)
+    - ✅ Persistence model tests (`tests/storage/models/test_entity.py`)
+    - ✅ Storage backend tests (`tests/storage/backends/test_sqlite.py`)
     - ✅ Validation tests for entity creation and queries
     - ✅ Mapper tests for entities (`tests/test_mapper.py`)
     - ✅ Mapper tests for relationships (`tests/test_relationship_mapper.py`)
@@ -212,7 +219,7 @@ The mapper layer is implemented and tested.
 **Goal**: Add persistence layer for relationships (not just entities).
 
 **Tasks**:
-1. Create `med_lit_schema/relationship_sqlmodel.py`
+1. Create `med_lit_schema/storage/models/relationship.py`
 2. Design single-table or multi-table approach for relationships
 3. Implement relationship persistence models
 4. Add mapper functions for relationships
@@ -319,11 +326,13 @@ def to_persistence(disease: Disease) -> Entity:
 
 - **[README.md](README.md)** - Schema overview and design philosophy
 - **[entity.py](entity.py)** - Domain model implementations
-- **[entity_sqlmodel.py](entity_sqlmodel.py)** - Persistence model implementation
+- **[storage/models/entity.py](storage/models/entity.py)** - Persistence model implementation
+- **[storage/README.md](storage/README.md)** - Storage layer architecture
 - **[relationship.py](relationship.py)** - Relationship domain models
 - **[mapper.py](mapper.py)** - Mapper functions for domain/persistence conversion
 - **[tests/test_schema_entity.py](tests/test_schema_entity.py)** - Domain model tests
-- **[tests/test_entity_sqlmodel.py](tests/test_entity_sqlmodel.py)** - Persistence model tests
+- **[tests/storage/models/test_entity.py](tests/storage/models/test_entity.py)** - Persistence model tests
+- **[tests/storage/backends/test_sqlite.py](tests/storage/backends/test_sqlite.py)** - Storage backend tests
 
 ## Summary
 

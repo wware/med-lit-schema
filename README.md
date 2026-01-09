@@ -71,10 +71,10 @@ The schema uses a clean separation between **Domain Models** (for application lo
 - **Technology**: Pure Pydantic v2.
 - **Why**: Allows for Pythonic OO programming, flexible validation, and clean code without ORM baggage.
 
-### 2. Persistence Models (`med_lit_schema/entity_sqlmodel.py`)
+### 2. Persistence Models (`med_lit_schema/storage/models/`)
 - **Purpose**: "How the database stores entities."
 - **Class Structure**: Single flattened `Entity` class (Single-Table Inheritance).
-- **Use Case**: Saving to/loading from PostgreSQL.
+- **Use Case**: Saving to/loading from PostgreSQL or SQLite.
 - **Technology**: SQLModel (SQLAlchemy + Pydantic).
 - **Why**:
     - **Single Table**: Optimizes performance (no joins to query "all entities").
