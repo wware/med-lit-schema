@@ -19,7 +19,7 @@ from med_lit_schema.entity import (
 )
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 
 
 def create_fake_pmc_xml(

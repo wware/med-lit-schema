@@ -10,21 +10,21 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-from .storage_interfaces import (
+from med_lit_schema.storage.interfaces import (
     PaperStorageInterface,
     RelationshipStorageInterface,
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
-from .embedding_interfaces import RelationshipEmbeddingStorageInterface
-from ..entity import (
+from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
+from med_lit_schema.entity import (
     Paper,
     EvidenceItem,
     EntityCollectionInterface,
 )
-from .sqlite_entity_collection import SQLiteEntityCollection
-from ..relationship import BaseRelationship, create_relationship
-from ..base import PredicateType
+from med_lit_schema.storage.backends.sqlite_entity_collection import SQLiteEntityCollection
+from med_lit_schema.relationship import BaseRelationship, create_relationship
+from med_lit_schema.base import PredicateType
 
 
 class SQLitePaperStorage(PaperStorageInterface):

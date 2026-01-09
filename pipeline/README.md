@@ -40,7 +40,7 @@ The pipeline consists of four main stages:
 
 ```python
 from pathlib import Path
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 
 # Initialize storage
 storage = SQLitePipelineStorage(Path("output/pipeline.db"))
@@ -54,7 +54,7 @@ storage = SQLitePipelineStorage(":memory:")
 ### Using PostgreSQL (Production)
 
 ```python
-from med_lit_schema.pipeline.postgres_storage import PostgresPipelineStorage
+from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
 
 # Initialize storage
 storage = PostgresPipelineStorage("postgresql://user:pass@localhost/dbname")
@@ -81,11 +81,11 @@ python pipeline/evidence_pipeline.py --storage sqlite --output-dir output
 
 ## Storage Interfaces
 
-The pipeline uses storage interfaces to support different backends. To use the pipeline, you need to implement `PipelineStorageInterface`:
+The pipeline uses storage interfaces to support different backends. All storage-related code is now organized in the `storage/` directory. For detailed information, see [storage/README.md](../storage/README.md).
 
 ### Main Interface: `PipelineStorageInterface`
 
-**Location**: `pipeline/storage_interfaces.py`
+**Location**: `storage/interfaces.py`
 
 This is the primary interface that all pipeline stages use. It provides access to:
 
@@ -117,11 +117,11 @@ When implementing `PipelineStorageInterface`, you need to provide implementation
 
 ## Reference Implementations
 
-Two complete implementations are provided:
+Two complete implementations are provided in `storage/backends/`:
 
 ### SQLitePipelineStorage
 
-**Location**: `pipeline/sqlite_storage.py`
+**Location**: `storage/backends/sqlite.py`
 
 **Use case**: Testing, development, small datasets
 
@@ -133,7 +133,7 @@ Two complete implementations are provided:
 
 ### PostgresPipelineStorage
 
-**Location**: `pipeline/postgres_storage.py`
+**Location**: `storage/backends/postgres.py`
 
 **Use case**: Production, large datasets, vector search
 
@@ -141,11 +141,13 @@ Two complete implementations are provided:
 - Uses pgvector for vector similarity search
 - Requires PostgreSQL with pgvector extension installed
 
+For detailed backend comparison, see [storage/backends/README.md](../storage/backends/README.md).
+
 ## Usage Example
 
 ```python
-from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.interfaces import PipelineStorageInterface
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 from med_lit_schema.entity import Disease, EntityType
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType

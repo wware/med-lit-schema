@@ -30,8 +30,8 @@ from .relationship import (
     create_relationship,
 )
 from .base import PredicateType
-from .entity_sqlmodel import Entity
-from .relationship_sqlmodel import Relationship
+from med_lit_schema.storage.models.entity import Entity
+from med_lit_schema.storage.models.relationship import Relationship
 
 
 def to_persistence(domain: BaseMedicalEntity) -> Entity:

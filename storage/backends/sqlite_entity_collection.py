@@ -9,7 +9,7 @@ import sqlite3
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..entity import (
+    from med_lit_schema.entity import (
         BaseMedicalEntity,
         Disease,
         Gene,
@@ -21,9 +21,9 @@ if TYPE_CHECKING:
         EvidenceLine,
     )
 
-from ..entity import EntityCollectionInterface
-from ..mapper import to_persistence, to_domain
-from ..entity_sqlmodel import Entity
+from med_lit_schema.entity import EntityCollectionInterface
+from med_lit_schema.mapper import to_persistence, to_domain
+from med_lit_schema.storage.models.entity import Entity
 
 
 class SQLiteEntityCollection(EntityCollectionInterface):
@@ -232,7 +232,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         row = cursor.fetchone()
         if row:
             data = json.loads(row[0])
-            from ..entity import Disease
+            from med_lit_schema.entity import Disease
 
             return Disease.model_validate(data)
         return None
@@ -244,7 +244,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         row = cursor.fetchone()
         if row:
             data = json.loads(row[0])
-            from ..entity import Gene
+            from med_lit_schema.entity import Gene
 
             return Gene.model_validate(data)
         return None
@@ -283,7 +283,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                 similarity = float(row[1])
                 if similarity >= threshold:
                     data = json.loads(row[0])
-                    from ..entity import BaseMedicalEntity
+                    from med_lit_schema.entity import BaseMedicalEntity
 
                     # Reconstruct entity from JSON
                     # This is simplified - full implementation would use mapper
@@ -332,7 +332,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                 similarity = cosine_similarity(query_embedding, embedding)
                 if similarity >= threshold:
                     data = json.loads(entity_json)
-                    from ..entity import BaseMedicalEntity
+                    from med_lit_schema.entity import BaseMedicalEntity
 
                     entity = BaseMedicalEntity.model_validate(data)
                     results.append((entity, similarity))
