@@ -34,6 +34,7 @@ except ImportError:
 # Evidence Extraction Functions
 # ============================================================================
 
+
 def extract_sample_size(text: str) -> Optional[int]:
     """Extract sample size from text."""
     match = re.search(r"\bn\s*=\s*(\d+)", text, re.IGNORECASE)
@@ -186,25 +187,9 @@ def main():
     """Main pipeline execution."""
     parser = argparse.ArgumentParser(description="Stage 5: Evidence Aggregation Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument(
-        "--storage",
-        type=str,
-        choices=["sqlite", "postgres"],
-        default="sqlite",
-        help="Storage backend to use"
-    )
-    parser.add_argument(
-        "--database-url",
-        type=str,
-        default=None,
-        help="Database URL for PostgreSQL (required if --storage=postgres)"
-    )
-    parser.add_argument(
-        "--provenance-db",
-        type=str,
-        default=None,
-        help="Path to provenance.db (defaults to output-dir/provenance.db)"
-    )
+    parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
+    parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
+    parser.add_argument("--provenance-db", type=str, default=None, help="Path to provenance.db (defaults to output-dir/provenance.db)")
 
     args = parser.parse_args()
 
@@ -280,12 +265,7 @@ def main():
             continue
 
         # Extract evidence metrics from the paragraph text
-        evidence = extract_evidence_for_relationship(
-            relationship,
-            paragraph_text,
-            paper_id,
-            section_type
-        )
+        evidence = extract_evidence_for_relationship(relationship, paragraph_text, paper_id, section_type)
 
         if evidence:
             # Add evidence to relationship and store

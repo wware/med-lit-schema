@@ -108,15 +108,9 @@ class SQLiteRelationshipStorage(RelationshipStorageInterface):
             )
         """
         )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_relationships_subject ON relationships(subject_id)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_relationships_object ON relationships(object_id)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_relationships_predicate ON relationships(predicate)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_subject ON relationships(subject_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_object ON relationships(object_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_predicate ON relationships(predicate)")
         self.conn.commit()
 
     def add_relationship(self, relationship: BaseRelationship) -> None:
@@ -137,9 +131,7 @@ class SQLiteRelationshipStorage(RelationshipStorageInterface):
         )
         self.conn.commit()
 
-    def get_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> Optional[BaseRelationship]:
+    def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional[BaseRelationship]:
         """Get a relationship by its canonical triple."""
         cursor = self.conn.cursor()
         cursor.execute(
@@ -233,9 +225,7 @@ class SQLiteEvidenceStorage(EvidenceStorageInterface):
         """
         )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_paper_id ON evidence(paper_id)")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_evidence_relationship ON evidence(subject_id, predicate, object_id)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_relationship ON evidence(subject_id, predicate, object_id)")
         self.conn.commit()
 
     def add_evidence(self, evidence: EvidenceItem) -> None:
@@ -272,9 +262,7 @@ class SQLiteEvidenceStorage(EvidenceStorageInterface):
         cursor.execute("SELECT evidence_json FROM evidence WHERE paper_id = ?", (paper_id,))
         return [EvidenceItem.model_validate_json(row[0]) for row in cursor.fetchall()]
 
-    def get_evidence_for_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> list[EvidenceItem]:
+    def get_evidence_for_relationship(self, subject_id: str, predicate: str, object_id: str) -> list[EvidenceItem]:
         """Get all evidence items supporting a relationship."""
         cursor = self.conn.cursor()
         cursor.execute(
@@ -320,14 +308,10 @@ class SQLiteRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
             )
         """
         )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_rel_embeddings_triple ON relationship_embeddings(subject_id, predicate, object_id)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_rel_embeddings_triple ON relationship_embeddings(subject_id, predicate, object_id)")
         self.conn.commit()
 
-    def store_relationship_embedding(
-        self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str
-    ) -> None:
+    def store_relationship_embedding(self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str) -> None:
         """Store an embedding for a relationship."""
         import struct
 
@@ -345,9 +329,7 @@ class SQLiteRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
         )
         self.conn.commit()
 
-    def get_relationship_embedding(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> Optional[list[float]]:
+    def get_relationship_embedding(self, subject_id: str, predicate: str, object_id: str) -> Optional[list[float]]:
         """Get the embedding for a relationship."""
         import struct
 
@@ -370,9 +352,7 @@ class SQLiteRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
         embedding = list(struct.unpack(f"{len(embedding_bytes) // 4}f", embedding_bytes))
         return embedding
 
-    def find_similar_relationships(
-        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
-    ) -> list[tuple[tuple[str, str, str], float]]:
+    def find_similar_relationships(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[tuple[str, str, str], float]]:
         """Find relationships similar to query embedding using cosine similarity."""
         import struct
         from math import sqrt

@@ -6,7 +6,6 @@ Provides concrete implementations of EmbeddingGeneratorInterface.
 
 from typing import Optional
 
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from .embedding_interfaces import EmbeddingGeneratorInterface

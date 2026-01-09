@@ -21,7 +21,6 @@ import uuid
 
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
-import pandas as pd
 
 # Import new schema
 # Try relative imports first (when run as module), fall back to absolute
@@ -57,10 +56,10 @@ except ImportError:
 def get_git_info():
     """Get git information for provenance tracking."""
     try:
-        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.DEVNULL).decode().strip()
-        commit_short = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], stderr=subprocess.DEVNULL).decode().strip()
-        branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], stderr=subprocess.DEVNULL).decode().strip()
-        dirty = subprocess.call(['git', 'diff', '--quiet']) != 0
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
+        commit_short = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
+        branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
+        dirty = subprocess.call(["git", "diff", "--quiet"]) != 0
         return commit, commit_short, branch, dirty
     except Exception:
         return "unknown", "unknown", "unknown", False
@@ -92,9 +91,9 @@ def get_or_create_entity(
     # Try to find existing entity by name
     # First check if we can find by exact name match
     # Note: This is simplified - full implementation would use embedding similarity
-    
+
     canonical_entity_id = f"DISEASE:{name.lower().replace(' ', '_')}"
-    
+
     # Try to get existing entity
     existing = storage.entities.get_by_id(canonical_entity_id)
     if existing:
@@ -103,17 +102,10 @@ def get_or_create_entity(
             existing.synonyms.append(name)
             storage.entities.add_disease(existing)
         return canonical_entity_id, False
-    
+
     # Create new Disease entity
-    disease = Disease(
-        entity_id=canonical_entity_id,
-        entity_type=EntityType.DISEASE,
-        name=name,
-        synonyms=[],
-        abbreviations=[],
-        source="extracted"
-    )
-    
+    disease = Disease(entity_id=canonical_entity_id, entity_type=EntityType.DISEASE, name=name, synonyms=[], abbreviations=[], source="extracted")
+
     storage.entities.add_disease(disease)
     return canonical_entity_id, True
 
@@ -157,11 +149,7 @@ def process_paper(
     entities_created = 0
     entities_found = 0
 
-    STOPWORDS = {
-        "acquired", "human", "chronic", "enter", "lymph",
-        "the", "and", "or", "but", "with", "from", "that",
-        "this", "these", "those", "their", "there"
-    }
+    STOPWORDS = {"acquired", "human", "chronic", "enter", "lymph", "the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"}
 
     for ent in entities:
         # Filter by entity label
@@ -186,24 +174,14 @@ def process_paper(
             continue
 
         # Get or create canonical entity
-        canonical_entity_id, was_created = get_or_create_entity(
-            storage=storage,
-            name=name,
-            entity_type=label,
-            source=pmc_id,
-            confidence=confidence
-        )
-        
+        canonical_entity_id, was_created = get_or_create_entity(storage=storage, name=name, entity_type=label, source=pmc_id, confidence=confidence)
+
         if was_created:
             entities_created += 1
         entities_found += 1
 
         # Create EntityReference for this mention
-        entity_ref = EntityReference(
-            id=canonical_entity_id,
-            name=name,
-            type=EntityType.DISEASE
-        )
+        entity_ref = EntityReference(id=canonical_entity_id, name=name, type=EntityType.DISEASE)
         entity_refs_in_text.append(entity_ref)
 
     # Build ExtractionEdge objects for co-occurrences
@@ -218,11 +196,7 @@ def process_paper(
                 source_type="paper",
                 source_id=pmc_id,
                 source_version=None,
-                notes=json.dumps({
-                    "extraction_pipeline": pipeline_info.name,
-                    "git_commit": git_commit_short,
-                    "model": model_name
-                })
+                notes=json.dumps({"extraction_pipeline": pipeline_info.name, "git_commit": pipeline_info.git_commit_short, "model": model_info.name}),
             )
 
             # Create ExtractionEdge with full provenance
@@ -232,10 +206,7 @@ def process_paper(
                 object=object_ref,
                 provenance=edge_provenance,
                 extractor=model_info,
-                confidence=min(
-                    float(entities[i].get("score", 0.5)),
-                    float(entities[j].get("score", 0.5))
-                )
+                confidence=min(float(entities[i].get("score", 0.5)), float(entities[j].get("score", 0.5))),
             )
             extraction_edges.append(edge)
 
@@ -247,19 +218,8 @@ def main():
     parser = argparse.ArgumentParser(description="Stage 1: Entity Extraction Pipeline")
     parser.add_argument("--xml-dir", type=str, default="pmc_xmls", help="Directory containing PMC XML files")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument(
-        "--storage",
-        type=str,
-        choices=["sqlite", "postgres"],
-        default="sqlite",
-        help="Storage backend to use"
-    )
-    parser.add_argument(
-        "--database-url",
-        type=str,
-        default=None,
-        help="Database URL for PostgreSQL (required if --storage=postgres)"
-    )
+    parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
+    parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
 
     args = parser.parse_args()
 
@@ -291,44 +251,25 @@ def main():
         git_commit_short=git_commit_short,
         git_branch=git_branch,
         git_dirty=git_dirty,
-        repo_url="https://github.com/wware/med-lit-graph"
+        repo_url="https://github.com/wware/med-lit-graph",
     )
 
     # Model info
     model_name = "ugaray96/biobert_ncbi_disease_ner"
-    model_info = ModelInfo(
-        name=model_name,
-        provider="huggingface",
-        temperature=None,
-        version=None
-    )
+    model_info = ModelInfo(name=model_name, provider="huggingface", temperature=None, version=None)
 
     # Prompt info
-    prompt_info = PromptInfo(
-        version="v1",
-        template="ner_biobert_ncbi_disease",
-        checksum=None
-    )
+    prompt_info = PromptInfo(version="v1", template="ner_biobert_ncbi_disease", checksum=None)
 
     # Execution info
     execution_start = datetime.now()
-    execution_info = ExecutionInfo(
-        timestamp=execution_start.isoformat(),
-        hostname=socket.gethostname(),
-        python_version=platform.python_version(),
-        duration_seconds=None
-    )
+    execution_info = ExecutionInfo(timestamp=execution_start.isoformat(), hostname=socket.gethostname(), python_version=platform.python_version(), duration_seconds=None)
 
     # Setup NER pipeline
     print(f"Loading NER model: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForTokenClassification.from_pretrained(model_name)
-    ner_pipeline = pipeline(
-        "ner",
-        model=model,
-        tokenizer=tokenizer,
-        aggregation_strategy="simple"
-    )
+    ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
 
     # Process papers
     print(f"\nProcessing XML files from {xml_dir}...")
@@ -341,13 +282,7 @@ def main():
     processed_count = 0
 
     for xml_file in xml_files:
-        entities_found, entities_created, edges = process_paper(
-            xml_file,
-            storage,
-            ner_pipeline,
-            pipeline_info,
-            model_info
-        )
+        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, pipeline_info, model_info)
         total_entities_found += entities_found
         total_entities_created += entities_created
         all_extraction_edges.extend(edges)
@@ -362,26 +297,17 @@ def main():
     execution_info.duration_seconds = execution_duration
 
     entity_resolution_info = EntityResolutionInfo(
-        canonical_entities_matched=total_entities_found - total_entities_created,
-        new_entities_created=total_entities_created,
-        similarity_threshold=0.0,
-        embedding_model="none"
+        canonical_entities_matched=total_entities_found - total_entities_created, new_entities_created=total_entities_created, similarity_threshold=0.0, embedding_model="none"
     )
 
-    extraction_provenance = ExtractionProvenance(
-        extraction_pipeline=pipeline_info,
-        models={"ner": model_info},
-        prompt=prompt_info,
-        execution=execution_info,
-        entity_resolution=entity_resolution_info
-    )
+    extraction_provenance = ExtractionProvenance(extraction_pipeline=pipeline_info, models={"ner": model_info}, prompt=prompt_info, execution=execution_info, entity_resolution=entity_resolution_info)
 
     # Write ExtractionEdge objects to JSONL
     edges_path = output_dir / "extraction_edges.jsonl"
     with open(edges_path, "w") as f:
         for edge in all_extraction_edges:
             edge_dict = edge.model_dump()
-            edge_dict['id'] = str(edge_dict['id'])
+            edge_dict["id"] = str(edge_dict["id"])
             f.write(json.dumps(edge_dict) + "\n")
 
     # Write extraction provenance
@@ -390,9 +316,9 @@ def main():
         f.write(extraction_provenance.model_dump_json(indent=2))
 
     # Print summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Extraction Complete")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Processed: {processed_count} XML files")
     print(f"Entities found: {total_entities_found}")
     print(f"  - New canonical entities: {total_entities_created}")
@@ -401,11 +327,11 @@ def main():
     print(f"Duration: {execution_duration:.2f} seconds")
     print(f"\nStorage: {args.storage}")
     print(f"Entity count: {storage.entities.entity_count}")
-    print(f"\nOutputs:")
+    print("\nOutputs:")
     print(f"  - Storage: {storage}")
     print(f"  - {edges_path}")
     print(f"  - {provenance_path}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Clean up
     storage.close()

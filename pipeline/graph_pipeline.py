@@ -423,7 +423,7 @@ def load_evidence(age_conn: psycopg2.extensions.connection, evidence_db_path: Pa
 
     for ev_id, claim_id, supports, strength, ev_type, paragraph_id in evidence_items:
         # Create evidence node
-        supports_val = 'true' if supports else 'false'
+        supports_val = "true" if supports else "false"
         query = f"""
         CREATE (e:Evidence {{
             evidence_id: '{ev_id}',
@@ -459,13 +459,7 @@ def get_graph_stats(age_conn: psycopg2.extensions.connection) -> GraphStats:
     stats = GraphStats()
 
     # Count nodes
-    node_type_to_field = {
-        "Paper": "papers",
-        "Entity": "entities",
-        "Paragraph": "paragraphs",
-        "Claim": "claims",
-        "Evidence": "evidence"
-    }
+    node_type_to_field = {"Paper": "papers", "Entity": "entities", "Paragraph": "paragraphs", "Claim": "claims", "Evidence": "evidence"}
 
     for node_type, field_name in node_type_to_field.items():
         query = f"MATCH (n:{node_type}) RETURN count(n)"

@@ -11,22 +11,19 @@ Usage:
 """
 
 import argparse
-import json
 from pathlib import Path
 from typing import Optional
 import xml.etree.ElementTree as ET
 
 # Import new schema
 try:
-    from ..entity import Paper, EntityReference, ExtractionProvenance
-    from ..base import EntityType
+    from ..entity import Paper
     from .storage_interfaces import PipelineStorageInterface
     from .sqlite_storage import SQLitePipelineStorage
     from .postgres_storage import PostgresPipelineStorage
 except ImportError:
     # Absolute imports for standalone execution
-    from med_lit_schema.entity import Paper, EntityReference, ExtractionProvenance
-    from med_lit_schema.base import EntityType
+    from med_lit_schema.entity import Paper
     from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
     from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
     from med_lit_schema.pipeline.postgres_storage import PostgresPipelineStorage
@@ -158,29 +155,12 @@ def parse_pmc_xml(xml_path: Path) -> Optional[Paper]:
         import platform
 
         pipeline_info = ExtractionPipelineInfo(
-            name="provenance_pipeline",
-            version="1.0.0",
-            git_commit="unknown",
-            git_commit_short="unknown",
-            git_branch="unknown",
-            git_dirty=False,
-            repo_url="https://github.com/wware/med-lit-graph"
+            name="provenance_pipeline", version="1.0.0", git_commit="unknown", git_commit_short="unknown", git_branch="unknown", git_dirty=False, repo_url="https://github.com/wware/med-lit-graph"
         )
 
-        execution_info = ExecutionInfo(
-            timestamp=datetime.now().isoformat(),
-            hostname=socket.gethostname(),
-            python_version=platform.python_version(),
-            duration_seconds=None
-        )
+        execution_info = ExecutionInfo(timestamp=datetime.now().isoformat(), hostname=socket.gethostname(), python_version=platform.python_version(), duration_seconds=None)
 
-        extraction_provenance = ExtractionProvenance(
-            extraction_pipeline=pipeline_info,
-            models={},
-            prompt=None,
-            execution=execution_info,
-            entity_resolution=None
-        )
+        extraction_provenance = ExtractionProvenance(extraction_pipeline=pipeline_info, models={}, prompt=None, execution=execution_info, entity_resolution=None)
 
         paper = Paper(
             paper_id=pmc_id,
@@ -198,7 +178,7 @@ def parse_pmc_xml(xml_path: Path) -> Optional[Paper]:
                 publication_date=pub_date,
                 journal=journal,
             ),
-            extraction_provenance=extraction_provenance
+            extraction_provenance=extraction_provenance,
         )
 
         return paper
@@ -216,19 +196,8 @@ def main():
     parser = argparse.ArgumentParser(description="Stage 2: Provenance Extraction Pipeline")
     parser.add_argument("--xml-dir", type=str, default="pmc_xmls", help="Directory containing PMC XML files")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument(
-        "--storage",
-        type=str,
-        choices=["sqlite", "postgres"],
-        default="sqlite",
-        help="Storage backend to use"
-    )
-    parser.add_argument(
-        "--database-url",
-        type=str,
-        default=None,
-        help="Database URL for PostgreSQL (required if --storage=postgres)"
-    )
+    parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
+    parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
 
     args = parser.parse_args()
 

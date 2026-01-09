@@ -8,7 +8,17 @@ It uses SQLModel persistence models and mapper functions for domain ↔ persiste
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from ..entity import Disease, Gene
+    from ..entity import (
+        Disease,
+        Gene,
+        Drug,
+        Protein,
+        Hypothesis,
+        StudyDesign,
+        StatisticalMethod,
+        EvidenceLine,
+        BaseMedicalEntity,
+    )
 
 from sqlalchemy import create_engine, select
 from sqlmodel import Session
@@ -61,11 +71,11 @@ class PostgresPaperStorage(PaperStorageInterface):
             entity_count=len(paper.entities),
             relationship_count=len(paper.relationships),
         )
-        
+
         # Use merge to handle updates
         self.session.merge(persistence)
         self.session.commit()
-        
+
         # Note: Full Paper model also has metadata and extraction_provenance
         # which would need to be stored separately or in a JSONB field
 
@@ -74,12 +84,12 @@ class PostgresPaperStorage(PaperStorageInterface):
         persistence = self.session.get(PaperPersistence, paper_id)
         if not persistence:
             return None
-        
+
         # Convert back to domain model
         # Note: This is a simplified conversion - full implementation would
         # need to load entities, relationships, metadata, and provenance separately
         from ..entity import PaperMetadata, ExtractionProvenance
-        
+
         return Paper(
             paper_id=persistence.id,
             title=persistence.title,
@@ -106,14 +116,14 @@ class PostgresPaperStorage(PaperStorageInterface):
         if limit:
             statement = statement.limit(limit)
         persistences = self.session.exec(statement).all()
-        
+
         # Convert to domain models (simplified)
         return [self._persistence_to_domain(p) for p in persistences]
 
     def _persistence_to_domain(self, persistence: PaperPersistence) -> Paper:
         """Convert persistence model to domain model."""
         from ..entity import PaperMetadata, ExtractionProvenance
-        
+
         return Paper(
             paper_id=persistence.id,
             title=persistence.title,
@@ -153,9 +163,7 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         self.session.merge(persistence)
         self.session.commit()
 
-    def get_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> Optional[BaseRelationship]:
+    def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional[BaseRelationship]:
         """Get a relationship by its canonical triple."""
         statement = select(Relationship).where(
             Relationship.subject_id == subject_id,
@@ -176,17 +184,17 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
     ) -> list[BaseRelationship]:
         """Find relationships matching criteria."""
         statement = select(Relationship)
-        
+
         if subject_id:
             statement = statement.where(Relationship.subject_id == subject_id)
         if predicate:
             statement = statement.where(Relationship.predicate == predicate)
         if object_id:
             statement = statement.where(Relationship.object_id == object_id)
-        
+
         if limit:
             statement = statement.limit(limit)
-        
+
         persistences = self.session.exec(statement).all()
         return [relationship_to_domain(p) for p in persistences]
 
@@ -224,15 +232,11 @@ class PostgresEvidenceStorage(EvidenceStorageInterface):
     def get_evidence_by_paper(self, paper_id: str) -> list[EvidenceItem]:
         """Get all evidence items for a paper."""
         # Query by paper_id stored in metadata
-        statement = select(EvidencePersistence).where(
-            EvidencePersistence.metadata_["paper_id"].astext == paper_id
-        )
+        statement = select(EvidencePersistence).where(EvidencePersistence.metadata_["paper_id"].astext == paper_id)
         persistences = self.session.exec(statement).all()
         return [EvidenceItem.model_validate(p.metadata_) for p in persistences]
 
-    def get_evidence_for_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> list[EvidenceItem]:
+    def get_evidence_for_relationship(self, subject_id: str, predicate: str, object_id: str) -> list[EvidenceItem]:
         """Get all evidence items supporting a relationship."""
         # Query by relationship info stored in metadata
         statement = select(EvidencePersistence).where(
@@ -331,40 +335,33 @@ class PostgresEntityCollection(EntityCollectionInterface):
                 return domain
         return None
 
-    def find_by_embedding(
-        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
-    ) -> list[tuple["BaseMedicalEntity", float]]:
+    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
         """Find entities similar to query embedding using pgvector."""
         # Use pgvector cosine similarity
         # Note: This requires the embedding column to be vector type
         from sqlalchemy import func, cast
         from pgvector.sqlalchemy import Vector
-        
+
         # Convert list to vector for query
         import json
+
         embedding_json = json.dumps(query_embedding)
-        
+
         # Use 1 - cosine_distance for similarity
         statement = (
-            select(
-                Entity,
-                (1 - func.cosine_distance(
-                    cast(Entity.embedding, Vector),
-                    cast(embedding_json, Vector)
-                )).label("similarity")
-            )
+            select(Entity, (1 - func.cosine_distance(cast(Entity.embedding, Vector), cast(embedding_json, Vector))).label("similarity"))
             .where(Entity.embedding.isnot(None))
             .order_by("similarity")
             .limit(top_k)
         )
-        
+
         results = self.session.exec(statement).all()
         entities_with_scores = []
         for entity_persistence, similarity in results:
             if similarity >= threshold:
                 domain = entity_to_domain(entity_persistence)
                 entities_with_scores.append((domain, float(similarity)))
-        
+
         return entities_with_scores
 
     @property
@@ -372,6 +369,28 @@ class PostgresEntityCollection(EntityCollectionInterface):
         """Total number of entities across all types."""
         statement = select(Entity)
         return len(list(self.session.exec(statement).all()))
+
+
+class PostgresRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
+    """PostgreSQL+pgvector implementation of relationship embedding storage."""
+
+    def __init__(self, session: Session):
+        self.session = session
+
+    def store_relationship_embedding(self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str) -> None:
+        """Store an embedding for a relationship."""
+        # TODO: Implement pgvector-based storage
+        raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
+
+    def get_relationship_embedding(self, subject_id: str, predicate: str, object_id: str) -> Optional[list[float]]:
+        """Get the embedding for a relationship."""
+        # TODO: Implement pgvector-based retrieval
+        raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
+
+    def find_similar_relationships(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[tuple[str, str, str], float]]:
+        """Find relationships similar to query embedding."""
+        # TODO: Implement pgvector-based similarity search
+        raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
 
 
 class PostgresPipelineStorage(PipelineStorageInterface):

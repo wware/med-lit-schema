@@ -14,7 +14,6 @@ import argparse
 import re
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 # Import new schema
 try:
@@ -84,6 +83,7 @@ PREDICATE_PATTERNS = [
 # ============================================================================
 # Helper Functions
 # ============================================================================
+
 
 def get_paragraphs_from_provenance_db(provenance_db_path: Path) -> list[tuple[str, str, str, str, str]]:
     """
@@ -221,42 +221,12 @@ def main():
     """Main pipeline execution."""
     parser = argparse.ArgumentParser(description="Stage 4: Claims Extraction Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument(
-        "--storage",
-        type=str,
-        choices=["sqlite", "postgres"],
-        default="sqlite",
-        help="Storage backend to use"
-    )
-    parser.add_argument(
-        "--database-url",
-        type=str,
-        default=None,
-        help="Database URL for PostgreSQL (required if --storage=postgres)"
-    )
-    parser.add_argument(
-        "--provenance-db",
-        type=str,
-        default=None,
-        help="Path to provenance.db (defaults to output-dir/provenance.db)"
-    )
-    parser.add_argument(
-        "--skip-embeddings",
-        action="store_true",
-        help="Skip embedding generation"
-    )
-    parser.add_argument(
-        "--embedding-model",
-        type=str,
-        default=DEFAULT_MODEL,
-        help="Embedding model to use (default: sentence-transformers/all-mpnet-base-v2)"
-    )
-    parser.add_argument(
-        "--embedding-batch-size",
-        type=int,
-        default=32,
-        help="Batch size for embedding generation"
-    )
+    parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
+    parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
+    parser.add_argument("--provenance-db", type=str, default=None, help="Path to provenance.db (defaults to output-dir/provenance.db)")
+    parser.add_argument("--skip-embeddings", action="store_true", help="Skip embedding generation")
+    parser.add_argument("--embedding-model", type=str, default=DEFAULT_MODEL, help="Embedding model to use (default: sentence-transformers/all-mpnet-base-v2)")
+    parser.add_argument("--embedding-batch-size", type=int, default=32, help="Batch size for embedding generation")
 
     args = parser.parse_args()
 
@@ -304,9 +274,7 @@ def main():
 
     total_relationships = 0
     for para_id, sec_id, paper_id, text, sec_type in paragraphs:
-        relationships = extract_relationships_from_paragraph(
-            para_id, sec_id, paper_id, text, sec_type, storage
-        )
+        relationships = extract_relationships_from_paragraph(para_id, sec_id, paper_id, text, sec_type, storage)
 
         for relationship in relationships:
             storage.relationships.add_relationship(relationship)
@@ -325,9 +293,7 @@ def main():
         print("-" * 60)
 
         # Initialize embedding generator
-        embedding_generator: EmbeddingGeneratorInterface = SentenceTransformerEmbeddingGenerator(
-            model_name=args.embedding_model
-        )
+        embedding_generator: EmbeddingGeneratorInterface = SentenceTransformerEmbeddingGenerator(model_name=args.embedding_model)
         print(f"Using embedding model: {embedding_generator.model_name}")
         print(f"Embedding dimension: {embedding_generator.embedding_dim}")
         print()
@@ -353,9 +319,7 @@ def main():
         if texts_to_embed:
             # Generate embeddings in batches
             print(f"Generating embeddings (batch size: {args.embedding_batch_size})...")
-            embeddings = embedding_generator.generate_embeddings_batch(
-                texts_to_embed, batch_size=args.embedding_batch_size
-            )
+            embeddings = embedding_generator.generate_embeddings_batch(texts_to_embed, batch_size=args.embedding_batch_size)
 
             # Store embeddings
             print("Storing embeddings...")

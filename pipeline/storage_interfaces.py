@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Optional
 
 # Use string annotations for forward references to avoid import issues
 if TYPE_CHECKING:
-    from ..entity import Paper, BaseMedicalEntity, EvidenceItem, EntityCollectionInterface
+    from ..entity import Paper, EvidenceItem, EntityCollectionInterface
     from ..relationship import BaseRelationship
     from .embedding_interfaces import RelationshipEmbeddingStorageInterface
 
@@ -53,9 +53,7 @@ class RelationshipStorageInterface(ABC):
         pass
 
     @abstractmethod
-    def get_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> Optional["BaseRelationship"]:
+    def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional["BaseRelationship"]:
         """Get a relationship by its canonical triple (subject_id, predicate, object_id)."""
         pass
 
@@ -91,9 +89,7 @@ class EvidenceStorageInterface(ABC):
         pass
 
     @abstractmethod
-    def get_evidence_for_relationship(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> list["EvidenceItem"]:
+    def get_evidence_for_relationship(self, subject_id: str, predicate: str, object_id: str) -> list["EvidenceItem"]:
         """Get all evidence items supporting a relationship."""
         pass
 

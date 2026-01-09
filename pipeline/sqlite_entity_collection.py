@@ -48,14 +48,13 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         try:
             # Try to load sqlite-vec extension
             # On Linux, this might be at various paths
-            import os
             possible_paths = [
                 "/usr/lib/sqlite3/libvec0.so",
                 "/usr/local/lib/libvec0.so",
                 "./libvec0.so",
                 "libvec0.so",
             ]
-            
+
             for path in possible_paths:
                 try:
                     self.conn.enable_load_extension(True)
@@ -65,7 +64,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                     return
                 except Exception:
                     continue
-            
+
             # If loading fails, we'll still work but without vector search
             print("Warning: sqlite-vec extension not found. Vector search will be disabled.")
             print("Install sqlite-vec from https://github.com/asg017/sqlite-vec")
@@ -76,7 +75,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
     def _create_tables(self) -> None:
         """Create entities table with vector column for embeddings."""
         cursor = self.conn.cursor()
-        
+
         # Create entities table
         # Note: sqlite-vec uses a special vector type
         cursor.execute(
@@ -100,7 +99,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             )
         """
         )
-        
+
         # Create indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_type ON entities(entity_type)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_umls ON entities(umls_id)")
@@ -111,29 +110,30 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         # Note: sqlite-vec vector operations use functions like vec_distance_cosine()
         # The embedding column stores vectors in sqlite-vec's binary format
         # Vector indexes are created automatically by sqlite-vec when needed
-        
+
         self.conn.commit()
 
     def _add_entity(self, entity: "BaseMedicalEntity") -> None:
         """Internal method to add any entity type."""
         # Convert to persistence model to get flattened fields
         persistence = to_persistence(entity)
-        
+
         # Serialize embedding if present
         embedding_blob = None
         if entity.embedding:
             # sqlite-vec expects embeddings in a specific format
             # For now, store as JSON - will need proper conversion for sqlite-vec
             import struct
+
             if isinstance(entity.embedding, list):
                 # Convert list to bytes for sqlite-vec
                 # sqlite-vec uses float32 arrays
-                embedding_blob = struct.pack(f'{len(entity.embedding)}f', *entity.embedding)
-        
+                embedding_blob = struct.pack(f"{len(entity.embedding)}f", *entity.embedding)
+
         cursor = self.conn.cursor()
         cursor.execute(
             """
-            INSERT OR REPLACE INTO entities 
+            INSERT OR REPLACE INTO entities
             (id, entity_type, name, synonyms, abbreviations, embedding, created_at, source,
              umls_id, hgnc_id, rxnorm_id, uniprot_id, entity_json)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -194,16 +194,9 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         cursor.execute("SELECT entity_json FROM entities WHERE id = ?", (entity_id,))
         row = cursor.fetchone()
         if row:
-            # Reconstruct from stored JSON
-            from ..entity import BaseMedicalEntity
-            data = json.loads(row[0])
             # Use mapper to properly reconstruct the entity type
-            # For now, create a temporary Entity persistence model and convert
-            cursor.execute(
-                "SELECT id, entity_type, name, synonyms, abbreviations, embedding, created_at, source, "
-                "umls_id, hgnc_id, rxnorm_id, uniprot_id FROM entities WHERE id = ?",
-                (entity_id,)
-            )
+            # Create a temporary Entity persistence model and convert
+            cursor.execute("SELECT id, entity_type, name, synonyms, abbreviations, embedding, created_at, source, umls_id, hgnc_id, rxnorm_id, uniprot_id FROM entities WHERE id = ?", (entity_id,))
             row = cursor.fetchone()
             if row:
                 # Reconstruct Entity persistence model
@@ -216,11 +209,11 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                     "embedding": json.loads(row[5]) if row[5] else None,
                     "created_at": row[6],
                     "source": row[7],
-                "umls_id": row[8],
-                "hgnc_id": row[9],
-                "rxnorm_id": row[10],
-                "uniprot_id": row[11],
-            }
+                    "umls_id": row[8],
+                    "hgnc_id": row[9],
+                    "rxnorm_id": row[10],
+                    "uniprot_id": row[11],
+                }
             # Filter out None values
             entity_dict = {k: v for k, v in entity_dict.items() if v is not None}
             # Ensure synonyms and abbreviations are JSON strings for mapper
@@ -235,51 +228,46 @@ class SQLiteEntityCollection(EntityCollectionInterface):
     def get_by_umls(self, umls_id: str) -> Optional["Disease"]:
         """Get disease by UMLS ID."""
         cursor = self.conn.cursor()
-        cursor.execute(
-            "SELECT entity_json FROM entities WHERE umls_id = ? AND entity_type = 'disease'",
-            (umls_id,)
-        )
+        cursor.execute("SELECT entity_json FROM entities WHERE umls_id = ? AND entity_type = 'disease'", (umls_id,))
         row = cursor.fetchone()
         if row:
             data = json.loads(row[0])
             from ..entity import Disease
+
             return Disease.model_validate(data)
         return None
 
     def get_by_hgnc(self, hgnc_id: str) -> Optional["Gene"]:
         """Get gene by HGNC ID."""
         cursor = self.conn.cursor()
-        cursor.execute(
-            "SELECT entity_json FROM entities WHERE hgnc_id = ? AND entity_type = 'gene'",
-            (hgnc_id,)
-        )
+        cursor.execute("SELECT entity_json FROM entities WHERE hgnc_id = ? AND entity_type = 'gene'", (hgnc_id,))
         row = cursor.fetchone()
         if row:
             data = json.loads(row[0])
             from ..entity import Gene
+
             return Gene.model_validate(data)
         return None
 
-    def find_by_embedding(
-        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
-    ) -> list[tuple["BaseMedicalEntity", float]]:
+    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
         """Find entities similar to query embedding using sqlite-vec."""
         if not query_embedding:
             return []
-        
+
         try:
             # Use sqlite-vec for similarity search
             import struct
+
             # Convert query embedding to bytes
-            query_bytes = struct.pack(f'{len(query_embedding)}f', *query_embedding)
-            
+            query_bytes = struct.pack(f"{len(query_embedding)}f", *query_embedding)
+
             # Use sqlite-vec's distance function
             # Note: sqlite-vec provides vec_distance_cosine() function
             # The embedding column stores vectors in sqlite-vec format
             cursor = self.conn.cursor()
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     e.entity_json,
                     1.0 - vec_distance_cosine(e.embedding, ?) as similarity
                 FROM entities e
@@ -287,20 +275,21 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                 ORDER BY similarity DESC
                 LIMIT ?
                 """,
-                (query_bytes, top_k)
+                (query_bytes, top_k),
             )
-            
+
             results = []
             for row in cursor.fetchall():
                 similarity = float(row[1])
                 if similarity >= threshold:
                     data = json.loads(row[0])
                     from ..entity import BaseMedicalEntity
+
                     # Reconstruct entity from JSON
                     # This is simplified - full implementation would use mapper
                     entity = BaseMedicalEntity.model_validate(data)
                     results.append((entity, similarity))
-            
+
             return results
         except sqlite3.OperationalError as e:
             # sqlite-vec not available or query failed
@@ -309,17 +298,13 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             # Fallback: simple cosine similarity in Python
             return self._find_by_embedding_fallback(query_embedding, top_k, threshold)
 
-    def _find_by_embedding_fallback(
-        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
-    ) -> list[tuple["BaseMedicalEntity", float]]:
+    def _find_by_embedding_fallback(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
         """Fallback embedding search using Python cosine similarity."""
         import math
-        
+
         cursor = self.conn.cursor()
-        cursor.execute(
-            "SELECT entity_json, embedding FROM entities WHERE embedding IS NOT NULL"
-        )
-        
+        cursor.execute("SELECT entity_json, embedding FROM entities WHERE embedding IS NOT NULL")
+
         def cosine_similarity(a: list[float], b: list[float]) -> float:
             """Calculate cosine similarity between two vectors."""
             dot_product = sum(x * y for x, y in zip(a, b))
@@ -328,7 +313,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             if norm_a == 0 or norm_b == 0:
                 return 0.0
             return dot_product / (norm_a * norm_b)
-        
+
         results = []
         for row in cursor.fetchall():
             entity_json = row[0]
@@ -336,20 +321,22 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             if embedding_json:
                 # Parse embedding from stored format
                 import struct
+
                 try:
                     # Try to parse as struct-packed bytes
-                    embedding = list(struct.unpack(f'{len(query_embedding)}f', embedding_json))
-                except:
+                    embedding = list(struct.unpack(f"{len(query_embedding)}f", embedding_json))
+                except (struct.error, TypeError):
                     # Fall back to JSON
                     embedding = json.loads(embedding_json) if isinstance(embedding_json, str) else embedding_json
-                
+
                 similarity = cosine_similarity(query_embedding, embedding)
                 if similarity >= threshold:
                     data = json.loads(entity_json)
                     from ..entity import BaseMedicalEntity
+
                     entity = BaseMedicalEntity.model_validate(data)
                     results.append((entity, similarity))
-        
+
         # Sort by similarity and return top_k
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:top_k]

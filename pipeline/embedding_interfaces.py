@@ -10,10 +10,9 @@ These ABC interfaces allow the pipeline to work with different embedding backend
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
-import numpy as np
 
 if TYPE_CHECKING:
-    from ..relationship import BaseRelationship
+    pass
 
 
 class EmbeddingGeneratorInterface(ABC):
@@ -66,9 +65,7 @@ class RelationshipEmbeddingStorageInterface(ABC):
     """
 
     @abstractmethod
-    def store_relationship_embedding(
-        self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str
-    ) -> None:
+    def store_relationship_embedding(self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str) -> None:
         """
         Store an embedding for a relationship.
 
@@ -82,9 +79,7 @@ class RelationshipEmbeddingStorageInterface(ABC):
         pass
 
     @abstractmethod
-    def get_relationship_embedding(
-        self, subject_id: str, predicate: str, object_id: str
-    ) -> Optional[list[float]]:
+    def get_relationship_embedding(self, subject_id: str, predicate: str, object_id: str) -> Optional[list[float]]:
         """
         Get the embedding for a relationship.
 
@@ -99,9 +94,7 @@ class RelationshipEmbeddingStorageInterface(ABC):
         pass
 
     @abstractmethod
-    def find_similar_relationships(
-        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
-    ) -> list[tuple[tuple[str, str, str], float]]:
+    def find_similar_relationships(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[tuple[str, str, str], float]]:
         """
         Find relationships similar to query embedding.
 
