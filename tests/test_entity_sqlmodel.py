@@ -10,6 +10,10 @@ Tests:
 NOTE: These tests require PostgreSQL with JSONB support.
 SQLite is not supported due to JSONB field requirements.
 These tests use the PostgreSQL database from docker-compose.
+
+To run these tests:
+1. Start PostgreSQL: docker-compose up -d postgres
+2. Run: pytest tests/test_entity_sqlmodel.py -v
 """
 
 import json
@@ -17,9 +21,30 @@ import os
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from med_lit_schema.entity_sqlmodel import Entity, EntityType
+
+
+# Check if PostgreSQL is available
+def postgres_available():
+    """Check if PostgreSQL database is accessible."""
+    database_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit")
+    try:
+        engine = create_engine(database_url, echo=False)
+        with engine.connect():
+            pass
+        engine.dispose()
+        return True
+    except (OperationalError, Exception):
+        return False
+
+
+pytestmark = pytest.mark.skipif(
+    not postgres_available(),
+    reason="PostgreSQL not available. Start with: docker-compose up -d postgres"
+)
 
 
 @pytest.fixture(scope="module")

@@ -4,14 +4,41 @@ Tests for setup_database.py
 These tests ensure that setup_database.py works correctly when called in isolation,
 without the SQLModel classes being imported first. This is important because
 setup_database.py is meant to be used as a standalone script.
+
+NOTE: These tests require PostgreSQL to be running.
+
+To run these tests:
+1. Start PostgreSQL: docker-compose up -d postgres
+2. Run: pytest tests/test_setup_database.py -v
 """
 
 import os
 
 import pytest
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import OperationalError
 
 from med_lit_schema.setup_database import setup_database
+
+
+# Check if PostgreSQL is available
+def postgres_available():
+    """Check if PostgreSQL database is accessible."""
+    base_db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit")
+    try:
+        engine = create_engine(base_db_url.rsplit("/", 1)[0] + "/postgres", echo=False)
+        with engine.connect():
+            pass
+        engine.dispose()
+        return True
+    except (OperationalError, Exception):
+        return False
+
+
+pytestmark = pytest.mark.skipif(
+    not postgres_available(),
+    reason="PostgreSQL not available. Start with: docker-compose up -d postgres"
+)
 
 
 @pytest.fixture
