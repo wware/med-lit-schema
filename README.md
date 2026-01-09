@@ -1,6 +1,6 @@
 # Medical Knowledge Graph Schema
 
-This directory defines the complete data schema for the medical literature knowledge graph, including entity types, relationship types, and supporting classes for evidence tracking.
+This repository defines the complete data schema for the medical literature knowledge graph, including entity types, relationship types, and supporting classes for evidence tracking.
 
 ## Overview
 
@@ -64,14 +64,15 @@ All data models use **Pydantic v2** for runtime validation, ensuring it's imposs
 
 The schema uses a clean separation between **Domain Models** (for application logic) and **Persistence Models** (for database storage).
 
-### 1. Domain Models (`med_lit_schema/entity.py`)
+### 1. Domain Models (`entity.py`, `relationship.py`, `base.py`)
 - **Purpose**: "How the code thinks about entities."
+- **Location**: Root-level Python files in the repository
 - **Class Structure**: Rich hierarchy (`Disease`, `Gene`, `Drug` inherit from `BaseMedicalEntity`).
 - **Use Case**: Ingestion pipelines, API responses, complex business logic.
 - **Technology**: Pure Pydantic v2.
 - **Why**: Allows for Pythonic OO programming, flexible validation, and clean code without ORM baggage.
 
-### 2. Persistence Models (`med_lit_schema/storage/models/`)
+### 2. Persistence Models (`storage/models/`)
 - **Purpose**: "How the database stores entities."
 - **Class Structure**: Single flattened `Entity` class (Single-Table Inheritance).
 - **Use Case**: Saving to/loading from PostgreSQL or SQLite.
@@ -85,8 +86,15 @@ The schema uses a clean separation between **Domain Models** (for application lo
 
 ## Module Structure
 
+The repository is organized into several key areas:
+
+- **Root-level Python files**: Core domain models (`entity.py`, `relationship.py`, `base.py`, `mapper.py`)
+- **`storage/` directory**: Storage/persistence layer with multiple backend implementations
+- **`pipeline/` directory**: Pipeline stages for entity extraction, relationship extraction, and evidence extraction
+- **`tests/` directory**: Comprehensive test suite
+
 ### `entity.py`
-Defines all entity types in the knowledge graph:
+Defines all entity types in the knowledge graph (located at repository root):
 
 **Core Medical Entities:**
 - `Disease` - Diseases and conditions (UMLS IDs)
@@ -118,7 +126,7 @@ Defines all entity types in the knowledge graph:
 - `InMemoryEntityCollection` (aliased as `EntityCollection`) for efficient storage and retrieval
 
 ### `relationship.py`
-Defines all relationship types between entities.
+Defines all relationship types between entities (located at repository root).
 
 **Predicate Types (all part of `PredicateType` enum):**
 - `AUTHORED_BY`
@@ -134,6 +142,8 @@ Defines all relationship types between entities.
 - `LOCATED_IN`, `AFFECTS`
 
 ## Quick Start
+
+### Basic Usage
 
 ```python
 from med_lit_schema.entity import Disease, Drug
@@ -163,6 +173,28 @@ treats = create_relationship(
     source_papers=["PMC999"],
     confidence=0.85
 )
+```
+
+### Storage Usage
+
+```python
+# Storage backends
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
+from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
+
+# Storage interfaces
+from med_lit_schema.storage.interfaces import PipelineStorageInterface
+
+# Create storage backend (SQLite for development)
+storage = SQLitePipelineStorage("my_database.db")
+
+# Or PostgreSQL for production
+# storage = PostgresPipelineStorage("postgresql://user:pass@localhost/medlit")
+
+# Use storage to persist entities
+storage.entities.add_disease(disease)
+storage.add_paper(paper)
+storage.add_relationship(treats)
 ```
 
 ### Hypothesis Tracking Example
@@ -218,6 +250,36 @@ refutes = Refutes(
     confidence=0.70
 )
 ```
+
+## Current Features
+
+The schema provides a comprehensive set of capabilities for medical knowledge graph construction:
+
+### Storage Backends
+- **SQLite** - Lightweight backend for development and testing
+- **PostgreSQL** - Production-ready backend with advanced features
+- **Pluggable Architecture** - Abstract interfaces enable custom backend implementations
+
+### Knowledge Graph Capabilities
+- **Multiple Entity Types** - Diseases, drugs, genes, proteins, and more
+- **Rich Relationships** - 30+ predicate types covering medical, biological, and research relationships
+- **Hypothesis Tracking** - Track scientific hypotheses from proposal through testing
+- **Evidence Tracking** - Comprehensive provenance with study type, confidence, and paragraph-level citations
+
+### Neo4j Compatibility
+- **Documented Approach** - See `storage/NEO4J_COMPATIBILITY.md` for graph database integration
+- **Flexible Export** - Convert entities and relationships to Neo4j-compatible format
+
+### Pipeline Stages
+- **Entity Extraction** - NER and entity linking pipelines
+- **Relationship Extraction** - Extract relationships from text
+- **Evidence Extraction** - Paragraph-level provenance tracking
+- **Embedding Generation** - Pre-compute embeddings for semantic search
+
+### Quality Assurance
+- **Pydantic Validation** - Runtime validation prevents invalid data
+- **Type Safety** - Full type hints throughout
+- **Comprehensive Tests** - Extensive test suite covering all components
 
 ## Design Principles
 
@@ -313,6 +375,10 @@ evidence=[
 ## Related Documentation
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Detailed architecture documentation and implementation status
+- **[DATABASE_SETUP.md](DATABASE_SETUP.md)** - PostgreSQL setup guide
+- **[storage/README.md](storage/README.md)** - Storage layer architecture and backend options
+- **[storage/NEO4J_COMPATIBILITY.md](storage/NEO4J_COMPATIBILITY.md)** - Guide for Neo4j integration
+- **[pipeline/README.md](pipeline/README.md)** - Pipeline architecture and usage
 
 ## Validation Philosophy
 
