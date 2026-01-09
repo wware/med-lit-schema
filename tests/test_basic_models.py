@@ -124,7 +124,7 @@ def test_paper_model_creation(ingest_info, execution_info):
         relationships=[],
         metadata=PaperMetadata(),
         extraction_provenance=ExtractionProvenance(
-            extraction_pipeline=pipeline_info,
+            extraction_pipeline=ingest_info,
             models={},
             prompt=PromptInfo(version="v1", template="test", checksum=None),
             execution=execution_info,
@@ -153,7 +153,7 @@ def test_paper_model_with_metadata(ingest_info, execution_info):
         relationships=[],
         metadata=PaperMetadata(),
         extraction_provenance=ExtractionProvenance(
-            extraction_pipeline=pipeline_info,
+            extraction_pipeline=ingest_info,
             models={},
             prompt=PromptInfo(version="v1", template="test", checksum=None),
             execution=execution_info,
