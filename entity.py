@@ -50,6 +50,7 @@ class BaseMedicalEntity(BaseModel):
     All specific entity types (Disease, Gene, Drug, etc.) inherit from this class.
 
     Attributes:
+
         entity_id: Unique identifier (e.g., UMLS ID, HGNC ID, RxNorm ID)
         entity_type: Type of entity (disease, drug, gene, etc.)
         name: Primary canonical name for the entity
@@ -60,6 +61,7 @@ class BaseMedicalEntity(BaseModel):
         source: Origin of this entity (umls, mesh, rxnorm, extracted)
 
     Example:
+
         >>> disease = Disease(
         ...     entity_id="C0011860",
         ...     name="Type 2 Diabetes Mellitus",
@@ -93,12 +95,14 @@ class Disease(BaseMedicalEntity):
     MeSH and ICD-10 for interoperability with clinical systems.
 
     Attributes:
+
         umls_id: UMLS Concept ID (e.g., "C0006142" for Breast Cancer)
         mesh_id: Medical Subject Heading ID for literature indexing
         icd10_codes: List of ICD-10 diagnostic codes
         category: Disease classification (genetic, infectious, autoimmune, etc.)
 
     Example:
+
         >>> breast_cancer = Disease(
         ...     entity_id="C0006142",
         ...     name="Breast Cancer",
@@ -125,12 +129,14 @@ class Gene(BaseMedicalEntity):
     with additional mappings to NCBI Entrez Gene.
 
     Attributes:
+
         symbol: Official gene symbol (e.g., "BRCA1")
         hgnc_id: HGNC identifier (e.g., "HGNC:1100")
         chromosome: Chromosomal location (e.g., "17q21.31")
         entrez_id: NCBI Gene ID for cross-referencing
 
     Example:
+
         >>> brca1 = Gene(
         ...     entity_id="HGNC:1100",
         ...     name="BRCA1 DNA repair associated",
@@ -168,12 +174,14 @@ class Drug(BaseMedicalEntity):
     Uses RxNorm as the primary identifier for standardized medication naming.
 
     Attributes:
+
         rxnorm_id: RxNorm Concept ID for drug identification
         brand_names: List of commercial/brand names
         drug_class: Therapeutic class (chemotherapy, immunotherapy, etc.)
         mechanism: Mechanism of action description
 
     Example:
+
         >>> olaparib = Drug(
         ...     entity_id="RxNorm:1187832",
         ...     name="Olaparib",
@@ -199,12 +207,14 @@ class Protein(BaseMedicalEntity):
     Uses UniProt as the primary identifier for protein sequences and annotations.
 
     Attributes:
+
         uniprot_id: UniProt accession number
         gene_id: ID of the gene that encodes this protein
         function: Description of biological function
         pathways: List of biological pathways this protein participates in
 
     Example:
+
         >>> brca1_protein = Protein(
         ...     entity_id="P38398",
         ...     name="Breast cancer type 1 susceptibility protein",
@@ -421,17 +431,20 @@ class Paper(BaseModel):
     A research paper with extracted entities, relationships, and full provenance.
 
     This is the COMPLETE representation of a paper in the knowledge graph, combining:
+
     1. Bibliographic metadata (authors, journal, identifiers)
     2. Text content (title, abstract)
     3. Extracted knowledge (entities and relationships)
     4. Extraction provenance (how extraction was performed)
 
     Design philosophy:
+
     - Top-level fields are FREQUENTLY QUERIED (paper_id, title, authors, publication_date)
     - Nested objects group related data (metadata for study info, provenance for extraction)
     - Field aliases provide backward compatibility with existing code
 
     Why certain fields are top-level:
+
     - `paper_id`: Primary key, referenced everywhere
     - `title`, `abstract`: Core content, always displayed
     - `authors`: Essential for citations, frequently filtered
@@ -439,6 +452,7 @@ class Paper(BaseModel):
     - `journal`: Frequently used for quality filtering
 
     Why other fields are nested:
+
     - `metadata`: Study details, accessed together for evidence assessment
     - `extraction_provenance`: Technical details, only for debugging/reproducibility
     """
@@ -671,12 +685,14 @@ class Author(BaseModel):
     Represents a researcher or author of scientific publications.
 
     Attributes:
+
         orcid: ORCID identifier (unique researcher ID)
         name: Full name of the researcher
         affiliations: List of institutional affiliations
         h_index: Citation metric indicating research impact
 
     Example:
+
         >>> author = Author(
         ...     orcid="0000-0001-2345-6789",
         ...     name="Jane Smith",
@@ -698,6 +714,7 @@ class ClinicalTrial(BaseModel):
     Represents a clinical trial registered on ClinicalTrials.gov.
 
     Attributes:
+
         nct_id: ClinicalTrials.gov identifier (e.g., "NCT01234567")
         title: Official trial title
         phase: Trial phase (I, II, III, IV)
@@ -705,6 +722,7 @@ class ClinicalTrial(BaseModel):
         intervention: Description of treatment being tested
 
     Example:
+
         >>> trial = ClinicalTrial(
         ...     nct_id="NCT01234567",
         ...     title="Study of Drug X in Patients with Disease Y",
@@ -737,6 +755,7 @@ class Hypothesis(BaseMedicalEntity):
     hypothesis evolution: from proposal through testing to acceptance/refutation.
 
     Attributes:
+
         iao_id: IAO identifier (typically IAO:0000018 for hypothesis)
         sepio_id: SEPIO identifier for assertions (SEPIO:0000001)
         proposed_by: Paper ID where hypothesis was first proposed
@@ -746,6 +765,7 @@ class Hypothesis(BaseMedicalEntity):
         predicts: List of entity IDs that this hypothesis predicts outcomes for
 
     Example:
+
         >>> hypothesis = Hypothesis(
         ...     entity_id="HYPOTHESIS:amyloid_cascade_alzheimers",
         ...     name="Amyloid Cascade Hypothesis",
@@ -778,6 +798,7 @@ class StudyDesign(BaseMedicalEntity):
     based on study design.
 
     Attributes:
+
         obi_id: OBI identifier for study design type
         stato_id: STATO identifier for study design (if applicable)
         design_type: Human-readable design type
@@ -785,6 +806,7 @@ class StudyDesign(BaseMedicalEntity):
         evidence_level: Quality level (1-5, where 1 is highest quality)
 
     Example:
+
         >>> rct = StudyDesign(
         ...     entity_id="OBI:0000008",
         ...     name="Randomized Controlled Trial",
@@ -811,12 +833,14 @@ class StatisticalMethod(BaseMedicalEntity):
     classifications. Enables tracking of analytical approaches across studies.
 
     Attributes:
+
         stato_id: STATO identifier for the statistical method
         method_type: Category of method (hypothesis_test, regression, etc.)
         description: Description of the method
         assumptions: Key assumptions of the method
 
     Example:
+
         >>> ttest = StatisticalMethod(
         ...     entity_id="STATO:0000288",
         ...     name="Student's t-test",
@@ -842,6 +866,7 @@ class EvidenceLine(BaseMedicalEntity):
     assertions they support or refute.
 
     Attributes:
+
         sepio_type: SEPIO evidence line type ID
         eco_type: ECO evidence type ID
         assertion_id: ID of the assertion this evidence supports
@@ -852,6 +877,7 @@ class EvidenceLine(BaseMedicalEntity):
         provenance: Provenance information
 
     Example:
+
         >>> evidence = EvidenceLine(
         ...     entity_id="EVIDENCE_LINE:olaparib_brca_001",
         ...     name="Clinical evidence for Olaparib in BRCA-mutated breast cancer",
@@ -890,6 +916,7 @@ class EvidenceItem(BaseModel):
     for standardized evidence classification.
 
     Attributes:
+
         paper_id: PMC ID of the source paper
         confidence: Confidence score for this evidence (0.0-1.0)
         section_type: Section where evidence was found
@@ -905,6 +932,7 @@ class EvidenceItem(BaseModel):
         stato_methods: List of STATO statistical method IDs used in the study
 
     Example:
+
         >>> evidence = EvidenceItem(
         ...     paper_id="PMC999",
         ...     section_type="results",
@@ -952,6 +980,7 @@ class Measurement(BaseModel):
     analysis and evidence quality assessment.
 
     Attributes:
+
         value: The numerical value
         unit: Unit of measurement (if applicable)
         value_type: Type of measurement (effect_size, p_value, etc.)
@@ -961,6 +990,7 @@ class Measurement(BaseModel):
         measurement_context: Additional context about the measurement
 
     Example:
+
         >>> measurement = Measurement(
         ...     value=0.59,
         ...     value_type="response_rate",
@@ -1011,6 +1041,7 @@ class ExtractedEntity(BaseModel):
     canonical typed entity (Disease, Gene, Drug, etc.).
 
     Attributes:
+
         mention_text: Exact text as it appears in the paper (e.g., "T2DM")
         canonical_id: ID of the canonical entity (e.g., UMLS ID, HGNC ID)
         entity_type: Type of entity (disease, drug, gene, etc.)
@@ -1045,6 +1076,7 @@ class EntityMention(BaseModel):
     canonical entity, providing a paper-level summary.
 
     Attributes:
+
         entity_id: Canonical entity ID (e.g., UMLS ID, HGNC ID)
         canonical_name: Normalized name of the entity
         entity_type: Type of entity (disease, drug, gene, etc.)
@@ -1069,6 +1101,7 @@ class Relationship(BaseModel):
     supporting evidence and extraction metadata.
 
     Attributes:
+
         subject_id: Canonical entity ID of the subject (e.g., RxNorm ID for drug)
         predicate: Relationship type (TREATS, CAUSES, ASSOCIATED_WITH, etc.)
         object_id: Canonical entity ID of the object (e.g., UMLS ID for disease)
@@ -1102,6 +1135,7 @@ class ProcessedPaper(BaseModel):
     all extracted entities, relationships, and metadata.
 
     Attributes:
+
         pmc_id: PubMed Central ID
         pmid: PubMed ID
         doi: Digital Object Identifier
@@ -1150,6 +1184,7 @@ class EntityCollectionInterface(ABC):
     """Abstract interface for entity storage and retrieval.
 
     Applications can provide concrete implementations backed by:
+
     - In-memory dictionaries (for testing/small datasets)
     - PostgreSQL (for production relational storage)
     - Redis (for caching and fast lookups)
@@ -1318,12 +1353,14 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
     """In-memory implementation of EntityCollection using dictionaries.
 
     Suitable for:
+
     - Testing
     - Small datasets (< 100k entities)
     - Development environments
     - Prototyping
 
     For production use with large datasets, consider:
+
     - PostgresEntityCollection (for relational storage)
     - RedisEntityCollection (for fast caching)
 
@@ -1332,6 +1369,7 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
     methods for adding, querying, and persisting the collection.
 
     Attributes:
+
         diseases: Dictionary mapping entity_id to Disease entities
         genes: Dictionary mapping entity_id to Gene entities
         drugs: Dictionary mapping entity_id to Drug entities
@@ -1574,14 +1612,17 @@ def generate_embeddings_for_entities(collection: InMemoryEntityCollection, embed
     Custom implementations should provide their own embedding generation.
 
     Args:
+
         collection: InMemoryEntityCollection to process
         embedding_function: Callable that takes text and returns embedding vector
         batch_size: Number of entities to process in each batch
 
     Returns:
+
         Updated InMemoryEntityCollection with embeddings
 
     Example:
+
         >>> def my_embedding_fn(text: str) -> List[float]:
         ...     # Use your preferred embedding model
         ...     return model.encode(text)

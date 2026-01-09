@@ -15,6 +15,7 @@ class BaseRelationship(BaseModel):
     Minimal relationship base for all types.
 
     Attributes:
+
         subject_id: Entity ID of the subject (source node)
         predicate: Relationship type
         object_id: Entity ID of the object (target node)
@@ -43,6 +44,7 @@ class BaseMedicalRelationship(BaseRelationship):
     (detailed Evidence objects) and quantitative measurements.
 
     Attributes:
+
         subject_id: Entity ID of the subject (source node)
         predicate: Relationship type
         object_id: Entity ID of the object (target node)
@@ -106,6 +108,7 @@ class Causes(BaseMedicalRelationship):
     Direction: Disease -> Symptom
 
     Attributes:
+
         frequency: How often the symptom occurs (always, often, sometimes, rarely)
         onset: When the symptom typically appears (early, late)
         severity: Typical severity of the symptom
@@ -136,6 +139,7 @@ class Treats(BaseMedicalRelationship):
     Direction: Drug -> Disease
 
     Attributes:
+
         efficacy: Effectiveness measure or description
         response_rate: Percentage of patients responding (0.0-1.0)
         line_of_therapy: Treatment sequence (first-line, second-line, etc.)
@@ -169,6 +173,7 @@ class IncreasesRisk(BaseMedicalRelationship):
     Direction: Gene/Mutation -> Disease
 
     Attributes:
+
         risk_ratio: Numeric risk increase (e.g., 2.5 means 2.5x higher risk)
         penetrance: Percentage who develop condition (0.0-1.0)
         age_of_onset: Typical age when disease manifests
@@ -208,6 +213,7 @@ class AssociatedWith(BaseMedicalRelationship):
         - Biomarker -> Disease
 
     Attributes:
+
         association_type: Nature of association (positive, negative, neutral)
         strength: Association strength (strong, moderate, weak)
         statistical_significance: p-value from statistical tests
@@ -238,6 +244,7 @@ class InteractsWith(BaseMedicalRelationship):
     Direction: Drug <-> Drug (bidirectional)
 
     Attributes:
+
         interaction_type: Nature of interaction (synergistic, antagonistic, additive)
         severity: Clinical severity (major, moderate, minor)
         mechanism: Pharmacological mechanism of interaction
@@ -302,6 +309,7 @@ class DiagnosedBy(BaseMedicalRelationship):
     Direction: Disease -> Procedure/Biomarker
 
     Attributes:
+
         sensitivity: True positive rate (0.0-1.0)
         specificity: True negative rate (0.0-1.0)
         standard_of_care: Whether this is standard clinical practice
@@ -332,6 +340,7 @@ class SideEffect(BaseMedicalRelationship):
     Direction: Drug -> Symptom
 
     Attributes:
+
         frequency: How often it occurs (common, uncommon, rare)
         severity: Severity level (mild, moderate, severe)
         reversible: Whether the side effect resolves after stopping the drug
@@ -369,6 +378,7 @@ class ResearchRelationship(BaseRelationship):
     since they represent bibliographic metadata rather than medical claims.
 
     Attributes:
+
         subject_id: ID of the subject entity
         predicate: Relationship type
         object_id: ID of the object entity
@@ -385,6 +395,7 @@ class Cites(ResearchRelationship):
     Direction: Paper -> Paper (citing -> cited)
 
     Attributes:
+
         context: Section where citation appears (introduction, methods, discussion)
         sentiment: How the citation is used (supports, contradicts, mentions)
 
@@ -410,6 +421,7 @@ class StudiedIn(ResearchRelationship):
     Direction: Any medical entity -> Paper
 
     Attributes:
+
         role: Importance in the paper (primary_focus, secondary_finding, mentioned)
         section: Where discussed (results, methods, discussion, introduction)
 
@@ -458,6 +470,7 @@ class Predicts(BaseMedicalRelationship):
     Direction: Hypothesis -> Entity (Disease, Outcome, etc.)
 
     Attributes:
+
         prediction_type: Nature of prediction (positive, negative, conditional)
         conditions: Conditions under which prediction holds
         testable: Whether the prediction is empirically testable
@@ -486,6 +499,7 @@ class Refutes(BaseMedicalRelationship):
     Direction: Evidence/Paper -> Hypothesis
 
     Attributes:
+
         refutation_strength: Strength of refutation (strong, moderate, weak)
         alternative_explanation: Alternative explanation for observations
         limitations: Limitations of the refuting evidence
@@ -514,6 +528,7 @@ class TestedBy(BaseMedicalRelationship):
     Direction: Hypothesis -> Paper/ClinicalTrial
 
     Attributes:
+
         test_outcome: Result of the test (supported, refuted, inconclusive)
         methodology: Study methodology used
         study_design_id: OBI study design ID
@@ -544,6 +559,7 @@ class Generates(BaseMedicalRelationship):
     Direction: ClinicalTrial/Paper -> Evidence
 
     Attributes:
+
         evidence_type: Type of evidence generated (experimental, observational, etc.)
         eco_type: ECO evidence type ID
         quality_score: Quality assessment score
@@ -578,12 +594,14 @@ def create_relationship(predicate: PredicateType, subject_id: str, object_id: st
     This allows you to use either the generic interface or the strongly-typed one.
 
     Args:
+
         predicate: The type of relationship
         subject_id: ID of the subject entity
         object_id: ID of the object entity
         **kwargs: Additional fields specific to the relationship type
 
     Returns:
+
         Appropriately typed relationship instance
 
     Example:

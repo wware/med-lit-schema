@@ -39,12 +39,15 @@ def to_persistence(domain: BaseMedicalEntity) -> Entity:
     Convert a domain model to a persistence model for database storage.
 
     Args:
+
         domain: Any domain entity (Disease, Gene, Drug, etc.)
 
     Returns:
+
         Flattened Entity model ready for database insertion
 
     Example:
+
         >>> disease = Disease(
         ...     entity_id="C0006142",
         ...     entity_type=EntityType.DISEASE,
@@ -181,12 +184,15 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
     Convert a persistence model back to a domain model.
 
     Args:
+
         persistence: Flattened Entity from database
 
     Returns:
+
         Rich domain model (Disease, Gene, Drug, etc.)
 
     Example:
+
         >>> entity = Entity(
         ...     id="C0006142",
         ...     entity_type="disease",
