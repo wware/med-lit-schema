@@ -3,7 +3,7 @@ Tests for provenance ingest including XML parsing.
 
 Tests the full ingest with representative fake papers.
 
-Run with: uv run pytest tests/test_provenance_pipeline.py -v
+Run with: uv run pytest tests/test_provenance_ingest.py -v
 """
 
 import pytest

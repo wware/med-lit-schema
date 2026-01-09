@@ -192,7 +192,7 @@ To test with PostgreSQL:
 
 ## End-to-End Testing
 
-The `tests/test_provenance_pipeline.py` file includes an end-to-end test that validates a complete paper ingestion flow:
+The `tests/test_provenance_ingest.py` file includes an end-to-end test that validates a complete paper ingestion flow:
 
 - Creates entities
 - Creates relationships
