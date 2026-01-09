@@ -58,9 +58,7 @@ class PaperParserInterface(ABC):
         """
         pass
 
-    def parse_directory(
-        self, directory: Path, pattern: str = "*"
-    ) -> Iterator[tuple[Path, Optional[Paper]]]:
+    def parse_directory(self, directory: Path, pattern: str = "*") -> Iterator[tuple[Path, Optional[Paper]]]:
         """
         Parse all matching files in a directory.
 

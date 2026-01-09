@@ -41,6 +41,8 @@ except ImportError:
     from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
     from med_lit_schema.pipeline.pmc_parser import PMCXMLParser
 
+from med_lit_schema.entity import Paper
+
 
 def parse_pmc_xml(xml_path: Path) -> Optional["Paper"]:
     """
@@ -96,6 +98,7 @@ def main():
         try:
             module_path, class_name = args.parser.rsplit(".", 1)
             import importlib
+
             module = importlib.import_module(module_path)
             parser_class = getattr(module, class_name)
             paper_parser = parser_class()

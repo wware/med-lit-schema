@@ -41,10 +41,7 @@ def postgres_available():
         return False
 
 
-pytestmark = pytest.mark.skipif(
-    not postgres_available(),
-    reason="PostgreSQL not available. Start with: docker-compose up -d postgres"
-)
+pytestmark = pytest.mark.skipif(not postgres_available(), reason="PostgreSQL not available. Start with: docker-compose up -d postgres")
 
 
 @pytest.fixture(scope="module")

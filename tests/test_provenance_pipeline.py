@@ -9,22 +9,13 @@ Run with: uv run pytest tests/test_provenance_pipeline.py -v
 import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from datetime import datetime
-import socket
-import platform
 
 from med_lit_schema.entity import (
-    Paper,
     Disease,
     Gene,
     Drug,
     EntityType,
     EvidenceItem,
-    PaperMetadata,
-    ExtractionProvenance,
-    ExtractionPipelineInfo,
-    ExecutionInfo,
-    PromptInfo,
 )
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType
@@ -312,9 +303,7 @@ def test_relationships_with_papers(storage):
     assert storage.relationships.relationship_count == 2
 
     # Test retrieval
-    retrieved = storage.relationships.get_relationship(
-        "RxNorm:1187832", "treats", "C0006142"
-    )
+    retrieved = storage.relationships.get_relationship("RxNorm:1187832", "treats", "C0006142")
     assert retrieved is not None
     assert retrieved.confidence == 0.95
     assert "PMC999999" in retrieved.source_papers
@@ -387,9 +376,7 @@ def test_complete_provenance_flow(storage):
         storage.papers.add_paper(paper)
 
         # Step 3: Create and store entities
-        disease = Disease(
-            entity_id="C0001", entity_type=EntityType.DISEASE, name="Test Disease", source="umls"
-        )
+        disease = Disease(entity_id="C0001", entity_type=EntityType.DISEASE, name="Test Disease", source="umls")
         storage.entities.add_disease(disease)
 
         # Step 4: Create and store relationship
@@ -424,7 +411,5 @@ def test_complete_provenance_flow(storage):
         assert retrieved_paper is not None
         assert retrieved_paper.extraction_provenance is not None
 
-        retrieved_rel = storage.relationships.get_relationship(
-            "C0001", "associated_with", "C0001"
-        )
+        retrieved_rel = storage.relationships.get_relationship("C0001", "associated_with", "C0001")
         assert "PMC111111" in retrieved_rel.source_papers

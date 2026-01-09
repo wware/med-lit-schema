@@ -184,23 +184,13 @@ class PMCXMLParser(PaperParserInterface):
     def _extract_title(self, article_meta) -> str:
         """Extract article title."""
         title_elem = article_meta.find(".//article-title")
-        return (
-            "".join(title_elem.itertext()).strip()
-            if title_elem is not None
-            else "Untitled"
-        )
+        return "".join(title_elem.itertext()).strip() if title_elem is not None else "Untitled"
 
     def _extract_journal(self, front) -> str:
         """Extract journal name."""
         journal_meta = front.find(".//journal-meta")
-        journal_elem = (
-            journal_meta.find(".//journal-title") if journal_meta is not None else None
-        )
-        return (
-            "".join(journal_elem.itertext()).strip()
-            if journal_elem is not None
-            else "Unknown Journal"
-        )
+        journal_elem = journal_meta.find(".//journal-title") if journal_meta is not None else None
+        return "".join(journal_elem.itertext()).strip() if journal_elem is not None else "Unknown Journal"
 
     def _extract_publication_date(self, article_meta) -> Optional[str]:
         """Extract publication date in YYYY-MM-DD format."""
@@ -236,9 +226,7 @@ class PMCXMLParser(PaperParserInterface):
                     given_names_elem = name_elem.find("given-names")
 
                     surname = surname_elem.text if surname_elem is not None else ""
-                    given_names = (
-                        given_names_elem.text if given_names_elem is not None else None
-                    )
+                    given_names = given_names_elem.text if given_names_elem is not None else None
 
                     if surname:
                         if given_names:
