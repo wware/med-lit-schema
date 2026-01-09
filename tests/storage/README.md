@@ -263,19 +263,19 @@ def test_complete_paper_ingestion(storage):
 
 ## Mocking Storage
 
-For testing pipeline stages without database:
+For testing ingest stages without database:
 
 ```python
 from unittest.mock import Mock
 from med_lit_schema.storage.interfaces import PipelineStorageInterface
 
-def test_pipeline_stage():
+def test_ingest_stage():
     # Create mock storage
     mock_storage = Mock(spec=PipelineStorageInterface)
     mock_storage.entities.get_by_id.return_value = Disease(...)
     
-    # Use in pipeline
-    stage = MyPipelineStage(mock_storage)
+    # Use in ingest
+    stage = MyIngestStage(mock_storage)
     result = stage.process()
     
     # Verify interactions
@@ -293,7 +293,7 @@ Current coverage (as of this writing):
 **Goals:**
 - Backend coverage: > 90%
 - Model coverage: > 95%
-- Integration tests: Full pipeline flows
+- Integration tests: Full ingest flows
 
 **Check coverage:**
 ```bash

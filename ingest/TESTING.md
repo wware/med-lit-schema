@@ -1,8 +1,8 @@
-# Pipeline Testing Guide
+# Ingest Testing Guide
 
 ## Overview
 
-The pipeline uses ABC-style storage interfaces that support both SQLite (for testing) and PostgreSQL+pgvector (for production). This guide explains how to test the pipeline components.
+The ingest process uses ABC-style storage interfaces that support both SQLite (for testing) and PostgreSQL+pgvector (for production). This guide explains how to test the ingest components.
 
 ## Testing with In-Memory SQLite
 
@@ -47,24 +47,24 @@ with NamedTemporaryFile(delete=False, suffix='.db') as tmp:
    - Evidence metrics (sample size, p-value)
    - Evidence linking to papers and relationships
 
-5. **Provenance Pipeline**
+5. **Provenance Ingest**
    - XML parsing
    - Paper metadata extraction
    - Author, journal, date extraction
 
 ### What Requires Real Data
 
-1. **NER Pipeline**
+1. **NER Ingest**
    - Requires BioBERT model download
    - Needs actual PMC XML files
    - Entity extraction from text
 
-2. **Claims Pipeline**
+2. **Claims Ingest**
    - Requires entity resolution (linking mentions to canonical IDs)
    - Needs paragraph-level text
    - Pattern matching or LLM extraction
 
-3. **Embeddings Pipeline**
+3. **Embeddings Ingest**
    - Requires sentence-transformers models
    - Needs text to embed
    - Vector similarity search
@@ -125,18 +125,18 @@ xml_content = """<?xml version="1.0"?>
 </article>"""
 
 # Parse and store
-from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
+from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 paper = parse_pmc_xml(Path("fake_paper.xml"))
 storage.papers.add_paper(paper)
 ```
 
 ## Example Test Script
 
-Here's a complete example that tests the full pipeline:
+Here's a complete example that tests the full ingest:
 
 ```python
 #!/usr/bin/env -S uv run python
-"""Test pipeline with fake papers."""
+"""Test ingest with fake papers."""
 
 from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
 from med_lit_schema.entity import Paper, Disease, EntityType
@@ -192,7 +192,7 @@ To test with PostgreSQL:
 
 ## End-to-End Testing
 
-The `tests/test_pipeline_storage.py` file includes an end-to-end test that validates a complete paper ingestion flow:
+The `tests/test_provenance_pipeline.py` file includes an end-to-end test that validates a complete paper ingestion flow:
 
 - Creates entities
 - Creates relationships

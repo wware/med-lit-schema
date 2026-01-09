@@ -18,7 +18,7 @@ SQLite implementation for development, testing, and small-scale deployments.
 **Use Cases:**
 - Local development
 - Automated testing
-- CI/CD pipelines
+- CI/CD ingests
 - Small projects (< 100k entities)
 - Prototyping
 

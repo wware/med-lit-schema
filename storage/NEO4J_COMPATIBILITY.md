@@ -2,13 +2,13 @@
 
 ## 1. Introduction
 
-The pipeline storage interfaces are designed to be **storage-agnostic**, enabling the medical literature knowledge graph to be backed by various persistence technologies. While the current implementations target SQLite (for testing) and PostgreSQL with pgvector (for production), the abstract interface design is perfectly suited for graph database backends like **Neo4j**.
+The ingest storage interfaces are designed to be **storage-agnostic**, enabling the medical literature knowledge graph to be backed by various persistence technologies. While the current implementations target SQLite (for testing) and PostgreSQL with pgvector (for production), the abstract interface design is perfectly suited for graph database backends like **Neo4j**.
 
 The interfaces define operations in terms of entities and relationships rather than tables and SQL, making them naturally compatible with graph database concepts. This document explains how the storage interfaces align with Neo4j's graph model and how a Neo4j backend could be implemented.
 
 ## 2. Current Interface Design
 
-The pipeline uses several abstract interfaces defined in `storage_interfaces.py`:
+The ingest process uses several abstract interfaces defined in `storage_interfaces.py`:
 
 ### PaperStorageInterface
 Stores paper metadata and document structure from medical literature sources (PMC XML files).
@@ -48,7 +48,7 @@ Stores biomedical entities (diseases, genes, drugs, proteins, etc.) with their m
 - `entity_count` - Count total entities
 
 ### PipelineStorageInterface
-Combines all of the above interfaces into a unified storage abstraction that pipeline stages use.
+Combines all of the above interfaces into a unified storage abstraction that ingest stages use.
 
 **Properties:**
 - `entities` - Access to EntityCollectionInterface
@@ -131,7 +131,7 @@ from med_lit_schema.entity import EntityCollectionInterface
 from typing import Optional
 
 class Neo4jPipelineStorage(PipelineStorageInterface):
-    """Neo4j implementation of pipeline storage."""
+    """Neo4j implementation of ingest storage."""
     
     def __init__(self, uri: str, user: str, password: str):
         """Initialize Neo4j connection.
@@ -350,11 +350,11 @@ The interface design is **intentionally abstract** to support backend swapping:
   - **Used instead of PostgreSQL** - Neo4j with vector plugins for all-in-one graph+vector storage
   - **Used as a read replica** - ETL from PostgreSQL to Neo4j for analytical queries
 
-The clean abstraction means you can choose the right tool for each deployment scenario without changing pipeline code.
+The clean abstraction means you can choose the right tool for each deployment scenario without changing ingest code.
 
 ## 7. Conclusion
 
-The pipeline storage interfaces are **fully compatible with Neo4j** and graph database implementations. The design is:
+The ingest storage interfaces are **fully compatible with Neo4j** and graph database implementations. The design is:
 
 - **Graph-native**: Thinks in terms of entities and relationships rather than tables and rows
 - **Traversal-friendly**: Methods like `find_relationships()` map directly to graph queries

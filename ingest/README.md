@@ -1,18 +1,18 @@
-# Medical Literature Ingestion Pipeline
+# Medical Literature Ingestion
 
 ## Overview
 
-The pipeline extracts structured knowledge from medical literature (PMC XML files), including:
+The ingest process extracts structured knowledge from medical literature (PMC XML files), including:
 - **Entities**: Diseases, genes, drugs, proteins, and other biomedical entities
 - **Relationships**: Semantic relationships between entities (e.g., "Drug X treats Disease Y")
 - **Evidence**: Quantitative metrics supporting relationships (sample sizes, p-values, etc.)
 - **Papers**: Metadata and structure of source papers
 
-The pipeline uses ABC-style storage interfaces, allowing you to choose your storage backend (SQLite for testing, PostgreSQL+pgvector for production, or custom implementations).
+The ingest process uses ABC-style storage interfaces, allowing you to choose your storage backend (SQLite for testing, PostgreSQL+pgvector for production, or custom implementations).
 
-## Pipeline Stages
+## Ingest Stages
 
-The pipeline consists of four main stages:
+The ingest process consists of four main stages:
 
 1. **`ner_pipeline.py`** - Entity extraction using BioBERT NER
    - Extracts biomedical entities from paper text
@@ -43,12 +43,12 @@ from pathlib import Path
 from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 
 # Initialize storage
-storage = SQLitePipelineStorage(Path("output/pipeline.db"))
+storage = SQLitePipelineStorage(Path("output/ingest.db"))
 # or for in-memory testing:
 storage = SQLitePipelineStorage(":memory:")
 
-# Use in pipeline stages
-# All pipeline scripts accept --storage sqlite
+# Use in ingest stages
+# All ingest scripts accept --storage sqlite
 ```
 
 ### Using PostgreSQL (Production)
@@ -59,35 +59,35 @@ from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
 # Initialize storage
 storage = PostgresPipelineStorage("postgresql://user:pass@localhost/dbname")
 
-# Use in pipeline stages
-# All pipeline scripts accept --storage postgres --database-url <url>
+# Use in ingest stages
+# All ingest scripts accept --storage postgres --database-url <url>
 ```
 
-### Running Pipeline Stages
+### Running Ingest Stages
 
 ```bash
 # Stage 1: Extract entities
-python pipeline/ner_pipeline.py --storage sqlite --output-dir output
+python ingest/ner_pipeline.py --storage sqlite --output-dir output
 
 # Stage 2: Extract paper metadata
-python pipeline/provenance_pipeline.py --storage sqlite --output-dir output
+python ingest/provenance_pipeline.py --storage sqlite --output-dir output
 
 # Stage 3: Extract relationships
-python pipeline/claims_pipeline.py --storage sqlite --output-dir output
+python ingest/claims_pipeline.py --storage sqlite --output-dir output
 
 # Stage 4: Extract evidence
-python pipeline/evidence_pipeline.py --storage sqlite --output-dir output
+python ingest/evidence_pipeline.py --storage sqlite --output-dir output
 ```
 
 ## Storage Interfaces
 
-The pipeline uses storage interfaces to support different backends. All storage-related code is now organized in the `storage/` directory. For detailed information, see [storage/README.md](../storage/README.md).
+The ingest process uses storage interfaces to support different backends. All storage-related code is now organized in the `storage/` directory. For detailed information, see [storage/README.md](../storage/README.md).
 
 ### Main Interface: `PipelineStorageInterface`
 
 **Location**: `storage/interfaces.py`
 
-This is the primary interface that all pipeline stages use. It provides access to:
+This is the primary interface that all ingest stages use. It provides access to:
 
 - `entities`: EntityCollectionInterface - Store and retrieve biomedical entities
 - `papers`: PaperStorageInterface - Store and retrieve paper metadata
@@ -153,7 +153,7 @@ from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType
 
 # Initialize storage
-storage: PipelineStorageInterface = SQLitePipelineStorage(Path("output/pipeline.db"))
+storage: PipelineStorageInterface = SQLitePipelineStorage(Path("output/ingest.db"))
 
 # Add entities
 disease = Disease(
@@ -174,7 +174,7 @@ relationship = create_relationship(
 storage.relationships.add_relationship(relationship)
 
 # Generate and store embeddings (optional)
-from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
+from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
 embedding_generator = SentenceTransformerEmbeddingGenerator()
 embedding = embedding_generator.generate_embedding("Olaparib treats breast cancer")
 storage.relationship_embeddings.store_relationship_embedding(
@@ -241,7 +241,7 @@ This interface is for file-based parsers that extract paper metadata from files.
 **Example Implementation**:
 
 ```python
-from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
+from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
 from med_lit_schema.entity import Paper
 from pathlib import Path
 
@@ -257,7 +257,7 @@ class MyCustomParser(PaperParserInterface):
 
 ### Streaming Interface: `StreamingParserInterface`
 
-**Location**: `pipeline/parser_interfaces.py`
+**Location**: `ingest/parser_interfaces.py`
 
 This interface is for parsers that work with APIs, databases, or other non-file sources:
 
@@ -267,7 +267,7 @@ This interface is for parsers that work with APIs, databases, or other non-file 
 
 ### Reference Implementation: PMCXMLParser
 
-**Location**: `pipeline/pmc_parser.py`
+**Location**: `ingest/pmc_parser.py`
 
 The `PMCXMLParser` class implements `PaperParserInterface` for parsing PubMed Central XML files. It extracts:
 - Paper metadata (PMCID, title, authors, journal, dates)
@@ -277,7 +277,7 @@ The `PMCXMLParser` class implements `PaperParserInterface` for parsing PubMed Ce
 **Usage**:
 
 ```python
-from med_lit_schema.pipeline.pmc_parser import PMCXMLParser
+from med_lit_schema.ingest.pmc_parser import PMCXMLParser
 from pathlib import Path
 
 parser = PMCXMLParser()
@@ -288,7 +288,7 @@ if paper:
 
 ## Domain Models
 
-The pipeline uses domain models from the main schema package:
+The ingest process uses domain models from the main schema package:
 - `Paper` - Paper metadata and structure
 - `BaseRelationship` / `BaseMedicalRelationship` - Relationships between entities
 - `EvidenceItem` - Evidence supporting relationships
@@ -298,10 +298,10 @@ Domain models are automatically converted to/from persistence models via `mapper
 
 ## Embedding Generation
 
-The pipeline supports generating embeddings for relationships using the `EmbeddingGeneratorInterface`:
+The ingest process supports generating embeddings for relationships using the `EmbeddingGeneratorInterface`:
 
 ```python
-from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
+from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
 
 # Initialize embedding generator
 generator = SentenceTransformerEmbeddingGenerator(
@@ -313,8 +313,8 @@ embedding = generator.generate_embedding("Some text")
 embeddings = generator.generate_embeddings_batch(["Text 1", "Text 2"], batch_size=32)
 ```
 
-The claims pipeline automatically generates embeddings for relationships when run without `--skip-embeddings`.
+The claims ingest automatically generates embeddings for relationships when run without `--skip-embeddings`.
 
 ## Testing
 
-See `TESTING.md` for information on testing the pipeline with in-memory SQLite and fake data.
+See `TESTING.md` for information on testing the ingest with in-memory SQLite and fake data.

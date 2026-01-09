@@ -67,7 +67,7 @@ The schema uses a clean separation between **Domain Models** (for application lo
 ### 1. Domain Models (`med_lit_schema/entity.py`)
 - **Purpose**: "How the code thinks about entities."
 - **Class Structure**: Rich hierarchy (`Disease`, `Gene`, `Drug` inherit from `BaseMedicalEntity`).
-- **Use Case**: Ingestion pipelines, API responses, complex business logic.
+- **Use Case**: Ingestion scripts, API responses, complex business logic.
 - **Technology**: Pure Pydantic v2.
 - **Why**: Allows for Pythonic OO programming, flexible validation, and clean code without ORM baggage.
 
