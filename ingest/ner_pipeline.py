@@ -196,7 +196,7 @@ def process_paper(
                 source_type="paper",
                 source_id=pmc_id,
                 source_version=None,
-                notes=json.dumps({"extraction_pipeline": pipeline_info.name, "git_commit": pipeline_info.git_commit_short, "model": model_info.name}),
+                notes=json.dumps({"extraction_pipeline": ingest_info.name, "git_commit": ingest_info.git_commit_short, "model": model_info.name}),
             )
 
             # Create ExtractionEdge with full provenance
