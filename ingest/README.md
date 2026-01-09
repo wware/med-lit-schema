@@ -229,7 +229,7 @@ The pipeline uses parser interfaces to support different input formats for paper
 
 ### Main Interface: `PaperParserInterface`
 
-**Location**: `pipeline/parser_interfaces.py`
+**Location**: `ingest/parser_interfaces.py`
 
 This interface is for file-based parsers that extract paper metadata from files. It provides:
 
