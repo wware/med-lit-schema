@@ -20,9 +20,9 @@ try:
     from ..base import PredicateType
     from ..relationship import BaseRelationship, create_relationship
     from ..entity import EvidenceItem
-    from .storage_interfaces import PipelineStorageInterface
-    from .sqlite_storage import SQLitePipelineStorage
-    from .postgres_storage import PostgresPipelineStorage
+    from ..storage.interfaces import PipelineStorageInterface
+    from ..storage.backends.sqlite import SQLitePipelineStorage
+    from ..storage.backends.postgres import PostgresPipelineStorage
     from .embedding_interfaces import EmbeddingGeneratorInterface
     from .embedding_generators import SentenceTransformerEmbeddingGenerator
 except ImportError:
@@ -30,9 +30,9 @@ except ImportError:
     from med_lit_schema.base import PredicateType
     from med_lit_schema.relationship import BaseRelationship, create_relationship
     from med_lit_schema.entity import EvidenceItem
-    from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
-    from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
-    from med_lit_schema.pipeline.postgres_storage import PostgresPipelineStorage
+    from med_lit_schema.storage.interfaces import PipelineStorageInterface
+    from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
+    from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
     from med_lit_schema.pipeline.embedding_interfaces import EmbeddingGeneratorInterface
     from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
 

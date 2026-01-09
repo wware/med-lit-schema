@@ -14,9 +14,9 @@ from typing import TYPE_CHECKING, Optional
 
 # Use string annotations for forward references to avoid import issues
 if TYPE_CHECKING:
-    from ..entity import Paper, EvidenceItem, EntityCollectionInterface
-    from ..relationship import BaseRelationship
-    from .embedding_interfaces import RelationshipEmbeddingStorageInterface
+    from med_lit_schema.entity import Paper, EvidenceItem, EntityCollectionInterface
+    from med_lit_schema.relationship import BaseRelationship
+    from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
 
 
 class PaperStorageInterface(ABC):

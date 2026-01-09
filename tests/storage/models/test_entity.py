@@ -13,7 +13,7 @@ These tests use the PostgreSQL database from docker-compose.
 
 To run these tests:
 1. Start PostgreSQL: docker-compose up -d postgres
-2. Run: pytest tests/test_entity_sqlmodel.py -v
+2. Run: pytest tests/storage/models/test_entity.py -v
 """
 
 import json
@@ -24,7 +24,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from med_lit_schema.entity_sqlmodel import Entity, EntityType
+from med_lit_schema.storage.models.entity import Entity, EntityType
 
 
 # Check if PostgreSQL is available

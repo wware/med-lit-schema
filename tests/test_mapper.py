@@ -21,7 +21,7 @@ from med_lit_schema.entity import (
     EvidenceLine,
     EntityType,
 )
-from med_lit_schema.entity_sqlmodel import Entity
+from med_lit_schema.storage.models.entity import Entity
 from med_lit_schema.mapper import to_persistence, to_domain
 
 

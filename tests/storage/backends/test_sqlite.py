@@ -1,7 +1,7 @@
 """
-Tests for pipeline storage interfaces.
+Tests for SQLite storage backend.
 
-Run with: uv run pytest tests/test_pipeline_storage.py -v
+Run with: pytest tests/storage/backends/test_sqlite.py -v
 """
 
 import pytest
@@ -11,7 +11,7 @@ import platform
 
 # These imports should work once the package is installed
 try:
-    from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+    from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
     from med_lit_schema.entity import Paper, Disease, Gene, Drug, EntityType, EvidenceItem, PaperMetadata, ExtractionProvenance, ExtractionPipelineInfo, ExecutionInfo, PromptInfo
     from med_lit_schema.relationship import create_relationship
     from med_lit_schema.base import PredicateType

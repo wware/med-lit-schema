@@ -8,7 +8,7 @@ It uses SQLModel persistence models and mapper functions for domain ↔ persiste
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from ..entity import (
+    from med_lit_schema.entity import (
         Disease,
         Gene,
         Drug,
@@ -23,29 +23,29 @@ if TYPE_CHECKING:
 from sqlalchemy import create_engine, select
 from sqlmodel import Session
 
-from .storage_interfaces import (
+from storage.interfaces import (
     PaperStorageInterface,
     RelationshipStorageInterface,
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
-from .embedding_interfaces import RelationshipEmbeddingStorageInterface
-from ..entity import (
+from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
+from med_lit_schema.entity import (
     Paper,
     EvidenceItem,
     EntityCollectionInterface,
 )
-from ..relationship import BaseRelationship
-from ..mapper import (
+from med_lit_schema.relationship import BaseRelationship
+from med_lit_schema.mapper import (
     to_persistence as entity_to_persistence,
     to_domain as entity_to_domain,
     relationship_to_persistence,
     relationship_to_domain,
 )
-from ..entity_sqlmodel import Entity
-from ..relationship_sqlmodel import Relationship
-from ..paper_sqlmodel import Paper as PaperPersistence
-from ..evidence_sqlmodel import Evidence as EvidencePersistence
+from storage.models.entity import Entity
+from storage.models.relationship import Relationship
+from storage.models.paper import Paper as PaperPersistence
+from storage.models.evidence import Evidence as EvidencePersistence
 
 
 class PostgresPaperStorage(PaperStorageInterface):
