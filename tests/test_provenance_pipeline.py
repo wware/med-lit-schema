@@ -1,7 +1,7 @@
 """
-Tests for provenance pipeline including XML parsing.
+Tests for provenance ingest including XML parsing.
 
-Tests the full pipeline with representative fake papers.
+Tests the full ingest with representative fake papers.
 
 Run with: uv run pytest tests/test_provenance_pipeline.py -v
 """
@@ -122,7 +122,7 @@ def storage(temp_db):
 
 def test_xml_parsing_with_full_metadata():
     """Test parsing PMC XML with complete metadata."""
-    from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
+    from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
         xml_dir = Path(tmpdir)
@@ -156,7 +156,7 @@ def test_xml_parsing_with_full_metadata():
 
 def test_xml_parsing_minimal_metadata():
     """Test parsing PMC XML with minimal metadata."""
-    from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
+    from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
         xml_dir = Path(tmpdir)
@@ -186,7 +186,7 @@ def test_xml_parsing_minimal_metadata():
 
 def test_paper_storage_after_parsing(storage):
     """Test storing parsed papers in the database."""
-    from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
+    from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
         xml_dir = Path(tmpdir)
@@ -350,7 +350,7 @@ def test_evidence_linking(storage):
 
 def test_complete_provenance_flow(storage):
     """Test complete end-to-end provenance flow from XML to storage."""
-    from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
+    from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
         xml_dir = Path(tmpdir)

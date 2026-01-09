@@ -16,7 +16,7 @@ from med_lit_schema.entity import (
     ExecutionInfo,
     PromptInfo,
 )
-from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
+from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
 
 
 class PMCXMLParser(PaperParserInterface):
@@ -116,8 +116,8 @@ class PMCXMLParser(PaperParserInterface):
                 authors=authors,
                 publication_date=pub_date,
                 journal=journal,
-                entities=[],  # Will be populated by NER pipeline
-                relationships=[],  # Will be populated by claims pipeline
+                entities=[],  # Will be populated by NER ingest
+                relationships=[],  # Will be populated by claims ingest
                 metadata=PaperMetadata(
                     mesh_terms=mesh_terms,
                     publication_date=pub_date,

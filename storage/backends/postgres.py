@@ -1,5 +1,5 @@
 """
-PostgreSQL+pgvector implementation of pipeline storage interfaces.
+PostgreSQL+pgvector implementation of ingest storage interfaces.
 
 This implementation uses PostgreSQL with pgvector for production storage.
 It uses SQLModel persistence models and mapper functions for domain ↔ persistence conversion.
@@ -29,7 +29,7 @@ from med_lit_schema.storage.interfaces import (
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
-from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
+from med_lit_schema.ingest.embedding_interfaces import RelationshipEmbeddingStorageInterface
 from med_lit_schema.entity import (
     Paper,
     EvidenceItem,
@@ -394,7 +394,7 @@ class PostgresRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface
 
 
 class PostgresPipelineStorage(PipelineStorageInterface):
-    """PostgreSQL+pgvector implementation of combined pipeline storage.
+    """PostgreSQL+pgvector implementation of combined ingest storage.
 
     Uses PostgreSQL with pgvector for production storage.
     """

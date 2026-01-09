@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stage 3: Embeddings Generation Pipeline
+Stage 3: Embeddings Generation Ingest
 
-This pipeline generates semantic embeddings for:
+This ingest generates semantic embeddings for:
 1. Entity names (for entity resolution and similarity matching)
 2. Paragraph text (for semantic search and claim extraction)
 
@@ -435,7 +435,7 @@ def find_similar_paragraphs(provenance_db_path: Path, paragraph_id: str, top_k: 
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     parser = argparse.ArgumentParser(description="Stage 3: Embeddings Generation Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory containing databases")
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL, help="Sentence-transformers model name")

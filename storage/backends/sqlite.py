@@ -1,5 +1,5 @@
 """
-SQLite implementation of pipeline storage interfaces.
+SQLite implementation of ingest storage interfaces.
 
 This implementation uses SQLite for testing and development.
 It stores domain models as JSON in SQLite tables, with indexes for common queries.
@@ -16,7 +16,7 @@ from med_lit_schema.storage.interfaces import (
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
-from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
+from med_lit_schema.ingest.embedding_interfaces import RelationshipEmbeddingStorageInterface
 from med_lit_schema.entity import (
     Paper,
     EvidenceItem,
@@ -383,7 +383,7 @@ class SQLiteRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
 
 
 class SQLitePipelineStorage(PipelineStorageInterface):
-    """SQLite implementation of combined pipeline storage.
+    """SQLite implementation of combined ingest storage.
 
     Uses SQLite databases for all storage needs. Suitable for testing and development.
     """

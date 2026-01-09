@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stage 1: Entity Extraction Pipeline
+Stage 1: Entity Extraction Ingest
 
 Extracts biomedical entities from PMC XML files using BioBERT NER model.
 Uses storage interfaces for flexible backend support.
@@ -114,7 +114,7 @@ def process_paper(
     xml_path: Path,
     storage: PipelineStorageInterface,
     ner_pipeline,
-    pipeline_info: ExtractionPipelineInfo,
+    ingest_info: ExtractionPipelineInfo,
     model_info: ModelInfo,
 ) -> tuple[int, int, list]:
     """
@@ -124,7 +124,7 @@ def process_paper(
         xml_path: Path to PMC XML file
         storage: Pipeline storage interface
         ner_pipeline: HuggingFace NER pipeline
-        pipeline_info: Pipeline metadata
+        ingest_info: Ingest metadata
         model_info: Model metadata
 
     Returns:
@@ -214,7 +214,7 @@ def process_paper(
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     parser = argparse.ArgumentParser(description="Stage 1: Entity Extraction Pipeline")
     parser.add_argument("--xml-dir", type=str, default="pmc_xmls", help="Directory containing PMC XML files")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
@@ -229,7 +229,7 @@ def main():
 
     # Initialize storage based on choice
     if args.storage == "sqlite":
-        db_path = output_dir / "pipeline.db"
+        db_path = output_dir / "ingest.db"
         storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
     elif args.storage == "postgres":
         if not args.database_url:
@@ -244,8 +244,8 @@ def main():
     git_commit, git_commit_short, git_branch, git_dirty = get_git_info()
 
     # Pipeline info for provenance
-    pipeline_info = ExtractionPipelineInfo(
-        name="pmc_ner_pipeline",
+    ingest_info = ExtractionPipelineInfo(
+        name="pmc_ner_ingest",
         version="1.0.0",
         git_commit=git_commit,
         git_commit_short=git_commit_short,
@@ -265,7 +265,7 @@ def main():
     execution_start = datetime.now()
     execution_info = ExecutionInfo(timestamp=execution_start.isoformat(), hostname=socket.gethostname(), python_version=platform.python_version(), duration_seconds=None)
 
-    # Setup NER pipeline
+    # Setup NER ingest
     print(f"Loading NER model: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForTokenClassification.from_pretrained(model_name)
@@ -282,7 +282,7 @@ def main():
     processed_count = 0
 
     for xml_file in xml_files:
-        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, pipeline_info, model_info)
+        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
         total_entities_found += entities_found
         total_entities_created += entities_created
         all_extraction_edges.extend(edges)
@@ -300,7 +300,7 @@ def main():
         canonical_entities_matched=total_entities_found - total_entities_created, new_entities_created=total_entities_created, similarity_threshold=0.0, embedding_model="none"
     )
 
-    extraction_provenance = ExtractionProvenance(extraction_pipeline=pipeline_info, models={"ner": model_info}, prompt=prompt_info, execution=execution_info, entity_resolution=entity_resolution_info)
+    extraction_provenance = ExtractionProvenance(extraction_pipeline=ingest_info, models={"ner": model_info}, prompt=prompt_info, execution=execution_info, entity_resolution=entity_resolution_info)
 
     # Write ExtractionEdge objects to JSONL
     edges_path = output_dir / "extraction_edges.jsonl"

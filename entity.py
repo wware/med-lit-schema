@@ -2,7 +2,7 @@
 ## Overview
 
 This schema defines the **Domain Models** for the knowledge graph.
-These are the Pydantic classes used by application code, pipelines, and the API.
+These are the Pydantic classes used by application code, ingest scripts, and the API.
 For database storage, these are mapped to the Persistence Models in `med_lit_schema/entity_sqlmodel.py`.
 
 This schema is designed to support clinical decision-making by representing medical knowledge
@@ -282,14 +282,14 @@ class Pathway(BaseMedicalEntity):
 
 class ExtractionPipelineInfo(BaseModel):
     """
-    Information about the extraction pipeline version.
+    Information about the extraction ingest version.
 
     Tracks the exact code version that performed entity/relationship extraction.
     Essential for reproducibility and debugging extraction quality issues.
     """
 
-    name: str = Field(..., description="Pipeline name (e.g., 'ollama_langchain_pipeline')")
-    version: str = Field(..., description="Semantic version of the pipeline")
+    name: str = Field(..., description="Ingest name (e.g., 'ollama_langchain_ingest')")
+    version: str = Field(..., description="Semantic version of the ingest")
     git_commit: str = Field(..., description="Full git commit hash")
     git_commit_short: str = Field(..., description="Short git commit hash (7 chars)")
     git_branch: str = Field(..., description="Git branch name")
@@ -511,7 +511,7 @@ class Paper(BaseModel):
                 },
                 "extraction_provenance": {
                     "extraction_pipeline": {
-                        "name": "ollama_langchain_pipeline",
+                        "name": "ollama_langchain_ingest",
                         "version": "1.0.0",
                         "git_commit": "abc123def456...",
                         "git_commit_short": "abc123d",
@@ -1131,7 +1131,7 @@ class ProcessedPaper(BaseModel):
     """
     Complete processed paper ready for insertion into the knowledge graph.
 
-    Represents the final output of the paper processing pipeline, containing
+    Represents the final output of the paper processing ingest, containing
     all extracted entities, relationships, and metadata.
 
     Attributes:

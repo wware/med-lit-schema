@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stage 5: Evidence Aggregation Pipeline
+Stage 5: Evidence Aggregation Ingest
 
-This pipeline extracts quantitative evidence supporting/refuting relationships.
+This ingest extracts quantitative evidence supporting/refuting relationships.
 Uses new schema EvidenceItem model and storage interfaces.
 
 Usage:
@@ -184,7 +184,7 @@ def extract_evidence_for_relationship(
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     parser = argparse.ArgumentParser(description="Stage 5: Evidence Aggregation Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
     parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
@@ -209,7 +209,7 @@ def main():
 
     # Initialize storage
     if args.storage == "sqlite":
-        db_path = output_dir / "pipeline.db"
+        db_path = output_dir / "ingest.db"
         storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
     elif args.storage == "postgres":
         if not args.database_url:

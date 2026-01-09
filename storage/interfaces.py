@@ -1,7 +1,7 @@
 """
-Storage interfaces for pipeline data persistence.
+Storage interfaces for ingest data persistence.
 
-These ABC interfaces allow the pipeline to work with different storage backends:
+These ABC interfaces allow the ingest to work with different storage backends:
 - SQLite for testing/development
 - PostgreSQL+pgvector for production
 
@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from med_lit_schema.entity import Paper, EvidenceItem, EntityCollectionInterface
     from med_lit_schema.relationship import BaseRelationship
-    from med_lit_schema.pipeline.embedding_interfaces import RelationshipEmbeddingStorageInterface
+    from med_lit_schema.ingest.embedding_interfaces import RelationshipEmbeddingStorageInterface
 
 
 class PaperStorageInterface(ABC):
@@ -101,9 +101,9 @@ class EvidenceStorageInterface(ABC):
 
 
 class PipelineStorageInterface(ABC):
-    """Combined interface for all pipeline storage needs.
+    """Combined interface for all ingest storage needs.
 
-    This is the main interface that pipeline stages should use.
+    This is the main interface that ingest stages should use.
     It combines entity, paper, relationship, and evidence storage.
     """
 

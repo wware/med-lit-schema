@@ -1,7 +1,7 @@
 """
 Basic smoke tests for core models.
 
-Tests basic model creation and serialization without requiring full pipeline setup.
+Tests basic model creation and serialization without requiring full ingest setup.
 
 Run with: uv run pytest tests/test_basic_models.py -v
 """
@@ -27,9 +27,9 @@ from med_lit_schema.base import PredicateType
 
 
 @pytest.fixture
-def pipeline_info():
+def ingest_info():
     """
-    Create test pipeline info.
+    Create test ingest info.
 
     Attributes:
 
@@ -111,7 +111,7 @@ def test_disease_model_serialization():
     assert retrieved.synonyms == disease.synonyms
 
 
-def test_paper_model_creation(pipeline_info, execution_info):
+def test_paper_model_creation(ingest_info, execution_info):
     """Test creating a Paper model."""
     paper = Paper(
         paper_id="PMC123456",
@@ -138,7 +138,7 @@ def test_paper_model_creation(pipeline_info, execution_info):
     assert paper.journal == "Test Journal"
 
 
-def test_paper_model_with_metadata(pipeline_info, execution_info):
+def test_paper_model_with_metadata(ingest_info, execution_info):
     """Test Paper model with complete metadata."""
     paper = Paper(
         paper_id="PMC123456",
@@ -260,7 +260,7 @@ def test_predicate_type_enum():
     assert PredicateType.ASSOCIATED_WITH.value == "associated_with"
 
 
-def test_paper_serialization(pipeline_info, execution_info):
+def test_paper_serialization(ingest_info, execution_info):
     """Test serializing and deserializing a Paper model."""
     paper = Paper(
         paper_id="PMC123456",
@@ -273,7 +273,7 @@ def test_paper_serialization(pipeline_info, execution_info):
         relationships=[],
         metadata=PaperMetadata(),
         extraction_provenance=ExtractionProvenance(
-            extraction_pipeline=pipeline_info,
+            extraction_pipeline=ingest_info,
             models={},
             prompt=PromptInfo(version="v1", template="test", checksum=None),
             execution=execution_info,
