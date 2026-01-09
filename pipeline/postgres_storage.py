@@ -19,6 +19,7 @@ from .storage_interfaces import (
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
+from .embedding_interfaces import RelationshipEmbeddingStorageInterface
 from ..entity import (
     Paper,
     EvidenceItem,
@@ -392,6 +393,7 @@ class PostgresPipelineStorage(PipelineStorageInterface):
         self._papers = PostgresPaperStorage(self.session)
         self._relationships = PostgresRelationshipStorage(self.session)
         self._evidence = PostgresEvidenceStorage(self.session)
+        self._relationship_embeddings = PostgresRelationshipEmbeddingStorage(self.session)
         self._entities = PostgresEntityCollection(self.session)
 
     @property
@@ -413,6 +415,11 @@ class PostgresPipelineStorage(PipelineStorageInterface):
     def evidence(self) -> EvidenceStorageInterface:
         """Access to evidence storage."""
         return self._evidence
+
+    @property
+    def relationship_embeddings(self) -> RelationshipEmbeddingStorageInterface:
+        """Access to relationship embedding storage."""
+        return self._relationship_embeddings
 
     def close(self) -> None:
         """Close connections and clean up resources."""

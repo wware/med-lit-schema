@@ -2,11 +2,11 @@
 
 ## Overview
 
-The refactored pipeline uses ABC-style storage interfaces that support both SQLite (for testing) and PostgreSQL+pgvector (for production). This document explains how to test the pipeline components.
+The pipeline uses ABC-style storage interfaces that support both SQLite (for testing) and PostgreSQL+pgvector (for production). This guide explains how to test the pipeline components.
 
 ## Testing with In-Memory SQLite
 
-The `SQLitePipelineStorage` now supports `:memory:` for in-memory databases:
+The `SQLitePipelineStorage` supports `:memory:` for in-memory databases, making it ideal for testing:
 
 ```python
 from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
@@ -25,34 +25,34 @@ with NamedTemporaryFile(delete=False, suffix='.db') as tmp:
 
 ### What We Can Test
 
-1. **Storage Interfaces** ✓
+1. **Storage Interfaces**
    - Entity storage and retrieval
    - Paper storage and retrieval
    - Relationship storage and retrieval
    - Evidence storage and retrieval
    - Count operations
 
-2. **Entity Models** ✓
+2. **Entity Models**
    - Disease, Gene, Drug creation
    - Entity resolution (synonyms)
    - Canonical ID lookups (UMLS, HGNC, RxNorm)
 
-3. **Relationship Models** ✓
+3. **Relationship Models**
    - Relationship creation with `create_relationship()`
    - Predicate types (TREATS, CAUSES, etc.)
    - Evidence attachment
 
-4. **Evidence Models** ✓
+4. **Evidence Models**
    - EvidenceItem creation
    - Evidence metrics (sample size, p-value)
    - Evidence linking to papers and relationships
 
-5. **Provenance Pipeline** ✓
+5. **Provenance Pipeline**
    - XML parsing
    - Paper metadata extraction
    - Author, journal, date extraction
 
-### What Needs Real Data
+### What Requires Real Data
 
 1. **NER Pipeline**
    - Requires BioBERT model download
@@ -71,7 +71,7 @@ with NamedTemporaryFile(delete=False, suffix='.db') as tmp:
 
 ## Running Tests
 
-### Option 1: Using pytest (Recommended)
+### Using pytest
 
 Create test files in `tests/` directory:
 
@@ -80,7 +80,6 @@ Create test files in `tests/` directory:
 import pytest
 from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
 from med_lit_schema.entity import Disease, EntityType
-from pathlib import Path
 
 def test_entity_storage():
     storage = SQLitePipelineStorage(":memory:")
@@ -101,9 +100,9 @@ Run with:
 uv run pytest tests/test_pipeline_storage.py -v
 ```
 
-### Option 2: Using Fake Papers
+### Using Fake Papers
 
-Create representative fake PMC XML files:
+Create representative fake PMC XML files for integration testing:
 
 ```python
 # Create fake XML
@@ -126,7 +125,7 @@ xml_content = """<?xml version="1.0"?>
 </article>"""
 
 # Parse and store
-from med_lit_schema.pipeline.provenance_pipeline_refactored import parse_pmc_xml
+from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
 paper = parse_pmc_xml(Path("fake_paper.xml"))
 storage.papers.add_paper(paper)
 ```
@@ -143,7 +142,6 @@ from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
 from med_lit_schema.entity import Paper, Disease, EntityType
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType
-from pathlib import Path
 
 # Use in-memory database
 storage = SQLitePipelineStorage(":memory:")
@@ -174,20 +172,34 @@ print("✓ All tests passed!")
 storage.close()
 ```
 
-## Testing sqlite-vec
+## Testing Vector Similarity Search
 
-To test vector similarity search:
+### SQLite with sqlite-vec
 
-1. Install sqlite-vec extension
-2. Load extension in SQLite connection
-3. Store embeddings in vector format
-4. Use `vec_distance_cosine()` for similarity search
+To test vector similarity search with SQLite:
 
-The `SQLiteEntityCollection` automatically tries to load sqlite-vec and falls back to Python-based cosine similarity if unavailable.
+1. Install sqlite-vec extension from https://github.com/asg017/sqlite-vec
+2. The `SQLiteEntityCollection` automatically tries to load sqlite-vec
+3. Falls back to Python-based cosine similarity if extension not available
 
-## Next Steps
+### PostgreSQL with pgvector
 
-1. Create proper pytest test files in `tests/`
-2. Add fake PMC XML files for integration testing
-3. Test entity resolution workflows
-4. Test full pipeline end-to-end with fake data
+To test with PostgreSQL:
+
+1. Install pgvector extension in PostgreSQL
+2. Use `PostgresPipelineStorage` with a PostgreSQL connection
+3. Vector similarity search uses pgvector's `<=>` operator
+
+## End-to-End Testing
+
+The `tests/test_pipeline_storage.py` file includes an end-to-end test that validates a complete paper ingestion flow:
+
+- Creates entities
+- Creates relationships
+- Links evidence to relationships
+- Verifies all data is stored and retrievable
+
+Run the full test suite:
+```bash
+uv run pytest tests/ -v
+```

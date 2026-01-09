@@ -16,6 +16,7 @@ from .storage_interfaces import (
     EvidenceStorageInterface,
     PipelineStorageInterface,
 )
+from .embedding_interfaces import RelationshipEmbeddingStorageInterface
 from ..entity import (
     Paper,
     EvidenceItem,
@@ -293,6 +294,114 @@ class SQLiteEvidenceStorage(EvidenceStorageInterface):
         return cursor.fetchone()[0]
 
 
+class SQLiteRelationshipEmbeddingStorage(RelationshipEmbeddingStorageInterface):
+    """SQLite implementation of relationship embedding storage."""
+
+    def __init__(self, conn: sqlite3.Connection):
+        self.conn = conn
+        self._create_tables()
+
+    def _create_tables(self) -> None:
+        """Create relationship_embeddings table if it doesn't exist."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS relationship_embeddings (
+                subject_id TEXT NOT NULL,
+                predicate TEXT NOT NULL,
+                object_id TEXT NOT NULL,
+                embedding BLOB NOT NULL,
+                model_name TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (subject_id, predicate, object_id, model_name),
+                FOREIGN KEY (subject_id, predicate, object_id)
+                    REFERENCES relationships(subject_id, predicate, object_id)
+                    ON DELETE CASCADE
+            )
+        """
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_rel_embeddings_triple ON relationship_embeddings(subject_id, predicate, object_id)"
+        )
+        self.conn.commit()
+
+    def store_relationship_embedding(
+        self, subject_id: str, predicate: str, object_id: str, embedding: list[float], model_name: str
+    ) -> None:
+        """Store an embedding for a relationship."""
+        import struct
+
+        cursor = self.conn.cursor()
+        # Convert embedding list to bytes (float32)
+        embedding_bytes = struct.pack(f"{len(embedding)}f", *embedding)
+
+        cursor.execute(
+            """
+            INSERT OR REPLACE INTO relationship_embeddings
+            (subject_id, predicate, object_id, embedding, model_name, created_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """,
+            (subject_id, predicate, object_id, embedding_bytes, model_name),
+        )
+        self.conn.commit()
+
+    def get_relationship_embedding(
+        self, subject_id: str, predicate: str, object_id: str
+    ) -> Optional[list[float]]:
+        """Get the embedding for a relationship."""
+        import struct
+
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """
+            SELECT embedding FROM relationship_embeddings
+            WHERE subject_id = ? AND predicate = ? AND object_id = ?
+            ORDER BY created_at DESC
+            LIMIT 1
+        """,
+            (subject_id, predicate, object_id),
+        )
+        row = cursor.fetchone()
+        if not row:
+            return None
+
+        # Convert bytes back to list of floats
+        embedding_bytes = row[0]
+        embedding = list(struct.unpack(f"{len(embedding_bytes) // 4}f", embedding_bytes))
+        return embedding
+
+    def find_similar_relationships(
+        self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
+    ) -> list[tuple[tuple[str, str, str], float]]:
+        """Find relationships similar to query embedding using cosine similarity."""
+        import struct
+        from math import sqrt
+
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT subject_id, predicate, object_id, embedding FROM relationship_embeddings")
+
+        # Compute cosine similarity for each embedding
+        query_norm = sqrt(sum(x * x for x in query_embedding))
+        results = []
+
+        for row in cursor.fetchall():
+            subject_id, predicate, object_id, embedding_bytes = row
+            # Convert bytes to list
+            embedding = list(struct.unpack(f"{len(embedding_bytes) // 4}f", embedding_bytes))
+
+            # Compute cosine similarity
+            dot_product = sum(a * b for a, b in zip(query_embedding, embedding))
+            embedding_norm = sqrt(sum(x * x for x in embedding))
+            similarity = dot_product / (query_norm * embedding_norm) if embedding_norm > 0 else 0.0
+
+            if similarity >= threshold:
+                results.append(((subject_id, predicate, object_id), similarity))
+
+        # Sort by similarity and return top_k
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:top_k]
+
+
 class SQLitePipelineStorage(PipelineStorageInterface):
     """SQLite implementation of combined pipeline storage.
 
@@ -313,6 +422,7 @@ class SQLitePipelineStorage(PipelineStorageInterface):
         self._papers = SQLitePaperStorage(self.conn)
         self._relationships = SQLiteRelationshipStorage(self.conn)
         self._evidence = SQLiteEvidenceStorage(self.conn)
+        self._relationship_embeddings = SQLiteRelationshipEmbeddingStorage(self.conn)
 
         # Use SQLite entity collection with sqlite-vec support
         self._entities = SQLiteEntityCollection(self.conn)
@@ -336,6 +446,11 @@ class SQLitePipelineStorage(PipelineStorageInterface):
     def evidence(self) -> EvidenceStorageInterface:
         """Access to evidence storage."""
         return self._evidence
+
+    @property
+    def relationship_embeddings(self) -> RelationshipEmbeddingStorageInterface:
+        """Access to relationship embedding storage."""
+        return self._relationship_embeddings
 
     def close(self) -> None:
         """Close connections and clean up resources."""

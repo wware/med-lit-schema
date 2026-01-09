@@ -1,49 +1,59 @@
-# pmc_ner_pipeline.py
+#!/usr/bin/env python3
 """
 Stage 1: Entity Extraction Pipeline
 
 Extracts biomedical entities from PMC XML files using BioBERT NER model.
-Uses proper schema from base.py, entity.py, and relationship.py with Pydantic validation.
-Stores canonical entities in SQLite with alias mappings for entity resolution.
-Outputs ExtractionEdge objects for knowledge graph construction.
+Uses storage interfaces for flexible backend support.
 
 Usage:
-    docker-compose run pipeline
-
-Output:
-    - entities.db: SQLite database with canonical entities and aliases
-    - extraction_edges.jsonl: ExtractionEdge objects with full provenance
-    - nodes.csv: Extracted nodes for debugging/inspection (legacy)
-    - edges.csv: Co-occurrence edges for debugging/inspection (legacy)
+    python ner_pipeline.py --storage sqlite --output-dir output
+    python ner_pipeline.py --storage postgres --database-url postgresql://...
 """
 
-from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
-import pandas as pd
-from lxml import etree
+import argparse
 from pathlib import Path
-import sqlite3
 from datetime import datetime
-import os
 import json
 import socket
 import platform
 import subprocess
 import uuid
 
-# Import proper schema
-from base import (
-    EntityType, EntityReference, ModelInfo,
-    ExtractionEdge, Provenance
-)
-from entity import (
-    Disease,
-    ExtractionProvenance, ExtractionPipelineInfo,
-    PromptInfo, ExecutionInfo, EntityResolutionInfo
-)
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+from lxml import etree
+import pandas as pd
 
-# ------------------------------
-# Create extraction provenance metadata
-# ------------------------------
+# Import new schema
+# Try relative imports first (when run as module), fall back to absolute
+try:
+    from ..base import EntityType, EntityReference, ModelInfo, ExtractionEdge, Provenance
+    from ..entity import (
+        Disease,
+        ExtractionProvenance,
+        ExtractionPipelineInfo,
+        PromptInfo,
+        ExecutionInfo,
+        EntityResolutionInfo,
+    )
+    from .storage_interfaces import PipelineStorageInterface
+    from .sqlite_storage import SQLitePipelineStorage
+    from .postgres_storage import PostgresPipelineStorage
+except ImportError:
+    # Absolute imports for standalone execution
+    from med_lit_schema.base import EntityType, EntityReference, ModelInfo, ExtractionEdge, Provenance
+    from med_lit_schema.entity import (
+        Disease,
+        ExtractionProvenance,
+        ExtractionPipelineInfo,
+        PromptInfo,
+        ExecutionInfo,
+        EntityResolutionInfo,
+    )
+    from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
+    from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+    from med_lit_schema.pipeline.postgres_storage import PostgresPipelineStorage
+
+
 def get_git_info():
     """Get git information for provenance tracking."""
     try:
@@ -55,212 +65,81 @@ def get_git_info():
     except Exception:
         return "unknown", "unknown", "unknown", False
 
-git_commit, git_commit_short, git_branch, git_dirty = get_git_info()
 
-# Pipeline info for provenance
-pipeline_info = ExtractionPipelineInfo(
-    name="pmc_ner_pipeline",
-    version="1.0.0",
-    git_commit=git_commit,
-    git_commit_short=git_commit_short,
-    git_branch=git_branch,
-    git_dirty=git_dirty,
-    repo_url="https://github.com/wware/med-lit-graph"
-)
-
-# Model info for provenance
-model_name = "ugaray96/biobert_ncbi_disease_ner"
-model_info = ModelInfo(
-    name=model_name,
-    provider="huggingface",
-    temperature=None,  # NER models don't use temperature
-    version=None
-)
-
-# Prompt info (NER doesn't use prompts, but we track the model configuration)
-prompt_info = PromptInfo(
-    version="v1",
-    template="ner_biobert_ncbi_disease",
-    checksum=None
-)
-
-# Execution info
-execution_start = datetime.now()
-execution_info = ExecutionInfo(
-    timestamp=execution_start.isoformat(),
-    hostname=socket.gethostname(),
-    python_version=platform.python_version(),
-    duration_seconds=None  # Will be updated at end
-)
-
-# ------------------------------
-# Setup NER pipeline
-# ------------------------------
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForTokenClassification.from_pretrained(model_name)
-ner_pipeline = pipeline(
-    "ner",
-    model=model,
-    tokenizer=tokenizer,
-    aggregation_strategy="simple"  # Groups subwords into entities
-)
-
-# ------------------------------
-# Setup SQLite canonical entity DB
-# ------------------------------
-os.makedirs("/app/output", exist_ok=True)
-db_path = "/app/output/entities.db"
-conn = sqlite3.connect(db_path)
-conn.execute("PRAGMA foreign_keys = ON;")
-
-# Create tables - now stores serialized Pydantic models
-conn.execute("""
-CREATE TABLE IF NOT EXISTS entities (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    entity_id TEXT UNIQUE,
-    canonical_name TEXT,
-    type TEXT,
-    entity_json TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME
-);
-""")
-conn.execute("""
-CREATE TABLE IF NOT EXISTS aliases (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    entity_id INTEGER REFERENCES entities(id) ON DELETE CASCADE,
-    name TEXT UNIQUE,
-    source TEXT,
-    confidence REAL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-""")
-conn.execute("CREATE INDEX IF NOT EXISTS idx_entity_id ON entities(entity_id);")
-conn.execute("CREATE INDEX IF NOT EXISTS idx_alias_name ON aliases(name);")
-conn.commit()
-
-# ------------------------------
-# Helper functions for SQLite serialization
-# ------------------------------
-def serialize_entity_to_sqlite(entity: Disease) -> dict:
+def get_or_create_entity(
+    storage: PipelineStorageInterface,
+    name: str,
+    entity_type: str = "Disease",
+    source: str = None,
+    confidence: float = None,
+) -> tuple[str, bool]:
     """
-    Serialize a Pydantic Disease model to SQLite-compatible dict.
+    Get existing entity or create new canonical Disease entity.
 
-    Stores the full model as JSON for complete reconstruction,
-    plus key fields for efficient querying.
-    """
-    return {
-        'entity_id': entity.entity_id,
-        'canonical_name': entity.name,
-        'type': entity.entity_type,
-        'entity_json': entity.model_dump_json()
-    }
-
-def deserialize_entity_from_sqlite(row: tuple) -> Disease:
-    """
-    Deserialize a Disease entity from SQLite row.
+    Uses entity collection interface for storage. Entity resolution uses
+    simple name matching - synonyms are stored in the entity's synonyms field.
 
     Args:
-        row: (id, entity_id, canonical_name, type, entity_json, created_at, updated_at)
-    """
-    entity_json = row[4]  # entity_json column
-    return Disease.model_validate_json(entity_json)
-
-# Stopwords to filter out common non-entity words
-STOPWORDS = {
-    "acquired", "human", "chronic", "enter", "lymph",
-    "the", "and", "or", "but", "with", "from", "that",
-    "this", "these", "those", "their", "there"
-}
-
-# Track entities created in this run for entity resolution stats
-entities_created_count = 0
-entities_matched_count = 0
-
-def get_or_create_entity(name: str, entity_type: str = "Disease", source: str = None, confidence: float = None) -> tuple[str, int]:
-    """
-    Get existing entity or create new canonical Disease entity with alias.
-
-    Uses proper Pydantic Disease model with validation and stores as JSON in SQLite.
-    Returns both the canonical_entity_id (for graph edges) and db_row_id (for alias FK).
-
-    Args:
+        storage: Pipeline storage interface
         name: Entity name as extracted from text
         entity_type: Entity type (currently only Disease supported by NER model)
         source: PMC ID where entity was found
         confidence: NER confidence score
 
     Returns:
-        tuple: (canonical_entity_id str for use in graph, db_row_id int for SQLite FK)
-
-    This enables entity resolution: multiple mentions of the same entity
-    (e.g., "HIV", "HTLV-III", "LAV") can be mapped to the same canonical ID.
-    Currently does simple name matching; Stage 3 will add embedding-based clustering.
+        tuple: (canonical_entity_id, was_created) where was_created is True if new entity
     """
-    global entities_created_count, entities_matched_count
-
-    # Check if alias exists
-    cursor = conn.execute("SELECT entity_id FROM aliases WHERE name=?", (name,))
-    row = cursor.fetchone()
-    if row:
-        entities_matched_count += 1
-        db_row_id = row[0]
-        # Get the canonical entity_id from entities table
-        cursor = conn.execute("SELECT entity_id FROM entities WHERE id=?", (db_row_id,))
-        canonical_entity_id = cursor.fetchone()[0]
-        return canonical_entity_id, db_row_id
-
-    # Create new Disease entity using proper schema
+    # Try to find existing entity by name
+    # First check if we can find by exact name match
+    # Note: This is simplified - full implementation would use embedding similarity
+    
     canonical_entity_id = f"DISEASE:{name.lower().replace(' ', '_')}"
+    
+    # Try to get existing entity
+    existing = storage.entities.get_by_id(canonical_entity_id)
+    if existing:
+        # Entity exists - add this name as a synonym if not already present
+        if name not in existing.synonyms and name != existing.name:
+            existing.synonyms.append(name)
+            storage.entities.add_disease(existing)
+        return canonical_entity_id, False
+    
+    # Create new Disease entity
     disease = Disease(
         entity_id=canonical_entity_id,
+        entity_type=EntityType.DISEASE,
         name=name,
         synonyms=[],
         abbreviations=[],
         source="extracted"
     )
+    
+    storage.entities.add_disease(disease)
+    return canonical_entity_id, True
 
-    # Serialize to SQLite
-    entity_dict = serialize_entity_to_sqlite(disease)
 
-    # Insert new entity
-    cursor = conn.execute(
-        """INSERT OR IGNORE INTO entities (entity_id, canonical_name, type, entity_json)
-           VALUES (?, ?, ?, ?)""",
-        (entity_dict['entity_id'], entity_dict['canonical_name'],
-         entity_dict['type'], entity_dict['entity_json'])
-    )
-    db_row_id = cursor.lastrowid
-    if db_row_id == 0:
-        # Entity already exists (race condition or duplicate)
-        cursor = conn.execute("SELECT id, entity_id FROM entities WHERE entity_id=?", (canonical_entity_id,))
-        row = cursor.fetchone()
-        db_row_id = row[0]
-        canonical_entity_id = row[1]
-        entities_matched_count += 1
-    else:
-        entities_created_count += 1
+def process_paper(
+    xml_path: Path,
+    storage: PipelineStorageInterface,
+    ner_pipeline,
+    pipeline_info: ExtractionPipelineInfo,
+    model_info: ModelInfo,
+) -> tuple[int, int, list]:
+    """
+    Process a single PMC XML file and extract entities.
 
-    # Insert alias
-    conn.execute(
-        "INSERT OR IGNORE INTO aliases (entity_id, name, source, confidence) VALUES (?, ?, ?, ?)",
-        (db_row_id, name, source, confidence)
-    )
-    conn.commit()
-    return canonical_entity_id, db_row_id
+    Args:
+        xml_path: Path to PMC XML file
+        storage: Pipeline storage interface
+        ner_pipeline: HuggingFace NER pipeline
+        pipeline_info: Pipeline metadata
+        model_info: Model metadata
 
-# ------------------------------
-# Process PMC XMLs
-# ------------------------------
-input_dir = Path("./pmc_xmls")
-nodes = []
-extraction_edges = []  # List of ExtractionEdge objects
-edges_dict = {}  # {(subject_id, object_id): count} for legacy CSV
-processed_count = 0
-
-for xml_file in input_dir.glob("PMC*.xml"):
-    pmc_id = xml_file.stem
-    tree = etree.parse(str(xml_file))
+    Returns:
+        tuple: (entities_found, entities_created, extraction_edges)
+    """
+    pmc_id = xml_path.stem
+    tree = etree.parse(str(xml_path))
     root = tree.getroot()
 
     # Extract text - prefer abstract, fall back to body
@@ -268,15 +147,24 @@ for xml_file in input_dir.glob("PMC*.xml"):
     if not text_chunks:
         text_chunks = [p.text for p in root.findall(".//body//p") if p.text]
     if not text_chunks:
-        continue
+        return 0, 0, []
+
     full_text = " ".join(text_chunks)
 
     # Run NER
     entities = ner_pipeline(full_text)
-    entity_refs_in_text = []  # List of EntityReference objects
+    entity_refs_in_text = []
+    entities_created = 0
+    entities_found = 0
+
+    STOPWORDS = {
+        "acquired", "human", "chronic", "enter", "lymph",
+        "the", "and", "or", "but", "with", "from", "that",
+        "this", "these", "those", "their", "there"
+    }
 
     for ent in entities:
-        # Filter by entity label - this model uses 'Disease' and 'No Disease'
+        # Filter by entity label
         label = ent.get("entity_group", ent.get("entity", "O"))
         if label != "Disease":
             continue
@@ -284,48 +172,42 @@ for xml_file in input_dir.glob("PMC*.xml"):
         name = ent["word"].strip()
 
         # Skip obvious garbage
-        if len(name) < 3:  # Minimum 3 characters
+        if len(name) < 3:
             continue
         if name in ["(", ")", ",", ".", "-"]:
             continue
-        if name.startswith("##"):  # Subword tokens
+        if name.startswith("##"):
             continue
-        if name.lower() in STOPWORDS:  # Common non-entity words
+        if name.lower() in STOPWORDS:
             continue
 
         confidence = ent.get("score", None)
-
-        # Skip low-confidence predictions to reduce noise
         if confidence and confidence < 0.85:
             continue
 
-        # Get or create canonical entity (returns canonical_entity_id str and db_row_id int)
-        canonical_entity_id, db_row_id = get_or_create_entity(
+        # Get or create canonical entity
+        canonical_entity_id, was_created = get_or_create_entity(
+            storage=storage,
             name=name,
             entity_type=label,
             source=pmc_id,
             confidence=confidence
         )
+        
+        if was_created:
+            entities_created += 1
+        entities_found += 1
 
         # Create EntityReference for this mention
         entity_ref = EntityReference(
             id=canonical_entity_id,
-            name=name,  # Name as it appeared in text
+            name=name,
             type=EntityType.DISEASE
         )
         entity_refs_in_text.append(entity_ref)
 
-        # Store node for legacy CSV output
-        nodes.append({
-            "id": canonical_entity_id,
-            "name": name,
-            "type": label,
-            "source": pmc_id,
-            "confidence": confidence
-        })
-
     # Build ExtractionEdge objects for co-occurrences
-    # This is EXTRACTION layer - these are raw model outputs, not semantic claims
+    extraction_edges = []
     for i in range(len(entity_refs_in_text)):
         for j in range(i + 1, len(entity_refs_in_text)):
             subject_ref = entity_refs_in_text[i]
@@ -333,13 +215,14 @@ for xml_file in input_dir.glob("PMC*.xml"):
 
             # Create provenance for this edge
             edge_provenance = Provenance(
-                source=pmc_id,
-                timestamp=datetime.now().isoformat(),
-                metadata={
+                source_type="paper",
+                source_id=pmc_id,
+                source_version=None,
+                notes=json.dumps({
                     "extraction_pipeline": pipeline_info.name,
                     "git_commit": git_commit_short,
                     "model": model_name
-                }
+                })
             )
 
             # Create ExtractionEdge with full provenance
@@ -352,80 +235,182 @@ for xml_file in input_dir.glob("PMC*.xml"):
                 confidence=min(
                     float(entities[i].get("score", 0.5)),
                     float(entities[j].get("score", 0.5))
-                )  # Use minimum confidence of the two entities
+                )
             )
             extraction_edges.append(edge)
 
-            # Also track for legacy CSV
-            key = tuple(sorted((subject_ref.id, object_ref.id)))
-            edges_dict[key] = edges_dict.get(key, 0) + 1
+    return entities_found, entities_created, extraction_edges
 
-    processed_count += 1
 
-# ------------------------------
-# Finalize provenance and write outputs
-# ------------------------------
-execution_end = datetime.now()
-execution_duration = (execution_end - execution_start).total_seconds()
-execution_info.duration_seconds = execution_duration
+def main():
+    """Main pipeline execution."""
+    parser = argparse.ArgumentParser(description="Stage 1: Entity Extraction Pipeline")
+    parser.add_argument("--xml-dir", type=str, default="pmc_xmls", help="Directory containing PMC XML files")
+    parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
+    parser.add_argument(
+        "--storage",
+        type=str,
+        choices=["sqlite", "postgres"],
+        default="sqlite",
+        help="Storage backend to use"
+    )
+    parser.add_argument(
+        "--database-url",
+        type=str,
+        default=None,
+        help="Database URL for PostgreSQL (required if --storage=postgres)"
+    )
 
-# Create entity resolution info
-entity_resolution_info = EntityResolutionInfo(
-    canonical_entities_matched=entities_matched_count,
-    new_entities_created=entities_created_count,
-    similarity_threshold=0.0,  # Not using similarity matching yet
-    embedding_model="none"  # Not using embeddings yet
-)
+    args = parser.parse_args()
 
-# Create complete extraction provenance
-extraction_provenance = ExtractionProvenance(
-    extraction_pipeline=pipeline_info,
-    models={"ner": model_info},
-    prompt=prompt_info,
-    execution=execution_info,
-    entity_resolution=entity_resolution_info
-)
+    xml_dir = Path(args.xml_dir)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(exist_ok=True)
 
-# Write ExtractionEdge objects to JSONL
-with open("/app/output/extraction_edges.jsonl", "w") as f:
-    for edge in extraction_edges:
-        # Serialize to JSON
-        edge_dict = edge.model_dump()
-        # Convert UUIDs to strings for JSON serialization
-        edge_dict['id'] = str(edge_dict['id'])
-        f.write(json.dumps(edge_dict) + "\n")
+    # Initialize storage based on choice
+    if args.storage == "sqlite":
+        db_path = output_dir / "pipeline.db"
+        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
+    elif args.storage == "postgres":
+        if not args.database_url:
+            print("Error: --database-url required for PostgreSQL storage")
+            return 1
+        storage = PostgresPipelineStorage(args.database_url)
+    else:
+        print(f"Error: Unknown storage backend: {args.storage}")
+        return 1
 
-# Write extraction provenance
-with open("/app/output/extraction_provenance.json", "w") as f:
-    f.write(extraction_provenance.model_dump_json(indent=2))
+    # Get git info for provenance
+    git_commit, git_commit_short, git_branch, git_dirty = get_git_info()
 
-# Convert nodes and edges to DataFrames for legacy CSV output
-nodes_df = pd.DataFrame(nodes).drop_duplicates(subset=["id"])
-edges_df = pd.DataFrame([
-    {"subject_id": k[0], "object_id": k[1], "relation": "co_occurrence", "weight": v}
-    for k, v in edges_dict.items()
-])
+    # Pipeline info for provenance
+    pipeline_info = ExtractionPipelineInfo(
+        name="pmc_ner_pipeline",
+        version="1.0.0",
+        git_commit=git_commit,
+        git_commit_short=git_commit_short,
+        git_branch=git_branch,
+        git_dirty=git_dirty,
+        repo_url="https://github.com/wware/med-lit-graph"
+    )
 
-# Write legacy CSVs for inspection/debugging
-nodes_df.to_csv("/app/output/nodes.csv", index=False)
-edges_df.to_csv("/app/output/edges.csv", index=False)
+    # Model info
+    model_name = "ugaray96/biobert_ncbi_disease_ner"
+    model_info = ModelInfo(
+        name=model_name,
+        provider="huggingface",
+        temperature=None,
+        version=None
+    )
 
-print(f"\n{'='*60}")
-print("Extraction Complete")
-print(f"{'='*60}")
-print(f"Processed: {processed_count} XML files")
-print(f"Entities: {len(nodes_df)} total mentions")
-print(f"  - New canonical entities: {entities_created_count}")
-print(f"  - Matched to existing: {entities_matched_count}")
-print(f"ExtractionEdges: {len(extraction_edges)}")
-print(f"Legacy CSV edges: {len(edges_df)}")
-print(f"Duration: {execution_duration:.2f} seconds")
-print("\nOutputs:")
-print("  - entities.db (SQLite with Pydantic models)")
-print("  - extraction_edges.jsonl (ExtractionEdge objects)")
-print("  - extraction_provenance.json (full provenance)")
-print("  - nodes.csv, edges.csv (legacy format)")
-print(f"{'='*60}\n")
+    # Prompt info
+    prompt_info = PromptInfo(
+        version="v1",
+        template="ner_biobert_ncbi_disease",
+        checksum=None
+    )
 
-# Close database connection
-conn.close()
+    # Execution info
+    execution_start = datetime.now()
+    execution_info = ExecutionInfo(
+        timestamp=execution_start.isoformat(),
+        hostname=socket.gethostname(),
+        python_version=platform.python_version(),
+        duration_seconds=None
+    )
+
+    # Setup NER pipeline
+    print(f"Loading NER model: {model_name}")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForTokenClassification.from_pretrained(model_name)
+    ner_pipeline = pipeline(
+        "ner",
+        model=model,
+        tokenizer=tokenizer,
+        aggregation_strategy="simple"
+    )
+
+    # Process papers
+    print(f"\nProcessing XML files from {xml_dir}...")
+    xml_files = sorted(xml_dir.glob("PMC*.xml"))
+    print(f"Found {len(xml_files)} XML files\n")
+
+    total_entities_found = 0
+    total_entities_created = 0
+    all_extraction_edges = []
+    processed_count = 0
+
+    for xml_file in xml_files:
+        entities_found, entities_created, edges = process_paper(
+            xml_file,
+            storage,
+            ner_pipeline,
+            pipeline_info,
+            model_info
+        )
+        total_entities_found += entities_found
+        total_entities_created += entities_created
+        all_extraction_edges.extend(edges)
+        processed_count += 1
+
+        if processed_count % 10 == 0:
+            print(f"  Processed {processed_count}/{len(xml_files)} files...")
+
+    # Finalize provenance
+    execution_end = datetime.now()
+    execution_duration = (execution_end - execution_start).total_seconds()
+    execution_info.duration_seconds = execution_duration
+
+    entity_resolution_info = EntityResolutionInfo(
+        canonical_entities_matched=total_entities_found - total_entities_created,
+        new_entities_created=total_entities_created,
+        similarity_threshold=0.0,
+        embedding_model="none"
+    )
+
+    extraction_provenance = ExtractionProvenance(
+        extraction_pipeline=pipeline_info,
+        models={"ner": model_info},
+        prompt=prompt_info,
+        execution=execution_info,
+        entity_resolution=entity_resolution_info
+    )
+
+    # Write ExtractionEdge objects to JSONL
+    edges_path = output_dir / "extraction_edges.jsonl"
+    with open(edges_path, "w") as f:
+        for edge in all_extraction_edges:
+            edge_dict = edge.model_dump()
+            edge_dict['id'] = str(edge_dict['id'])
+            f.write(json.dumps(edge_dict) + "\n")
+
+    # Write extraction provenance
+    provenance_path = output_dir / "extraction_provenance.json"
+    with open(provenance_path, "w") as f:
+        f.write(extraction_provenance.model_dump_json(indent=2))
+
+    # Print summary
+    print(f"\n{'='*60}")
+    print("Extraction Complete")
+    print(f"{'='*60}")
+    print(f"Processed: {processed_count} XML files")
+    print(f"Entities found: {total_entities_found}")
+    print(f"  - New canonical entities: {total_entities_created}")
+    print(f"  - Matched to existing: {total_entities_found - total_entities_created}")
+    print(f"ExtractionEdges: {len(all_extraction_edges)}")
+    print(f"Duration: {execution_duration:.2f} seconds")
+    print(f"\nStorage: {args.storage}")
+    print(f"Entity count: {storage.entities.entity_count}")
+    print(f"\nOutputs:")
+    print(f"  - Storage: {storage}")
+    print(f"  - {edges_path}")
+    print(f"  - {provenance_path}")
+    print(f"{'='*60}\n")
+
+    # Clean up
+    storage.close()
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

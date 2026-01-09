@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from ..entity import Paper, BaseMedicalEntity, EvidenceItem, EntityCollectionInterface
     from ..relationship import BaseRelationship
+    from .embedding_interfaces import RelationshipEmbeddingStorageInterface
 
 
 class PaperStorageInterface(ABC):
@@ -132,6 +133,12 @@ class PipelineStorageInterface(ABC):
     @abstractmethod
     def evidence(self) -> EvidenceStorageInterface:
         """Access to evidence storage."""
+        pass
+
+    @property
+    @abstractmethod
+    def relationship_embeddings(self) -> "RelationshipEmbeddingStorageInterface":
+        """Access to relationship embedding storage."""
         pass
 
     @abstractmethod

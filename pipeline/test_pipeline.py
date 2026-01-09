@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run python
 """
-Test script for refactored pipeline using in-memory SQLite.
+Test script for pipeline using in-memory SQLite.
 
 Tests the full pipeline with representative fake papers.
 
@@ -263,7 +263,7 @@ def test_provenance_pipeline():
             
             # Test parsing
             print("\n1. Testing XML Parsing...")
-            from med_lit_schema.pipeline.provenance_pipeline_refactored import parse_pmc_xml
+            from med_lit_schema.pipeline.provenance_pipeline import parse_pmc_xml
             
             paper1 = parse_pmc_xml(xml_dir / "PMC999999.xml")
             assert paper1 is not None, "Failed to parse paper 1"

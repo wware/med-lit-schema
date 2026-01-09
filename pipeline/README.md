@@ -1,83 +1,255 @@
-# Pipeline Storage Refactoring
+# Medical Literature Ingestion Pipeline
 
 ## Overview
 
-The pipeline has been refactored to use ABC-style storage interfaces, allowing different storage backends (SQLite for testing, PostgreSQL+pgvector for production) to be used interchangeably.
+The pipeline extracts structured knowledge from medical literature (PMC XML files), including:
+- **Entities**: Diseases, genes, drugs, proteins, and other biomedical entities
+- **Relationships**: Semantic relationships between entities (e.g., "Drug X treats Disease Y")
+- **Evidence**: Quantitative metrics supporting relationships (sample sizes, p-values, etc.)
+- **Papers**: Metadata and structure of source papers
+
+The pipeline uses ABC-style storage interfaces, allowing you to choose your storage backend (SQLite for testing, PostgreSQL+pgvector for production, or custom implementations).
+
+## Pipeline Stages
+
+The pipeline consists of four main stages:
+
+1. **`ner_pipeline.py`** - Entity extraction using BioBERT NER
+   - Extracts biomedical entities from paper text
+   - Resolves entity mentions to canonical IDs (UMLS, HGNC, RxNorm, etc.)
+   - Stores entities with embeddings for similarity search
+
+2. **`provenance_pipeline.py`** - Paper metadata and document structure
+   - Parses PMC XML files
+   - Extracts paper metadata (title, authors, journal, dates)
+   - Extracts document structure (sections, paragraphs)
+
+3. **`claims_pipeline.py`** - Relationship extraction
+   - Extracts semantic relationships from paragraphs
+   - Uses pattern matching to identify relationships (CAUSES, TREATS, etc.)
+   - Optionally generates embeddings for relationship similarity search
+
+4. **`evidence_pipeline.py`** - Evidence metrics extraction
+   - Extracts quantitative evidence (sample sizes, p-values, percentages)
+   - Links evidence to relationships
+   - Calculates evidence strength
+
+## Quick Start
+
+### Using SQLite (Testing/Development)
+
+```python
+from pathlib import Path
+from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+
+# Initialize storage
+storage = SQLitePipelineStorage(Path("output/pipeline.db"))
+# or for in-memory testing:
+storage = SQLitePipelineStorage(":memory:")
+
+# Use in pipeline stages
+# All pipeline scripts accept --storage sqlite
+```
+
+### Using PostgreSQL (Production)
+
+```python
+from med_lit_schema.pipeline.postgres_storage import PostgresPipelineStorage
+
+# Initialize storage
+storage = PostgresPipelineStorage("postgresql://user:pass@localhost/dbname")
+
+# Use in pipeline stages
+# All pipeline scripts accept --storage postgres --database-url <url>
+```
+
+### Running Pipeline Stages
+
+```bash
+# Stage 1: Extract entities
+python pipeline/ner_pipeline.py --storage sqlite --output-dir output
+
+# Stage 2: Extract paper metadata
+python pipeline/provenance_pipeline.py --storage sqlite --output-dir output
+
+# Stage 3: Extract relationships
+python pipeline/claims_pipeline.py --storage sqlite --output-dir output
+
+# Stage 4: Extract evidence
+python pipeline/evidence_pipeline.py --storage sqlite --output-dir output
+```
 
 ## Storage Interfaces
 
-All storage is accessed through `PipelineStorageInterface` which provides:
-- `entities`: EntityCollectionInterface (from entity.py)
-- `papers`: PaperStorageInterface
-- `relationships`: RelationshipStorageInterface  
-- `evidence`: EvidenceStorageInterface
+The pipeline uses storage interfaces to support different backends. To use the pipeline, you need to implement `PipelineStorageInterface`:
 
-## Implementations
+### Main Interface: `PipelineStorageInterface`
+
+**Location**: `pipeline/storage_interfaces.py`
+
+This is the primary interface that all pipeline stages use. It provides access to:
+
+- `entities`: EntityCollectionInterface - Store and retrieve biomedical entities
+- `papers`: PaperStorageInterface - Store and retrieve paper metadata
+- `relationships`: RelationshipStorageInterface - Store and retrieve relationships
+- `evidence`: EvidenceStorageInterface - Store and retrieve evidence
+- `relationship_embeddings`: RelationshipEmbeddingStorageInterface - Store and retrieve relationship embeddings
+
+### Sub-Interfaces
+
+When implementing `PipelineStorageInterface`, you need to provide implementations for:
+
+1. **`EntityCollectionInterface`** (from `entity.py`)
+   - Methods: `add_disease()`, `add_gene()`, `get_by_id()`, `find_by_embedding()`, etc.
+   - See `ENTITY_COLLECTION_INTERFACE.md` for detailed documentation
+
+2. **`PaperStorageInterface`**
+   - Methods: `add_paper()`, `get_paper()`, `list_papers()`, `paper_count`
+
+3. **`RelationshipStorageInterface`**
+   - Methods: `add_relationship()`, `get_relationship()`, `find_relationships()`, `relationship_count`
+
+4. **`EvidenceStorageInterface`**
+   - Methods: `add_evidence()`, `get_evidence_by_paper()`, `get_evidence_for_relationship()`, `evidence_count`
+
+5. **`RelationshipEmbeddingStorageInterface`**
+   - Methods: `store_relationship_embedding()`, `get_relationship_embedding()`, `find_similar_relationships()`
+
+## Reference Implementations
+
+Two complete implementations are provided:
 
 ### SQLitePipelineStorage
-- **Location**: `pipeline/sqlite_storage.py`
-- **Use case**: Testing, development, small datasets
-- **Initialization**: `SQLitePipelineStorage(Path("output/pipeline.db"))`
-- **Features**: 
-  - Uses `sqlite-vec` extension for vector similarity search (optional)
-  - Falls back to Python-based cosine similarity if extension not available
-  - Install sqlite-vec from https://github.com/asg017/sqlite-vec for embedding search
+
+**Location**: `pipeline/sqlite_storage.py`
+
+**Use case**: Testing, development, small datasets
+
+**Features**:
+- Uses `sqlite-vec` extension for vector similarity search (optional)
+- Falls back to Python-based cosine similarity if extension not available
+- Supports in-memory databases (`:memory:`) for testing
+- Install sqlite-vec from https://github.com/asg017/sqlite-vec for embedding search
 
 ### PostgresPipelineStorage
-- **Location**: `pipeline/postgres_storage.py`
-- **Use case**: Production, large datasets, vector search
-- **Initialization**: `PostgresPipelineStorage("postgresql://user:pass@localhost/dbname")`
 
-## Usage Pattern
+**Location**: `pipeline/postgres_storage.py`
+
+**Use case**: Production, large datasets, vector search
+
+**Features**:
+- Uses pgvector for vector similarity search
+- Requires PostgreSQL with pgvector extension installed
+
+## Usage Example
 
 ```python
-from pipeline.storage_interfaces import PipelineStorageInterface
-from pipeline.sqlite_storage import SQLitePipelineStorage
-# or
-from pipeline.postgres_storage import PostgresPipelineStorage
+from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
+from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.entity import Disease, EntityType
+from med_lit_schema.relationship import create_relationship
+from med_lit_schema.base import PredicateType
 
-# Initialize storage (client chooses backend)
+# Initialize storage
 storage: PipelineStorageInterface = SQLitePipelineStorage(Path("output/pipeline.db"))
-# or
-storage: PipelineStorageInterface = PostgresPipelineStorage(database_url)
 
-# Use storage in pipeline
+# Add entities
+disease = Disease(
+    entity_id="C0006142",
+    entity_type=EntityType.DISEASE,
+    name="Breast Cancer",
+    source="umls"
+)
 storage.entities.add_disease(disease)
-storage.papers.add_paper(paper)
+
+# Add relationships
+relationship = create_relationship(
+    predicate=PredicateType.TREATS,
+    subject_id="RxNorm:1187832",  # Olaparib
+    object_id="C0006142",  # Breast Cancer
+    confidence=0.95
+)
 storage.relationships.add_relationship(relationship)
-storage.evidence.add_evidence(evidence_item)
+
+# Generate and store embeddings (optional)
+from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
+embedding_generator = SentenceTransformerEmbeddingGenerator()
+embedding = embedding_generator.generate_embedding("Olaparib treats breast cancer")
+storage.relationship_embeddings.store_relationship_embedding(
+    subject_id="RxNorm:1187832",
+    predicate="TREATS",
+    object_id="C0006142",
+    embedding=embedding,
+    model_name=embedding_generator.model_name
+)
 
 # Clean up
 storage.close()
 ```
 
-## Refactored Pipeline Files
+## Implementing a Custom Storage Backend
 
-All pipeline stages have been refactored to use the new schema and storage interfaces:
+To create your own storage backend:
 
-- **`ner_pipeline_refactored.py`**: Entity extraction using BioBERT NER
-- **`provenance_pipeline_refactored.py`**: Paper metadata and document structure extraction
-- **`claims_pipeline_refactored.py`**: Relationship extraction from text (placeholder)
-- **`evidence_pipeline_refactored.py`**: Evidence metrics extraction (placeholder)
+1. **Implement `PipelineStorageInterface`**:
+   ```python
+   from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
+   
+   class MyCustomStorage(PipelineStorageInterface):
+       def __init__(self, connection_string: str):
+           # Initialize your storage backend
+           self._entities = MyEntityCollection(connection_string)
+           self._papers = MyPaperStorage(connection_string)
+           # ... implement other sub-interfaces
+       
+       @property
+       def entities(self) -> EntityCollectionInterface:
+           return self._entities
+       
+       # Implement other properties...
+       
+       def close(self) -> None:
+           # Clean up connections
+           pass
+   ```
 
-These refactored versions:
-- Accept `--storage sqlite` or `--storage postgres` arguments
-- Use the new schema models (Paper, BaseRelationship, EvidenceItem, etc.)
-- Store data via storage interfaces instead of direct database access
-- Support both SQLite (with sqlite-vec) and PostgreSQL+pgvector backends
+2. **Implement each sub-interface** (see reference implementations for examples)
 
-## Migration Notes
+3. **Use your implementation**:
+   ```python
+   storage = MyCustomStorage("your-connection-string")
+   # All pipeline stages will work with your implementation
+   ```
 
-- Old SQLite direct access → Use `SQLitePipelineStorage`
-- Old PostgreSQL+AGE → Use `PostgresPipelineStorage` (replaces AGE with pgvector)
-- Old models (ExtractionEdge, old Claim, etc.) → Use new schema models
-- Domain models are automatically converted to/from persistence models via `mapper.py`
+## Domain Models
 
-## Next Steps
+The pipeline uses domain models from the main schema package:
+- `Paper` - Paper metadata and structure
+- `BaseRelationship` / `BaseMedicalRelationship` - Relationships between entities
+- `EvidenceItem` - Evidence supporting relationships
+- `Disease`, `Gene`, `Drug`, `Protein`, etc. - Entity types
 
-The refactored pipeline files provide the structure and interfaces, but some functionality is still placeholder:
-- Entity resolution in claims extraction (linking mentions to canonical IDs)
-- Full integration with provenance data for paragraph-level tracking
-- Complete evidence extraction with all metrics
+Domain models are automatically converted to/from persistence models via `mapper.py` when using the reference implementations.
 
-These can be implemented incrementally while using the storage interfaces.
+## Embedding Generation
+
+The pipeline supports generating embeddings for relationships using the `EmbeddingGeneratorInterface`:
+
+```python
+from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
+
+# Initialize embedding generator
+generator = SentenceTransformerEmbeddingGenerator(
+    model_name="sentence-transformers/all-mpnet-base-v2"
+)
+
+# Generate embeddings
+embedding = generator.generate_embedding("Some text")
+embeddings = generator.generate_embeddings_batch(["Text 1", "Text 2"], batch_size=32)
+```
+
+The claims pipeline automatically generates embeddings for relationships when run without `--skip-embeddings`.
+
+## Testing
+
+See `TESTING.md` for information on testing the pipeline with in-memory SQLite and fake data.
