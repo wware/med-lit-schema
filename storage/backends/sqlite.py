@@ -10,7 +10,7 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-from storage.interfaces import (
+from med_lit_schema.storage.interfaces import (
     PaperStorageInterface,
     RelationshipStorageInterface,
     EvidenceStorageInterface,
@@ -22,7 +22,7 @@ from med_lit_schema.entity import (
     EvidenceItem,
     EntityCollectionInterface,
 )
-from storage.backends.sqlite_entity_collection import SQLiteEntityCollection
+from med_lit_schema.storage.backends.sqlite_entity_collection import SQLiteEntityCollection
 from med_lit_schema.relationship import BaseRelationship, create_relationship
 from med_lit_schema.base import PredicateType
 

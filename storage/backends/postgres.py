@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 from sqlalchemy import create_engine, select
 from sqlmodel import Session
 
-from storage.interfaces import (
+from med_lit_schema.storage.interfaces import (
     PaperStorageInterface,
     RelationshipStorageInterface,
     EvidenceStorageInterface,
@@ -42,10 +42,10 @@ from med_lit_schema.mapper import (
     relationship_to_persistence,
     relationship_to_domain,
 )
-from storage.models.entity import Entity
-from storage.models.relationship import Relationship
-from storage.models.paper import Paper as PaperPersistence
-from storage.models.evidence import Evidence as EvidencePersistence
+from med_lit_schema.storage.models.entity import Entity
+from med_lit_schema.storage.models.relationship import Relationship
+from med_lit_schema.storage.models.paper import Paper as PaperPersistence
+from med_lit_schema.storage.models.evidence import Evidence as EvidencePersistence
 
 
 class PostgresPaperStorage(PaperStorageInterface):

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 from med_lit_schema.entity import EntityCollectionInterface
 from med_lit_schema.mapper import to_persistence, to_domain
-from storage.models.entity import Entity
+from med_lit_schema.storage.models.entity import Entity
 
 
 class SQLiteEntityCollection(EntityCollectionInterface):
