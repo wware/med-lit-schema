@@ -221,6 +221,69 @@ To create your own storage backend:
    # All pipeline stages will work with your implementation
    ```
 
+## Parser Interfaces
+
+The pipeline uses parser interfaces to support different input formats for papers. These interfaces allow you to parse papers from various sources (XML files, APIs, PDFs, etc.).
+
+### Main Interface: `PaperParserInterface`
+
+**Location**: `pipeline/parser_interfaces.py`
+
+This interface is for file-based parsers that extract paper metadata from files. It provides:
+
+- `format_name`: Property that returns a human-readable name of the format
+- `parse_file()`: Parse a single file and return a Paper object
+- `parse_directory()`: Parse all matching files in a directory
+- `validate_file()`: Check if a file is parseable by this parser
+
+**Example Implementation**:
+
+```python
+from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
+from med_lit_schema.entity import Paper
+from pathlib import Path
+
+class MyCustomParser(PaperParserInterface):
+    @property
+    def format_name(self) -> str:
+        return "My Custom Format"
+
+    def parse_file(self, file_path: Path) -> Optional[Paper]:
+        # Parse the file and return Paper object
+        pass
+```
+
+### Streaming Interface: `StreamingParserInterface`
+
+**Location**: `pipeline/parser_interfaces.py`
+
+This interface is for parsers that work with APIs, databases, or other non-file sources:
+
+- `source_name`: Property that returns the name of the data source
+- `parse_from_id()`: Fetch and parse a paper by its identifier (DOI, PMID, etc.)
+- `parse_batch()`: Parse multiple papers by their identifiers
+
+### Reference Implementation: PMCXMLParser
+
+**Location**: `pipeline/pmc_parser.py`
+
+The `PMCXMLParser` class implements `PaperParserInterface` for parsing PubMed Central XML files. It extracts:
+- Paper metadata (PMCID, title, authors, journal, dates)
+- Document structure (sections, paragraphs)
+- Abstract and full text content
+
+**Usage**:
+
+```python
+from med_lit_schema.pipeline.pmc_parser import PMCXMLParser
+from pathlib import Path
+
+parser = PMCXMLParser()
+paper = parser.parse_file(Path("data/PMC12345.xml"))
+if paper:
+    print(f"Parsed: {paper.title}")
+```
+
 ## Domain Models
 
 The pipeline uses domain models from the main schema package:
