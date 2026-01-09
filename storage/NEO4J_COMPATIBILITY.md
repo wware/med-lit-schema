@@ -126,8 +126,8 @@ Here's a conceptual example of how to implement a Neo4j backend:
 
 ```python
 from neo4j import GraphDatabase
-from pipeline.storage_interfaces import PipelineStorageInterface
-from entity import EntityCollectionInterface
+from med_lit_schema.storage.interfaces import PipelineStorageInterface
+from med_lit_schema.entity import EntityCollectionInterface
 from typing import Optional
 
 class Neo4jPipelineStorage(PipelineStorageInterface):
@@ -329,12 +329,12 @@ Graph databases are optimized for relationship-heavy workloads:
 
 The codebase currently provides two storage implementations:
 
-### SQLitePipelineStorage (`pipeline/sqlite_storage.py`)
+### SQLitePipelineStorage (`storage/backends/sqlite.py`)
 - **Purpose**: Testing, development, small datasets
 - **Features**: Optional sqlite-vec for vector embeddings, in-memory support
 - **Tradeoffs**: Slower for complex relationship queries, limited by SQL JOIN performance
 
-### PostgresPipelineStorage (`pipeline/postgres_storage.py`)
+### PostgresPipelineStorage (`storage/backends/postgres.py`)
 - **Purpose**: Production deployment with PostgreSQL+pgvector
 - **Features**: pgvector extension for embedding similarity search, robust relational model
 - **Tradeoffs**: Relationship traversals require JOINs, harder to visualize graph structure
