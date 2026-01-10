@@ -48,6 +48,12 @@ dependencies = [
 dev = [
     "pytest>=7.0.0",
 ]
+query = [
+    "pandas>=2.0.0",
+    "jupyter>=1.0.0",
+    "matplotlib>=3.7.0",
+    "plotly>=5.18.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/wware/med-lit-schema"
