@@ -1,0 +1,17 @@
+# Sample PMC IDs for testing the download pipeline
+# These papers are related to BRCA1, PARP inhibitors, and breast cancer
+
+# BRCA1 and breast cancer risk
+PMC6462820
+
+# Olaparib (PARP inhibitor) trials
+PMC5961482
+
+# BRCA mutations in breast cancer
+PMC5748537
+
+# Triple-negative breast cancer
+PMC5346327
+
+# Hereditary breast cancer
+PMC5487382
