@@ -77,12 +77,18 @@ def main():
     arg_parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
     arg_parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
     arg_parser.add_argument("--parser", type=str, default="pmc", help="Parser to use: 'pmc' or module.ClassName for custom parser")
+    arg_parser.add_argument("--json-output-dir", type=str, default=None, help="Optional directory to save parsed papers as JSON files")
 
     args = arg_parser.parse_args()
 
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
+
+    json_output_dir: Optional[Path] = None
+    if args.json_output_dir:
+        json_output_dir = Path(args.json_output_dir)
+        json_output_dir.mkdir(exist_ok=True)
 
     # Validate input
     if not input_dir.exists():
@@ -143,6 +149,14 @@ def main():
 
         # Store paper using storage interface
         storage.papers.add_paper(paper)
+
+        # Optionally save as JSON
+        if json_output_dir:
+            json_file_path = json_output_dir / f"{paper.paper_id}.json"
+            with open(json_file_path, "w") as f:
+                f.write(paper.model_dump_json(indent=2))
+            print(f"  Saved JSON to {json_file_path.name}")
+
         success_count += 1
         print()
 
