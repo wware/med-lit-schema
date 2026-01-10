@@ -356,31 +356,45 @@ class GraphQuery:
 
     def _build_entity_query(self) -> str:
         """Build SQL for entity query."""
+        # Note: This method builds SQL strings for demonstration.
+        # In production, use parameterized queries with cursor.execute(sql, params)
         query = "SELECT * FROM entities"
         conditions = []
-        params = []
 
         if self._entity_type:
             conditions.append("entity_type = %s")
-            params.append(self._entity_type)
 
         # Add property filters
-        for key, value in self._filters.items():
-            conditions.append(f"properties->>{key!r} = %s")
-            params.append(str(value))
+        # Note: Property keys should be validated in production
+        for key in self._filters.keys():
+            # Basic validation: alphanumeric and underscore only
+            if not key.replace("_", "").isalnum():
+                raise ValueError(f"Invalid filter key: {key}")
+            conditions.append(f"properties->>'{key}' = %s")
 
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
         if self._order_by:
             field, direction = self._order_by
+            # Validate field name to prevent SQL injection
+            allowed_fields = ["id", "name", "entity_type", "confidence", "created_at", "updated_at"]
+            if field not in allowed_fields:
+                raise ValueError(f"Invalid order field: {field}. Allowed: {allowed_fields}")
             query += f" ORDER BY {field} {direction.upper()}"
 
         if self._limit:
             query += f" LIMIT {self._limit}"
 
-        # Note: In production, use parameterized queries properly
-        # For now, substituting for simplicity
+        # Note: This simplified implementation substitutes parameters for display
+        # Real implementation should use cursor.execute(query, params)
+        params = []
+        if self._entity_type:
+            params.append(self._entity_type)
+        for value in self._filters.values():
+            params.append(str(value))
+
+        # Substitute for demonstration (NOT production code)
         for param in params:
             query = query.replace("%s", f"'{param}'", 1)
 
@@ -413,12 +427,16 @@ class GraphQuery:
 
         if self._order_by:
             field, direction = self._order_by
+            # Validate field name
+            allowed_fields = ["confidence", "created_at", "updated_at", "evidence_count"]
+            if field not in allowed_fields:
+                raise ValueError(f"Invalid order field: {field}. Allowed: {allowed_fields}")
             query += f" ORDER BY r.{field} {direction.upper()}"
 
         if self._limit:
             query += f" LIMIT {self._limit}"
 
-        # Substitute parameters
+        # Substitute parameters for demonstration
         for param in params:
             query = query.replace("%s", f"'{param}'", 1)
 
@@ -426,9 +444,9 @@ class GraphQuery:
 
     def _build_traverse_query(self) -> str:
         """Build SQL for multi-hop traversal."""
-        # This is a simplified version - full implementation would use recursive CTEs
-        # For now, return a placeholder
-        return "-- Multi-hop traversal queries require recursive CTEs (not yet implemented)"
+        # Multi-hop traversal requires recursive CTEs which is a complex feature
+        # This is intentionally not implemented in this version
+        raise NotImplementedError("Multi-hop traversal queries require recursive CTEs. " "This feature is planned but not yet implemented. " "Contributions welcome!")
 
     def _build_semantic_query(self) -> str:
         """Build SQL for semantic search."""
@@ -623,13 +641,13 @@ def search_by_symptoms(symptoms: List[str], min_match: int = 2, connection_strin
     Returns:
 
         QueryResults with matching diseases
+
+    Raises:
+
+        NotImplementedError: This feature is not yet implemented
     """
-    # This would need complex query logic to find diseases
+    # This requires complex query logic to find diseases
     # that have at least min_match of the given symptoms
-    # For now, return placeholder
-    return QueryResults(
-        results=[],
-        count=0,
-        query_time_ms=0.0,
-        query_sql="-- Symptom-based differential diagnosis not yet implemented",
+    raise NotImplementedError(
+        "Symptom-based differential diagnosis is not yet implemented. " "This requires joining entities and relationships to find diseases " "that match multiple symptoms. Contributions welcome!"
     )
