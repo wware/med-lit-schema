@@ -198,8 +198,9 @@ class TestGraphQuery:
         """Test SQL generation for traverse query (placeholder)."""
         query = GraphQuery().traverse(start={"entity_id": "drug_123"}, path=["TREATS:disease"], max_hops=2)
 
-        sql = query.to_sql()
-        assert "recursive CTEs" in sql.lower() or "not yet implemented" in sql.lower()
+        # Should raise NotImplementedError
+        with pytest.raises(NotImplementedError):
+            query.to_sql()
 
     def test_build_semantic_query(self):
         """Test SQL generation for semantic search."""
