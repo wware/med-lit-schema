@@ -1,6 +1,6 @@
 # Storage Layer
 
-The storage layer provides a clean abstraction for data persistence in the medical literature knowledge graph, separating infrastructure concerns (database operations) from domain logic (pipeline processing).
+The storage layer provides a clean abstraction for data persistence in the medical literature knowledge graph, separating infrastructure concerns (database operations) from domain logic (ingest processing).
 
 ## Architecture
 
@@ -24,12 +24,12 @@ storage/
 
 ### Storage Abstraction
 
-The storage layer uses abstract interfaces (`PipelineStorageInterface`, `PaperStorageInterface`, etc.) that allow the pipeline to work with different storage backends without code changes. This enables:
+The storage layer uses abstract interfaces (`PipelineStorageInterface`, `PaperStorageInterface`, etc.) that allow the ingest process to work with different storage backends without code changes. This enables:
 
 - **Development flexibility**: Use SQLite for local development and testing
 - **Production scalability**: Switch to PostgreSQL+pgvector for production
 - **Easy testing**: Mock storage backends for unit tests
-- **Future extensibility**: Add new backends (Neo4j, MongoDB, etc.) without changing pipeline code
+- **Future extensibility**: Add new backends (Neo4j, MongoDB, etc.) without changing ingest code
 
 ### Domain vs Persistence Models
 

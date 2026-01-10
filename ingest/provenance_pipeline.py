@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stage 2: Provenance Extraction Pipeline
+Stage 2: Provenance Extraction Ingest
 
-This pipeline extracts paper-level metadata and document structure from source files.
+This ingest extracts paper-level metadata and document structure from source files.
 Uses parser and storage interfaces for flexible format and backend support.
 
 Usage:
@@ -12,7 +12,7 @@ Usage:
 
 Custom Parser Example:
     # Create my_parser.py
-    from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
+    from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
     class MyCustomParser(PaperParserInterface):
         @property
         def format_name(self) -> str:
@@ -38,8 +38,8 @@ except ImportError:
     from med_lit_schema.storage.interfaces import PipelineStorageInterface
     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
-    from med_lit_schema.pipeline.parser_interfaces import PaperParserInterface
-    from med_lit_schema.pipeline.pmc_parser import PMCXMLParser
+    from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
+    from med_lit_schema.ingest.pmc_parser import PMCXMLParser
 
 from med_lit_schema.entity import Paper
 
@@ -69,7 +69,7 @@ def parse_pmc_xml(xml_path: Path) -> Optional["Paper"]:
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     arg_parser = argparse.ArgumentParser(description="Stage 2: Provenance Extraction Pipeline")
     arg_parser.add_argument("--input-dir", type=str, default="pmc_xmls", help="Directory containing input files")
     arg_parser.add_argument("--file-pattern", type=str, default="*.xml", help="Glob pattern for input files")
@@ -111,7 +111,7 @@ def main():
 
     # Initialize storage based on choice
     if args.storage == "sqlite":
-        db_path = output_dir / "pipeline.db"
+        db_path = output_dir / "ingest.db"
         storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
     elif args.storage == "postgres":
         if not args.database_url:

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stage 4: Claims Extraction Pipeline
+Stage 4: Claims Extraction Ingest
 
-This pipeline extracts semantic relationships (claims) from paragraphs.
+This ingest extracts semantic relationships (claims) from paragraphs.
 Uses new schema relationship models and storage interfaces.
 
 Usage:
@@ -33,8 +33,8 @@ except ImportError:
     from med_lit_schema.storage.interfaces import PipelineStorageInterface
     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
-    from med_lit_schema.pipeline.embedding_interfaces import EmbeddingGeneratorInterface
-    from med_lit_schema.pipeline.embedding_generators import SentenceTransformerEmbeddingGenerator
+    from med_lit_schema.ingest.embedding_interfaces import EmbeddingGeneratorInterface
+    from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
 
 
 # ============================================================================
@@ -218,7 +218,7 @@ def extract_relationships_from_paragraph(
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     parser = argparse.ArgumentParser(description="Stage 4: Claims Extraction Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
     parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
@@ -246,7 +246,7 @@ def main():
 
     # Initialize storage
     if args.storage == "sqlite":
-        db_path = output_dir / "pipeline.db"
+        db_path = output_dir / "ingest.db"
         storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
     elif args.storage == "postgres":
         if not args.database_url:
@@ -350,7 +350,7 @@ def main():
     if total_relationships > 0:
         print("\nNote: Relationships created with placeholder entity IDs.")
         print("Entity resolution is needed to replace placeholder IDs with canonical entity IDs.")
-        print("Run entity resolution pipeline to complete the relationships.")
+        print("Run entity resolution ingest to complete the relationships.")
 
     return 0
 

@@ -1,7 +1,7 @@
 """
-Embedding generation interfaces for pipeline.
+Embedding generation interfaces for ingest.
 
-These ABC interfaces allow the pipeline to work with different embedding backends:
+These ABC interfaces allow the ingest to work with different embedding backends:
 - SentenceTransformer for local embeddings
 - OpenAI/Cohere/etc. for API-based embeddings
 - Custom models for domain-specific embeddings

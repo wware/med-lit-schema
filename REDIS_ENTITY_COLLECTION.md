@@ -14,7 +14,7 @@ Redis provides fast key-value storage for the EntityCollection, enabling:
 
 **Use Cases:**
 - Entity ID resolution (map mentions → canonical IDs)
-- Fast lookups during ingestion pipeline (millions of entities)
+- Fast lookups during ingestion (millions of entities)
 - Caching embeddings for semantic search
 - Session storage for entity linking workflows
 

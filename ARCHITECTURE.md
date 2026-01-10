@@ -26,7 +26,7 @@ This document explains:
 - **Standards-based**: Uses UMLS, HGNC, RxNorm, UniProt for canonical IDs
 
 **Use Cases**:
-- Ingestion pipelines processing PubMed/PMC papers
+- Ingestion scripts processing PubMed/PMC papers
 - API request/response models (FastAPI)
 - Business logic and complex transformations
 - Client libraries (Python, TypeScript)

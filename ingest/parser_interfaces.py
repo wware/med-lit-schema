@@ -1,7 +1,7 @@
 """
 Parser interfaces for extracting paper metadata from various sources.
 
-These ABC interfaces allow the pipeline to work with different input formats:
+These ABC interfaces allow the ingest to work with different input formats:
 - PMC XML files
 - PubMed XML
 - JSON APIs (Semantic Scholar, CrossRef, etc.)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stage 6: Graph Database Pipeline
+Stage 6: Graph Database Ingest
 
-This pipeline loads data from SQLite databases into PostgreSQL/AGE graph database.
+This ingest loads data from SQLite databases into PostgreSQL/AGE graph database.
 
 Database: PostgreSQL with Apache AGE extension
 Graph: medical_literature_graph
@@ -486,7 +486,7 @@ def get_graph_stats(age_conn: psycopg2.extensions.connection) -> GraphStats:
 
 
 def main():
-    """Main pipeline execution."""
+    """Main ingest execution."""
     parser = argparse.ArgumentParser(description="Stage 6: Graph Database Pipeline")
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory containing databases")
     parser.add_argument("--clear", action="store_true", help="Clear existing graph data before loading")
