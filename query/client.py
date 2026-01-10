@@ -34,8 +34,8 @@ Example:
 
 import json
 import os
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Union
+from dataclasses import dataclass
+from typing import Any, Dict, List, Literal, Optional
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -67,9 +67,7 @@ class QueryResults:
 
             JSON string representation of results
         """
-        return json.dumps(
-            {"results": self.results, "count": self.count, "query_time_ms": self.query_time_ms}, default=str
-        )
+        return json.dumps({"results": self.results, "count": self.count, "query_time_ms": self.query_time_ms}, default=str)
 
     def to_dataframe(self):
         """
@@ -129,9 +127,7 @@ class GraphQuery:
             connection_string: PostgreSQL connection string. If not provided,
                              uses DATABASE_URL environment variable.
         """
-        self.connection_string = connection_string or os.getenv(
-            "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit"
-        )
+        self.connection_string = connection_string or os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit")
         self._query_type: Optional[str] = None
         self._entity_type: Optional[str] = None
         self._predicate: Optional[str] = None
@@ -150,9 +146,7 @@ class GraphQuery:
         self._semantic_top_k: int = 10
         self._semantic_threshold: float = 0.7
 
-    def entities(
-        self, entity_type: Optional[str] = None, filters: Optional[Dict[str, Any]] = None
-    ) -> "GraphQuery":
+    def entities(self, entity_type: Optional[str] = None, filters: Optional[Dict[str, Any]] = None) -> "GraphQuery":
         """
         Query entities by type and filters.
 
@@ -211,9 +205,7 @@ class GraphQuery:
         self._min_confidence = min_confidence
         return self
 
-    def traverse(
-        self, start: Dict[str, str], path: List[str], max_hops: int = 3
-    ) -> "GraphQuery":
+    def traverse(self, start: Dict[str, str], path: List[str], max_hops: int = 3) -> "GraphQuery":
         """
         Multi-hop graph traversal.
 
@@ -441,8 +433,8 @@ class GraphQuery:
     def _build_semantic_query(self) -> str:
         """Build SQL for semantic search."""
         # Note: This requires embedding generation which is not implemented here
-        query = f"""
-        SELECT e.*, 
+        query = """
+        SELECT e.*,
                1 - (e.embedding <=> %s::vector) AS similarity
         FROM entities e
         WHERE e.embedding IS NOT NULL
@@ -550,9 +542,7 @@ def find_treatments(
     disease_id = disease_results.results[0]["id"]
 
     # Find relationships where drug treats this disease
-    query = GraphQuery(connection_string).relationships(
-        predicate="TREATS", object_id=disease_id, min_confidence=min_confidence
-    )
+    query = GraphQuery(connection_string).relationships(predicate="TREATS", object_id=disease_id, min_confidence=min_confidence)
 
     if study_types:
         query = query.with_evidence(study_types=study_types)
@@ -560,9 +550,7 @@ def find_treatments(
     return query.execute()
 
 
-def find_disease_genes(
-    disease: str, min_confidence: float = 0.6, connection_string: Optional[str] = None
-) -> QueryResults:
+def find_disease_genes(disease: str, min_confidence: float = 0.6, connection_string: Optional[str] = None) -> QueryResults:
     """
     Find genes associated with a disease.
 
@@ -587,9 +575,7 @@ def find_disease_genes(
     disease_id = disease_results.results[0]["id"]
 
     # Find associated genes
-    query = GraphQuery(connection_string).relationships(
-        predicate="ASSOCIATED_WITH", object_id=disease_id, min_confidence=min_confidence
-    )
+    query = GraphQuery(connection_string).relationships(predicate="ASSOCIATED_WITH", object_id=disease_id, min_confidence=min_confidence)
 
     return query.execute()
 
@@ -619,16 +605,12 @@ def find_drug_mechanisms(drug: str, max_hops: int = 3, connection_string: Option
     drug_id = drug_results.results[0]["id"]
 
     # Find mechanism (this would need multi-hop traversal)
-    query = GraphQuery(connection_string).traverse(
-        start={"entity_id": drug_id}, path=["TARGETS:protein", "REGULATES:gene"], max_hops=max_hops
-    )
+    query = GraphQuery(connection_string).traverse(start={"entity_id": drug_id}, path=["TARGETS:protein", "REGULATES:gene"], max_hops=max_hops)
 
     return query.execute()
 
 
-def search_by_symptoms(
-    symptoms: List[str], min_match: int = 2, connection_string: Optional[str] = None
-) -> QueryResults:
+def search_by_symptoms(symptoms: List[str], min_match: int = 2, connection_string: Optional[str] = None) -> QueryResults:
     """
     Differential diagnosis by symptoms.
 
