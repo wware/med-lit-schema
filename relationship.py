@@ -208,6 +208,7 @@ class AssociatedWith(BaseMedicalRelationship):
     statistical association exists.
 
     Valid directions:
+
         - Disease -> Disease (comorbidities)
         - Gene -> Disease
         - Biomarker -> Disease

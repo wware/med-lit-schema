@@ -23,8 +23,13 @@ Use the Jupyter notebook to explore queries interactively:
 pip install jupyter matplotlib pandas psycopg2-binary
 
 # Start Jupyter
-jupyter notebook query/explore_queries.ipynb
+uv run --with jupyter jupyter notebook query/explore_queries.ipynb
+
+# Or maybe
+uv run --with jupyter jupyter lab
 ```
+
+By default, jupyter lab will start the server at http://localhost:8888/lab.
 
 The notebook includes comprehensive examples of:
 - Entity and relationship queries

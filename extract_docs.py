@@ -196,8 +196,12 @@ def extract_docs(source_path: Path) -> str:
     extractor = DocExtractor()
     extractor.visit(tree)
 
-    # Build markdown
-    lines = [f"# {source_path.name}\n"]
+    # Build markdown with file boundary markers
+    path_str = str(source_path.absolute())
+    boundary_width = max(len(path_str) + 8, 50)
+    boundary = "*" * boundary_width
+
+    lines = [boundary, boundary, f"**  {path_str}  **", boundary, boundary, f"# {source_path.name}\n"]
 
     for section in extractor.sections:
         doc_type, signature, content, fields = section
@@ -257,9 +261,12 @@ def main():
 
         try:
             markdown = extract_docs(source_path)
-            output_path = source_path.with_suffix(".md")
-            output_path.write_text(markdown)
-            print(f"Documentation written to {output_path}")
+            if False:
+                output_path = source_path.with_suffix(".md")
+                output_path.write_text(markdown)
+                print(f"Documentation written to {output_path}")
+            else:
+                print(markdown)
         except Exception as e:
             print(f"Error processing {source_path}: {e}")
             continue

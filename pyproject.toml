@@ -42,6 +42,13 @@ dependencies = [
     "numpy>=1.24.0",
     "psycopg2-binary>=2.9.0",
     "twine>=6.2.0",
+    "ollama>=0.6.1",
+    "pandas>=2.3.3",
+    "matplotlib>=3.9.4",
+    "seaborn>=0.13.2",
+    "transformers>=4.57.3",
+    "lxml>=6.0.2",
+    "torch>=2.8.0",
 ]
 
 [project.optional-dependencies]

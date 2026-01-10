@@ -49,14 +49,30 @@ class PaperParserInterface(ABC):
         """
         Parse a single file and extract paper metadata.
 
-        Attributes:
-
-            file_path: Path to the file to parse
+        Args:
+            file_path: Path to the file
 
         Returns:
             Paper object with extracted metadata, or None if parsing fails
         """
         pass
+
+    @abstractmethod
+    def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> \
+            tuple[Path, Optional[Paper]]:
+        """
+        Parse all files in a directory matching a given pattern.
+
+        Args:
+            directory: Path to the directory containing files
+            file_pattern: Glob pattern to match files (e.g., "*.xml", "*-paper.json")
+
+        Yields:
+            Tuple of (file_path, Paper object or None if parsing fails)
+        """
+        pass
+
+
 
     def parse_directory(self, directory: Path, pattern: str = "*") -> Iterator[tuple[Path, Optional[Paper]]]:
         """

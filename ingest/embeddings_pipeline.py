@@ -26,15 +26,15 @@ from pathlib import Path
 import numpy as np
 
 from pydantic import BaseModel, Field
-from sentence_transformers import SentenceTransformer
+from ingest.ollama_embedding_generator import OllamaEmbeddingGenerator
 
 
 # ============================================================================
 # Configuration
 # ============================================================================
 
-DEFAULT_MODEL = "sentence-transformers/all-mpnet-base-v2"
-EMBEDDING_DIM = 768  # all-mpnet-base-v2 produces 768-dimensional vectors
+DEFAULT_MODEL = "nomic-embed-text"
+# EMBEDDING_DIM will be dynamically determined by the Ollama model
 
 
 # ============================================================================
@@ -201,18 +201,17 @@ def insert_paragraph_embedding(conn: sqlite3.Connection, paragraph_id: str, embe
     conn.commit()
 
 
-def load_embedding(embedding_bytes: bytes, dim: int = EMBEDDING_DIM) -> np.ndarray:
+def load_embedding(embedding_bytes: bytes) -> np.ndarray:
     """
     Load embedding from bytes.
 
     Args:
         embedding_bytes: Embedding stored as bytes
-        dim: Dimensionality of embedding (default: 768)
 
     Returns:
         Numpy array of shape (dim,)
     """
-    return np.frombuffer(embedding_bytes, dtype=np.float32).reshape(dim)
+    return np.frombuffer(embedding_bytes, dtype=np.float32).reshape(EMBEDDING_DIM)
 
 
 # ============================================================================
@@ -226,14 +225,18 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
 
     Args:
         entities_db_path: Path to entities.db
-        model_name: Name of sentence-transformers model to use
+        model_name: Name of Ollama model to use
         batch_size: Batch size for encoding
 
     Returns:
         Number of entity embeddings created
     """
     print(f"Loading embedding model: {model_name}")
-    model = SentenceTransformer(model_name)
+    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
+
+    # Use the dynamically determined embedding dimension
+    global EMBEDDING_DIM
+    EMBEDDING_DIM = embedding_generator.embedding_dim
 
     print(f"Connecting to {entities_db_path}")
     conn = sqlite3.connect(entities_db_path)
@@ -257,7 +260,8 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
     print(f"Generating embeddings (batch size: {batch_size})...")
 
     # Generate embeddings in batches
-    embeddings = model.encode(entity_names, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
+    embeddings_list = embedding_generator.generate_embeddings_batch(entity_names, batch_size=batch_size)
+    embeddings = np.array(embeddings_list)
 
     # Insert embeddings into database
     print("Storing embeddings in database...")
@@ -276,14 +280,18 @@ def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DE
 
     Args:
         provenance_db_path: Path to provenance.db
-        model_name: Name of sentence-transformers model to use
+        model_name: Name of Ollama model to use
         batch_size: Batch size for encoding
 
     Returns:
         Number of paragraph embeddings created
     """
     print(f"Loading embedding model: {model_name}")
-    model = SentenceTransformer(model_name)
+    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
+
+    # Use the dynamically determined embedding dimension
+    global EMBEDDING_DIM
+    EMBEDDING_DIM = embedding_generator.embedding_dim
 
     print(f"Connecting to {provenance_db_path}")
     conn = sqlite3.connect(provenance_db_path)
@@ -307,7 +315,8 @@ def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DE
     print(f"Generating embeddings (batch size: {batch_size})...")
 
     # Generate embeddings in batches
-    embeddings = model.encode(paragraph_texts, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
+    embeddings_list = embedding_generator.generate_embeddings_batch(paragraph_texts, batch_size=batch_size)
+    embeddings = np.array(embeddings_list)
 
     # Insert embeddings into database
     print("Storing embeddings in database...")

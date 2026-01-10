@@ -164,6 +164,21 @@ class PMCXMLParser(PaperParserInterface):
         except Exception:
             return False
 
+    def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> \
+            tuple[Path, Optional[Paper]]:
+        """
+        Parse all files in a directory matching a given pattern.
+
+        Args:
+            directory: Path to the directory containing files
+            file_pattern: Glob pattern to match files (e.g., "*.xml", "*-paper.json")
+
+        Yields:
+            Tuple of (file_path, Paper object or None if parsing fails)
+        """
+        for file_path in directory.glob(file_pattern):
+            yield file_path, self.parse_file(file_path)
+
     # Private helper methods for extraction
 
     def _extract_pmc_id(self, article_meta, file_path: Path) -> str:
