@@ -48,7 +48,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "transformers>=4.57.3",
     "lxml>=6.0.2",
-    "torch>=2.8.0",
+    "torch>=2.8.0",  # CPU-only version configured via [tool.uv] section below
 ]
 
 [project.optional-dependencies]
@@ -100,3 +100,17 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.14.10",
 ]
+
+[tool.uv]
+# Configure PyTorch CPU-only index with unsafe-best-match to prioritize PyPI for most packages
+index-url = "https://pypi.org/simple"
+extra-index-url = ["https://download.pytorch.org/whl/cpu"]
+index-strategy = "unsafe-best-match"
+
+[tool.uv.sources]
+# Force torch and related packages to use CPU-only versions
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
