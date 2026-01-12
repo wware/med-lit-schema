@@ -364,6 +364,15 @@ class PostgresEntityCollection(EntityCollectionInterface):
 
         return entities_with_scores
 
+    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
+        """List entities, optionally with pagination."""
+        statement = select(Entity).offset(offset)
+        if limit is not None:
+            statement = statement.limit(limit)
+
+        persistences = self.session.exec(statement).all()
+        return [entity_to_domain(p) for p in persistences]
+
     @property
     def entity_count(self) -> int:
         """Total number of entities across all types."""

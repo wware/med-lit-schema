@@ -3,7 +3,7 @@ name = "med-lit-schema"
 version = "0.1.0"
 description = "Domain and persistence models for the Medical Knowledge Graph"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Will Ware", email = "will.ware@gmail.com"}
@@ -26,7 +26,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -42,6 +41,12 @@ dependencies = [
     "numpy>=1.24.0",
     "psycopg2-binary>=2.9.0",
     "twine>=6.2.0",
+    "fastapi>=0.128.0",
+    "uvicorn>=0.39.0",
+    "strawberry-graphql[fastapi]>=0.283.3",
+    "mcp>=1.25.0",
+    "sentence-transformers>=5.2.0",
+    "black[jupyter]>=25.12.0",
 ]
 
 [project.optional-dependencies]

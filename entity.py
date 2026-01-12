@@ -1342,6 +1342,11 @@ class EntityCollectionInterface(ABC):
         """
         pass
 
+    @abstractmethod
+    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
+        """List entities, optionally with pagination."""
+        pass
+
     @property
     @abstractmethod
     def entity_count(self) -> int:
@@ -1488,6 +1493,33 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
             if entity.hgnc_id == hgnc_id:
                 return entity
         return None
+
+    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
+        """List entities, optionally with pagination."""
+        all_entities = []
+        collections_to_search: list[dict[str, BaseMedicalEntity]] = [
+            cast(dict[str, BaseMedicalEntity], self.diseases),
+            cast(dict[str, BaseMedicalEntity], self.genes),
+            cast(dict[str, BaseMedicalEntity], self.drugs),
+            cast(dict[str, BaseMedicalEntity], self.proteins),
+            cast(dict[str, BaseMedicalEntity], self.symptoms),
+            cast(dict[str, BaseMedicalEntity], self.procedures),
+            cast(dict[str, BaseMedicalEntity], self.biomarkers),
+            cast(dict[str, BaseMedicalEntity], self.pathways),
+            cast(dict[str, BaseMedicalEntity], self.hypotheses),
+            cast(dict[str, BaseMedicalEntity], self.study_designs),
+            cast(dict[str, BaseMedicalEntity], self.statistical_methods),
+            cast(dict[str, BaseMedicalEntity], self.evidence_lines),
+        ]
+        for collection in collections_to_search:
+            all_entities.extend(collection.values())
+
+        # Apply pagination
+        paginated_entities = all_entities[offset:]
+        if limit is not None:
+            paginated_entities = paginated_entities[:limit]
+
+        return paginated_entities
 
     def save(self, path: str):
         """Save to JSONL with type information"""

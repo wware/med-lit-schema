@@ -7,10 +7,10 @@ This provides entity storage in SQLite with vector similarity search using sqlit
 import json
 import sqlite3
 from typing import Optional, TYPE_CHECKING
+from med_lit_schema.entity import BaseMedicalEntity
 
 if TYPE_CHECKING:
     from med_lit_schema.entity import (
-        BaseMedicalEntity,
         Disease,
         Gene,
         Drug,
@@ -113,7 +113,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
 
         self.conn.commit()
 
-    def _add_entity(self, entity: "BaseMedicalEntity") -> None:
+    def _add_entity(self, entity: BaseMedicalEntity) -> None:
         """Internal method to add any entity type."""
         # Convert to persistence model to get flattened fields
         persistence = to_persistence(entity)
@@ -188,7 +188,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
         """Add an evidence line entity to the collection."""
         self._add_entity(entity)
 
-    def get_by_id(self, entity_id: str) -> Optional["BaseMedicalEntity"]:
+    def get_by_id(self, entity_id: str) -> Optional[BaseMedicalEntity]:
         """Get entity by ID, searching across all types."""
         cursor = self.conn.cursor()
         cursor.execute("SELECT entity_json FROM entities WHERE id = ?", (entity_id,))
@@ -249,7 +249,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             return Gene.model_validate(data)
         return None
 
-    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
+    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[BaseMedicalEntity, float]]:
         """Find entities similar to query embedding using sqlite-vec."""
         if not query_embedding:
             return []
@@ -283,8 +283,6 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                 similarity = float(row[1])
                 if similarity >= threshold:
                     data = json.loads(row[0])
-                    from med_lit_schema.entity import BaseMedicalEntity
-
                     # Reconstruct entity from JSON
                     # This is simplified - full implementation would use mapper
                     entity = BaseMedicalEntity.model_validate(data)
@@ -298,7 +296,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
             # Fallback: simple cosine similarity in Python
             return self._find_by_embedding_fallback(query_embedding, top_k, threshold)
 
-    def _find_by_embedding_fallback(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
+    def _find_by_embedding_fallback(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[BaseMedicalEntity, float]]:
         """Fallback embedding search using Python cosine similarity."""
         import math
 
@@ -332,14 +330,32 @@ class SQLiteEntityCollection(EntityCollectionInterface):
                 similarity = cosine_similarity(query_embedding, embedding)
                 if similarity >= threshold:
                     data = json.loads(entity_json)
-                    from med_lit_schema.entity import BaseMedicalEntity
-
                     entity = BaseMedicalEntity.model_validate(data)
                     results.append((entity, similarity))
 
         # Sort by similarity and return top_k
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:top_k]
+
+    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list[BaseMedicalEntity]:
+        """List entities, optionally with pagination."""
+        cursor = self.conn.cursor()
+
+        # Build query with pagination
+        query = "SELECT entity_json FROM entities"
+        if limit is not None:
+            query += f" LIMIT {limit} OFFSET {offset}"
+        else:
+            query += f" OFFSET {offset}"
+
+        cursor.execute(query)
+        results = []
+        for row in cursor.fetchall():
+            data = json.loads(row[0])
+            entity = BaseMedicalEntity.model_validate(data)
+            results.append(entity)
+
+        return results
 
     @property
     def entity_count(self) -> int:

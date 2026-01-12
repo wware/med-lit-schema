@@ -4,13 +4,173 @@ This directory contains tools for querying the medical knowledge graph in a stor
 
 ## Overview
 
+This query system provides multiple ways to access the medical knowledge graph:
+
+1. **FastAPI Server** - RESTful, GraphQL, and MCP (Model Context Protocol) endpoints for remote access
+2. **Python Client Library** - Fluent API for direct database queries
+3. **Jupyter Notebook** - Interactive exploration interface
+
 Our storage system is agnostic across:
 
 * SQLite with sqlite-vec
 * PostgreSQL with pgvector
 * Neo4j
 
-This query interface provides a unified, fluent API that works across all backends, with current support for PostgreSQL and planned support for Neo4j.
+The FastAPI server and Python client provide unified interfaces that work across all backends, with current support for PostgreSQL and planned support for Neo4j.
+
+## API Server
+
+A production-ready FastAPI server provides three ways to query the knowledge graph:
+
+### Starting the Server
+
+#### With Docker Compose (Recommended)
+
+```bash
+docker-compose up api
+```
+
+The server will be available at `http://localhost:8000`.
+
+#### Direct with uvicorn
+
+```bash
+uv run uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+### API Endpoints
+
+#### 1. REST API
+
+Self-documenting REST endpoints at `/docs`:
+
+**Entities:**
+- `GET /api/v1/entities/{entity_id}` - Get entity by ID
+- `GET /api/v1/entities?entity_type=drug&limit=100` - List/search entities
+
+**Relationships:**
+- `GET /api/v1/relationships?predicate=TREATS&limit=100` - Query relationships
+- `GET /api/v1/relationships?subject_id={id}` - Get relationships for entity
+
+**Papers:**
+- `GET /api/v1/papers/{paper_id}` - Get research paper by ID
+
+**Semantic Search:**
+- `POST /api/v1/search/semantic` - Semantic similarity search
+  ```json
+  {
+    "query_text": "PARP inhibitors for cancer",
+    "top_k": 10,
+    "threshold": 0.7
+  }
+  ```
+
+**Examples:**
+
+```bash
+# Get all drugs
+curl "http://localhost:8000/api/v1/entities?entity_type=drug&limit=10"
+
+# Find treatments
+curl "http://localhost:8000/api/v1/relationships?predicate=TREATS&limit=20"
+
+# Semantic search
+curl -X POST "http://localhost:8000/api/v1/search/semantic" \
+  -H "Content-Type: application/json" \
+  -d '{"query_text": "breast cancer treatments", "top_k": 10}'
+```
+
+#### 2. GraphQL API
+
+Interactive GraphiQL playground at `/graphql` (visit in browser).
+
+**Available Queries:**
+
+```graphql
+query GetPaper {
+  paper(id: "pmid_12345678") {
+    id
+    title
+    authors
+    abstract
+  }
+}
+
+query GetEntity {
+  entity(id: "drug_aspirin") {
+    id
+    entity_type
+    properties
+  }
+}
+
+query SearchEntities {
+  entities(limit: 10, offset: 0) {
+    id
+    entity_type
+    canonical_id
+  }
+}
+
+query GetRelationships {
+  relationships(
+    predicate: "TREATS"
+    limit: 20
+  ) {
+    id
+    subject_id
+    predicate
+    object_id
+    confidence
+  }
+}
+```
+
+**Example with cURL:**
+
+```bash
+curl -X POST "http://localhost:8000/graphql" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ entity(id: \"drug_aspirin\") { id entity_type properties } }"}'
+```
+
+#### 3. MCP (Model Context Protocol)
+
+AI agent integration endpoints at `/mcp` and `/mcp/sse`.
+
+**Available Tools:**
+
+- `find_treatments(disease_name, limit)` - Find drugs that treat a disease
+- `find_related_genes(disease_name, limit)` - Find genes associated with a disease
+- `get_entity(entity_id)` - Retrieve entity by canonical ID
+- `search_entities(query, entity_type, limit)` - Search entities by name
+- `get_paper(paper_id)` - Retrieve research paper by ID
+
+These tools are designed for AI agents (like Claude) to query the knowledge graph naturally.
+
+**Example MCP Configuration:**
+
+```json
+{
+  "mcpServers": {
+    "medical-knowledge": {
+      "url": "http://localhost:8000/mcp/sse"
+    }
+  }
+}
+```
+
+### Health Check
+
+```bash
+curl http://localhost:8000/health
+```
+
+Returns: `{"status": "healthy"}`
+
+### API Documentation
+
+Visit `http://localhost:8000/docs` for interactive Swagger UI documentation of all REST endpoints.
 
 ## Getting Started
 
@@ -281,6 +441,15 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ### Current Implementation
 
+**API Server (Complete):**
+- ✅ FastAPI server with REST, GraphQL, and MCP endpoints
+- ✅ PostgreSQL backend with singleton storage factory
+- ✅ Semantic search with sentence-transformers embeddings
+- ✅ Docker containerization with docker-compose
+- ✅ Self-documenting via Swagger UI and GraphiQL
+- ✅ Health checks and connection lifecycle management
+
+**Python Client Library:**
 - ✅ PostgreSQL backend with SQLModel
 - ✅ Entity and relationship queries
 - ✅ Confidence filtering
@@ -289,11 +458,20 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ### Planned Features
 
+**Python Client Library:**
 - ⚠️ Recursive CTEs for multi-hop traversals
 - ⚠️ Evidence table joins
 - ⚠️ Semantic search with pgvector
 - ⚠️ Neo4j Cypher generation
 - ⚠️ Query optimization and caching
+
+**API Server Enhancements:**
+- ⚠️ Full GraphQL type safety (currently uses JSON scalars)
+- ⚠️ Entity semantic search (currently only relationship search)
+- ⚠️ Full-text search endpoints
+- ⚠️ Response caching (Redis)
+- ⚠️ Rate limiting
+- ⚠️ Comprehensive test coverage
 
 ### Design Principles
 
@@ -305,7 +483,19 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ## Resources
 
+**API Server:**
+- **Server**: `server.py` - FastAPI application
+- **REST API**: `routers/rest_api.py` - RESTful endpoints
+- **GraphQL**: `graphql_schema.py` - GraphQL schema and resolvers
+- **MCP**: `routers/mcp_api.py` - Model Context Protocol tools
+- **Storage**: `storage_factory.py` - Database connection management
+- **Docs**: `IMPLEMENTATION_PLAN.md` - Complete implementation details
+- **Architecture**: `API_ARCHITECTURE.md` - System design
+
+**Python Client Library:**
 - **Notebook**: `explore_queries.ipynb` - Interactive examples
 - **Client**: `client.py` - Python query library
 - **Notes**: `NOTES.md` - Design discussions
-- **Schema**: `../storage/models/` - Database schema
+
+**Database Schema:**
+- **Models**: `../storage/models/` - Pydantic data models

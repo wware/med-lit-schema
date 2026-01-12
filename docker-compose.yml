@@ -1,4 +1,31 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: med-lit-api
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/medlit
+      # Optional: Redis connection for future caching
+      # REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount code for development (comment out for production)
+      - .:/app
+    restart: unless-stopped
+    networks:
+      - medlit-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   postgres:
     image: pgvector/pgvector:pg16
     container_name: med-lit-postgres
