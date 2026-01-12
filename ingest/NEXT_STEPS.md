@@ -41,24 +41,117 @@ a smooth thing to do.
     * I've added an optional --json-output-dir argument to ingest/provenance_pipeline.py. If provided, this script will now save each parsed Paper object as a JSON file
       in the specified directory, alongside storing data in the SQLite database.
 
-To test the updated ingestion pipeline:
+## Complete Pipeline Instructions
 
-### Generate Provenance and JSON (if desired):
+The ingestion pipeline consists of 6 stages that should be run in order:
 
-First, ensure you have PMC XML files in a directory (e.g., `ingest/download/pmc_xmls`). You can then run the `provenance_pipeline.py` to parse them and optionally output
-JSON files:
+### Stage 1: Generate Provenance and JSON (if desired)
+
+First, ensure you have PMC XML files in a directory (e.g., `ingest/download/pmc_xmls`). You can then run the `provenance_pipeline.py` to parse them and optionally output JSON files:
 
     uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output --json-output-dir output/json_papers
 
 This will create output/provenance.db, output/entities.db, and a directory `output/json_papers` containing the JSON representations of each paper.
 
-### Generate Embeddings using Ollama:
+### Stage 2: Generate Embeddings using Ollama
 
-Before running this, make sure Ollama is running and you have pulled the nomic-embed-text model (or your preferred embedding model) using ollama pull nomic-embed-text.
+Before running this, make sure Ollama is running and you have pulled the nomic-embed-text model (or your preferred embedding model) using `ollama pull nomic-embed-text`.
 
-    uv run python `ingest/embeddings_pipeline.py` --output-dir output --model nomic-embed-text
+    uv run python ingest/embeddings_pipeline.py --output-dir output --model nomic-embed-text
 
 This will generate embeddings for entities and paragraphs in output/entities.db and output/provenance.db using your local Ollama instance.
+
+### Stage 3: Extract Biomedical Entities (NER)
+
+Extract biomedical entities (diseases, genes, etc.) from the papers using BioBERT NER model:
+
+    uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
+
+This will extract entities and create co-occurrence relationships, storing them in PostgreSQL. It also generates:
+- output/extraction_edges.jsonl - Entity co-occurrence edges
+- output/extraction_provenance.json - Extraction metadata
+
+### Stage 4: Extract Claims (Relationships)
+
+Extract semantic relationships (claims) from paragraphs using pattern matching:
+
+    uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
+
+This will extract relationships like "X CAUSES Y", "X TREATS Y", etc. from paragraph text and store them in PostgreSQL. Optionally generates embeddings for the claims if --skip-embeddings is not specified.
+
+Note: Claims are created with placeholder entity IDs. Entity resolution is needed to link claims to canonical entities.
+
+### Stage 5: Extract Evidence
+
+Extract quantitative evidence (sample sizes, p-values, etc.) supporting relationships:
+
+    uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
+
+This will extract statistical evidence from paragraph text and associate it with existing claims in PostgreSQL.
+
+### Stage 6: Query the Database
+
+After stage 5, your PostgreSQL database contains the complete knowledge graph with:
+- Entities (diseases, genes, etc.)
+- Relationships (claims) between entities
+- Evidence supporting those relationships
+- Entity and relationship embeddings for semantic search
+
+You can now query this database using the query client library (see query/ directory) or directly with SQL/ORM queries.
+
+## Running the Full Pipeline
+
+### Prerequisites
+
+1. **PostgreSQL Database**: Set up a PostgreSQL database for storing the extracted data. For example:
+   ```bash
+   createdb medlit
+   ```
+
+2. **Ollama**: Make sure Ollama is running with the nomic-embed-text model:
+   ```bash
+   ollama pull nomic-embed-text
+   ollama serve
+   ```
+
+### Pipeline Execution
+
+To run the complete pipeline on your 100 downloaded papers:
+
+```bash
+# Set your database URL (adjust user/password/host/port/database as needed)
+export DB_URL="postgresql://user:password@localhost:5432/medlit"
+
+# Stage 1: Parse XML files
+uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output
+
+# Stage 2: Generate embeddings
+uv run python ingest/embeddings_pipeline.py --output-dir output --model nomic-embed-text
+
+# Stage 3: Extract entities
+uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+
+# Stage 4: Extract claims
+uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+
+# Stage 5: Extract evidence
+uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+```
+
+### Outputs
+
+After running these stages, you'll have:
+
+**SQLite databases (temporary, used during ingestion):**
+- **output/provenance.db** - Paper metadata, sections, paragraphs (used by stages 2-5)
+- **output/entities.db** - Entity collection for canonical ID management (used by stages 3-5)
+
+**PostgreSQL database (final queryable knowledge graph):**
+- **Entities table** - Canonical entities with embeddings
+- **Relationships table** - Claims/relationships between entities with embeddings
+- **Evidence table** - Supporting evidence with quantitative metrics
+
+The SQLite databases can be discarded after stage 5. The PostgreSQL database contains the complete queryable knowledge graph.
 
 ### Regarding PyPI Publication Preparation:
 

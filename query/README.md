@@ -4,13 +4,24 @@ This directory contains tools for querying the medical knowledge graph in a stor
 
 ## Overview
 
-Our storage system is agnostic across:
+The knowledge graph is stored in **PostgreSQL** with **pgvector** for semantic search capabilities. This query interface provides a fluent Python API for exploring the medical knowledge graph.
 
-* SQLite with sqlite-vec
-* PostgreSQL with pgvector
-* Neo4j
+The system uses:
+- **PostgreSQL** - Primary storage for entities, relationships, and evidence
+- **pgvector** - Semantic search via embeddings
+- **SQLite** (temporary) - Used only during ingestion for provenance data and entity canonicalization
 
-This query interface provides a unified, fluent API that works across all backends, with current support for PostgreSQL and planned support for Neo4j.
+### Database Setup
+
+Before querying, you need to run the ingestion pipeline to populate the PostgreSQL database. See `../ingest/NEXT_STEPS.md` for complete instructions on running the 5-stage ingestion pipeline that:
+
+1. Parses PMC XML papers
+2. Generates embeddings
+3. Extracts biomedical entities (NER)
+4. Extracts relationships/claims
+5. Extracts supporting evidence
+
+After ingestion, your PostgreSQL database will contain the complete queryable knowledge graph.
 
 ## Getting Started
 
@@ -239,7 +250,6 @@ GraphQuery(connection_string: Optional[str] = None)
 - `with_evidence(study_types)` - Include evidence
 - `execute()` - Execute query and return results
 - `to_sql()` - Generate SQL (for debugging)
-- `to_cypher()` - Generate Cypher for Neo4j (future)
 
 ### QueryResults Class
 
@@ -286,23 +296,23 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ### Current Implementation
 
-- ✅ PostgreSQL backend with SQLModel
+- ✅ PostgreSQL backend with pgvector
 - ✅ Entity and relationship queries
 - ✅ Confidence filtering
 - ✅ Property-based filtering
 - ✅ Result conversion to pandas DataFrame
+- ✅ Evidence table support
 
 ### Planned Features
 
 - ⚠️ Recursive CTEs for multi-hop traversals
-- ⚠️ Evidence table joins
-- ⚠️ Semantic search with pgvector
-- ⚠️ Neo4j Cypher generation
+- ⚠️ Semantic search with pgvector embeddings
 - ⚠️ Query optimization and caching
+- ⚠️ Advanced graph analytics
 
 ### Design Principles
 
-1. **Storage-agnostic** - Abstract interface works across backends
+1. **PostgreSQL-native** - Leverage PostgreSQL features (pgvector, JSONB, CTEs)
 2. **Fluent API** - Method chaining for readable queries
 3. **Type-safe** - Full type hints for IDE support
 4. **Well-documented** - Clear examples and docstrings

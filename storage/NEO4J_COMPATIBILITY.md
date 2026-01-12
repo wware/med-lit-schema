@@ -1,5 +1,7 @@
 # Neo4j Compatibility
 
+> **Note**: This document describes the theoretical Neo4j compatibility of the storage interfaces. **Neo4j is not currently implemented or planned for this project.** The production system uses PostgreSQL with pgvector for all storage needs. This document is preserved for architectural reference only.
+
 ## 1. Introduction
 
 The ingest storage interfaces are designed to be **storage-agnostic**, enabling the medical literature knowledge graph to be backed by various persistence technologies. While the current implementations target SQLite (for testing) and PostgreSQL with pgvector (for production), the abstract interface design is perfectly suited for graph database backends like **Neo4j**.
