@@ -82,47 +82,44 @@ curl -X POST "http://localhost:8000/api/v1/search/semantic" \
 
 #### 2. GraphQL API
 
-Interactive GraphiQL playground at `/graphql` (visit in browser).
+Interactive GraphiQL interface at `/graphiql` with example queries dropdown menu.
+
+The interface includes pre-built example queries:
+- Get Entity by ID
+- Search Entities
+- Find Treatments
+- Get Paper
+- Filter by Subject
+- Multiple Queries
+
+Simply select an example from the dropdown menu to populate the query editor.
+
+**Note:** The GraphQL schema uses JSON scalar types, so queries return entire objects as JSON rather than allowing field selection. This is a simplified implementation - for full type safety, structured GraphQL types can be added.
 
 **Available Queries:**
 
 ```graphql
+# Returns entire paper as JSON
 query GetPaper {
-  paper(id: "pmid_12345678") {
-    id
-    title
-    authors
-    abstract
-  }
+  paper(id: "pmid_12345678")
 }
 
+# Returns entire entity as JSON
 query GetEntity {
-  entity(id: "drug_aspirin") {
-    id
-    entity_type
-    properties
-  }
+  entity(id: "drug_aspirin")
 }
 
+# Returns array of entities as JSON
 query SearchEntities {
-  entities(limit: 10, offset: 0) {
-    id
-    entity_type
-    canonical_id
-  }
+  entities(limit: 10, offset: 0)
 }
 
+# Returns array of relationships as JSON
 query GetRelationships {
   relationships(
     predicate: "TREATS"
     limit: 20
-  ) {
-    id
-    subject_id
-    predicate
-    object_id
-    confidence
-  }
+  )
 }
 ```
 
@@ -131,7 +128,7 @@ query GetRelationships {
 ```bash
 curl -X POST "http://localhost:8000/graphql" \
   -H "Content-Type: application/json" \
-  -d '{"query": "{ entity(id: \"drug_aspirin\") { id entity_type properties } }"}'
+  -d '{"query": "{ entity(id: \"drug_aspirin\") }"}'
 ```
 
 #### 3. MCP (Model Context Protocol)

@@ -23,8 +23,8 @@ example.com/
 │   ├── POST                 # Complex queries (avoids URL length limits)
 │   └── GET                  # Simple queries (cacheable)
 │
-├── /graphql/playground      # GraphiQL interactive UI
-│                            # Browser-based query builder and schema explorer
+├── /graphiql                # GraphiQL interactive UI (browser-based query builder)
+│                            # Includes dropdown menu with example queries
 │                            # Available in development, optional in production
 │
 ├── /mcp                     # Model Context Protocol (LLM integration)
@@ -45,7 +45,7 @@ example.com/
 Each protocol provides built-in documentation:
 
 - **REST**: `/docs` endpoint (FastAPI Swagger UI) automatically documents all REST endpoints with request/response schemas
-- **GraphQL**: `/graphql/playground` provides interactive schema exploration, query building, and documentation
+- **GraphQL**: `/graphiql` provides interactive schema exploration, query building, and documentation via GraphiQL with example queries dropdown
 - **MCP**: Can expose tool definitions at `/mcp/tools` for discovery
 
 This satisfies the CLAUDE.md requirement for self-documenting services (like FastAPI's /docs endpoint).
@@ -90,7 +90,7 @@ All protocols run in one FastAPI application:
 ### 5. **Compliant with Project Requirements**
 
 From `CLAUDE.md`:
-- ✅ **Self-documenting** - `/docs`, `/graphql/playground`
+- ✅ **Self-documenting** - `/docs`, `/graphiql` (GraphiQL with example queries)
 - ✅ **Clear APIs** - Each protocol has distinct responsibilities
 - ✅ **Docker-compose prototyping** - Single service container
 - ✅ **AWS deployment ready** - Standard HTTP service
@@ -364,7 +364,7 @@ volumes:
 
 Access the service:
 - API docs: http://localhost:8000/docs (FastAPI Swagger UI)
-- GraphQL playground: http://localhost:8000/graphql/playground
+- GraphQL IDE: http://localhost:8000/graphiql (GraphiQL with example queries dropdown)
 - GraphQL endpoint: http://localhost:8000/graphql (POST or GET)
 - REST endpoints: http://localhost:8000/api/v1/... (GET only)
 - MCP endpoint: http://localhost:8000/mcp (read-only tools)

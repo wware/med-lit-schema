@@ -6,6 +6,7 @@ from strawberry.fastapi import GraphQLRouter
 from .storage_factory import close_storage, get_storage
 from .routers import rest_api
 from .routers.mcp_api import mcp_server
+from .routers import graphiql_custom
 from .graphql_schema import Query
 
 
@@ -30,10 +31,13 @@ app = FastAPI(
 # Mount REST API
 app.include_router(rest_api.router)
 
-# Mount GraphQL API
+# Mount GraphQL API (without built-in GraphiQL)
 graphql_schema = strawberry.Schema(query=Query)
-graphql_router = GraphQLRouter(graphql_schema, graphiql=True)
+graphql_router = GraphQLRouter(graphql_schema, graphiql=False)
 app.include_router(graphql_router, prefix="/graphql")
+
+# Mount custom GraphiQL interface with example queries
+app.include_router(graphiql_custom.router, prefix="/graphiql", tags=["GraphQL"])
 
 # Mount MCP API (Server-Sent Events and HTTP endpoints)
 app.mount("/mcp/sse", mcp_server.sse_app)

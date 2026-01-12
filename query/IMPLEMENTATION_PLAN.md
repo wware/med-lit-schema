@@ -62,7 +62,7 @@ This document outlines the phased implementation plan for the read-only FastAPI 
 
 3.  ✅ **Mount GraphQL App**:
     - Mounted Strawberry GraphQL application at `/graphql`.
-    - GraphiQL interactive playground available at `/graphql/playground`.
+    - Custom GraphiQL interactive IDE at `/graphiql` with example queries dropdown.
 
 **Note:** The GraphQL schema uses JSON scalar types rather than fully-typed Strawberry types due to complexity with nested Pydantic model conversions. This is functional but could be improved for better type safety in the future.
 

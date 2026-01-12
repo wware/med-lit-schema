@@ -13,9 +13,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
+    # volumes:
       # Mount code for development (comment out for production)
-      - .:/app
+      # - .:/app
     restart: unless-stopped
     networks:
       - medlit-network
