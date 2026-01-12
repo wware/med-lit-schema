@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12748648",
+  "pmid": "41402268",
+  "doi": "10.1038/s41467-025-66281-y",
+  "title": "TRIM37–PARP1–TET1 axis maintains stemness and prevents osteoporosis by inhibiting DNMT1 alternative splicing via 5hmC regulation",
+  "abstract": "The significance of DNA hydroxymethylation in replicative senescence of mesenchymal stem cells (MSCs) and aging-related osteoporosis remains unknown. Here, we reveal 5hmC levels positively regulate MSC self-renewal and osteoblast differentiation. Mechanistically, PARP1 recruits TET1 to hydrolyze methylated nucleotides on DNMT1 exons, aiding CTCF in preventing DNMT1 alternative splicing in early MSCs. Additionally, ATM phosphorylates TRIM37 at Th203, promoting its nuclear entry and the monoubiquitination of PARP1, stabilizing the protein. CTCF or TRIM37 knockdown induces replicative senescence of MSCs with loss of full-length DNMT1. Co-treatment with resveratrol (ATM activator) and vitamin C (TET1 activator) rejuvenates late MSCs via the TRIM37/PARP1/DNMT1 pathway and alleviates osteoporosis in aged mice. Gene knockout experiments further reveal the participation of TRIM37 and PARP1 in MSC aging, contributing significantly to bone maintenance and repair in vivo. This study emphasizes the role of DNA hydroxymethylation in stemness, suggesting therapeutic strategies, especially for osteoporosis.",
+  "authors": [
+    "Ho, Chun-Te",
+    "Li, Ling-Hui",
+    "Chang, Wei-Chao",
+    "Wu, Heng-Hsiung",
+    "Chen, Ya-Huey",
+    "Hung, Shih-Chieh"
+  ],
+  "publication_date": "2025-12-16",
+  "journal": "Nature Communications",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-16",
+    "journal": "Nature Communications",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Mesenchymal stem cells",
+      "Ageing",
+      "Epigenomics",
+      "Bone"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.584123",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 
 from pydantic import BaseModel, Field
-from ingest.ollama_embedding_generator import OllamaEmbeddingGenerator
+from med_lit_schema.ingest.ollama_embedding_generator import OllamaEmbeddingGenerator
 
 
 # ============================================================================
@@ -77,7 +77,7 @@ def create_entity_embeddings_table(conn: sqlite3.Connection) -> None:
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS entity_embeddings (
-            entity_id INTEGER PRIMARY KEY,
+            entity_id TEXT PRIMARY KEY,
             embedding BLOB,
             model_name TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -91,30 +91,30 @@ def create_entity_embeddings_table(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def create_paragraph_embeddings_table(conn: sqlite3.Connection) -> None:
-    """
-    Create paragraph_embeddings table in provenance.db.
+# def create_paragraph_embeddings_table(conn: sqlite3.Connection) -> None:
+#     """
+#     Create paragraph_embeddings table in provenance.db.
 
-    Args:
-        conn: SQLite connection to provenance.db
-    """
-    cursor = conn.cursor()
+#     Args:
+#         conn: SQLite connection to provenance.db
+#     """
+#     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS paragraph_embeddings (
-            paragraph_id TEXT PRIMARY KEY,
-            embedding BLOB,
-            model_name TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (paragraph_id) REFERENCES paragraphs(paragraph_id) ON DELETE CASCADE
-        )
-    """
-    )
+#     cursor.execute(
+#         """
+#         CREATE TABLE IF NOT EXISTS paragraph_embeddings (
+#             paragraph_id TEXT PRIMARY KEY,
+#             embedding BLOB,
+#             model_name TEXT,
+#             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+#             FOREIGN KEY (paragraph_id) REFERENCES paragraphs(paragraph_id) ON DELETE CASCADE
+#         )
+#     """
+#     )
 
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_paragraph_embeddings ON paragraph_embeddings(paragraph_id)")
+#     cursor.execute("CREATE INDEX IF NOT EXISTS idx_paragraph_embeddings ON paragraph_embeddings(paragraph_id)")
 
-    conn.commit()
+#     conn.commit()
 
 
 def get_entities(conn: sqlite3.Connection) -> list[tuple[int, str]]:
@@ -128,23 +128,23 @@ def get_entities(conn: sqlite3.Connection) -> list[tuple[int, str]]:
         List of (entity_id, entity_name) tuples
     """
     cursor = conn.cursor()
-    cursor.execute("SELECT id, canonical_name FROM entities ORDER BY id")
+    cursor.execute("SELECT id, name FROM entities ORDER BY id")
     return cursor.fetchall()
 
 
-def get_paragraphs(conn: sqlite3.Connection) -> list[tuple[str, str]]:
-    """
-    Retrieve all paragraphs from provenance.db.
+# def get_paragraphs(conn: sqlite3.Connection) -> list[tuple[str, str]]:
+#     """
+#     Retrieve all paragraphs from provenance.db.
 
-    Args:
-        conn: SQLite connection to provenance.db
+#     Args:
+#         conn: SQLite connection to provenance.db
 
-    Returns:
-        List of (paragraph_id, text) tuples
-    """
-    cursor = conn.cursor()
-    cursor.execute("SELECT paragraph_id, text FROM paragraphs ORDER BY paragraph_id")
-    return cursor.fetchall()
+#     Returns:
+#         List of (paragraph_id, text) tuples
+#     """
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT paragraph_id, text FROM paragraphs ORDER BY paragraph_id")
+#     return cursor.fetchall()
 
 
 def insert_entity_embedding(conn: sqlite3.Connection, entity_id: int, embedding: np.ndarray, model_name: str) -> None:
@@ -174,31 +174,31 @@ def insert_entity_embedding(conn: sqlite3.Connection, entity_id: int, embedding:
     conn.commit()
 
 
-def insert_paragraph_embedding(conn: sqlite3.Connection, paragraph_id: str, embedding: np.ndarray, model_name: str) -> None:
-    """
-    Insert paragraph embedding into database.
+# def insert_paragraph_embedding(conn: sqlite3.Connection, paragraph_id: str, embedding: np.ndarray, model_name: str) -> None:
+#     """
+#     Insert paragraph embedding into database.
 
-    Args:
-        conn: SQLite connection to provenance.db
-        paragraph_id: Paragraph ID
-        embedding: Embedding vector as numpy array
-        model_name: Name of the embedding model
-    """
-    cursor = conn.cursor()
+#     Args:
+#         conn: SQLite connection to provenance.db
+#         paragraph_id: Paragraph ID
+#         embedding: Embedding vector as numpy array
+#         model_name: Name of the embedding model
+#     """
+#     cursor = conn.cursor()
 
-    # Convert numpy array to bytes for storage
-    embedding_bytes = embedding.astype(np.float32).tobytes()
+#     # Convert numpy array to bytes for storage
+#     embedding_bytes = embedding.astype(np.float32).tobytes()
 
-    cursor.execute(
-        """
-        INSERT OR REPLACE INTO paragraph_embeddings
-        (paragraph_id, embedding, model_name)
-        VALUES (?, ?, ?)
-    """,
-        (paragraph_id, embedding_bytes, model_name),
-    )
+#     cursor.execute(
+#         """
+#         INSERT OR REPLACE INTO paragraph_embeddings
+#         (paragraph_id, embedding, model_name)
+#         VALUES (?, ?, ?)
+#     """,
+#         (paragraph_id, embedding_bytes, model_name),
+#     )
 
-    conn.commit()
+#     conn.commit()
 
 
 def load_embedding(embedding_bytes: bytes) -> np.ndarray:
@@ -274,59 +274,59 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
     return len(embeddings)
 
 
-def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32) -> int:
-    """
-    Generate embeddings for all paragraphs in provenance.db.
+# def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32) -> int:
+#     """
+#     Generate embeddings for all paragraphs in provenance.db.
 
-    Args:
-        provenance_db_path: Path to provenance.db
-        model_name: Name of Ollama model to use
-        batch_size: Batch size for encoding
+#     Args:
+#         provenance_db_path: Path to provenance.db
+#         model_name: Name of Ollama model to use
+#         batch_size: Batch size for encoding
 
-    Returns:
-        Number of paragraph embeddings created
-    """
-    print(f"Loading embedding model: {model_name}")
-    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
+#     Returns:
+#         Number of paragraph embeddings created
+#     """
+#     print(f"Loading embedding model: {model_name}")
+#     embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
 
-    # Use the dynamically determined embedding dimension
-    global EMBEDDING_DIM
-    EMBEDDING_DIM = embedding_generator.embedding_dim
+#     # Use the dynamically determined embedding dimension
+#     global EMBEDDING_DIM
+#     EMBEDDING_DIM = embedding_generator.embedding_dim
 
-    print(f"Connecting to {provenance_db_path}")
-    conn = sqlite3.connect(provenance_db_path)
+#     print(f"Connecting to {provenance_db_path}")
+#     conn = sqlite3.connect(provenance_db_path)
 
-    # Create embeddings table if it doesn't exist
-    create_paragraph_embeddings_table(conn)
+#     # Create embeddings table if it doesn't exist
+#     create_paragraph_embeddings_table(conn)
 
-    # Get all paragraphs
-    paragraphs = get_paragraphs(conn)
-    print(f"Found {len(paragraphs)} paragraphs")
+#     # Get all paragraphs
+#     paragraphs = get_paragraphs(conn)
+#     print(f"Found {len(paragraphs)} paragraphs")
 
-    if not paragraphs:
-        print("No paragraphs found in database")
-        conn.close()
-        return 0
+#     if not paragraphs:
+#         print("No paragraphs found in database")
+#         conn.close()
+#         return 0
 
-    # Extract paragraph IDs and texts
-    paragraph_ids = [p[0] for p in paragraphs]
-    paragraph_texts = [p[1] for p in paragraphs]
+#     # Extract paragraph IDs and texts
+#     paragraph_ids = [p[0] for p in paragraphs]
+#     paragraph_texts = [p[1] for p in paragraphs]
 
-    print(f"Generating embeddings (batch size: {batch_size})...")
+#     print(f"Generating embeddings (batch size: {batch_size})...")
 
-    # Generate embeddings in batches
-    embeddings_list = embedding_generator.generate_embeddings_batch(paragraph_texts, batch_size=batch_size)
-    embeddings = np.array(embeddings_list)
+#     # Generate embeddings in batches
+#     embeddings_list = embedding_generator.generate_embeddings_batch(paragraph_texts, batch_size=batch_size)
+#     embeddings = np.array(embeddings_list)
 
-    # Insert embeddings into database
-    print("Storing embeddings in database...")
-    for paragraph_id, embedding in zip(paragraph_ids, embeddings):
-        insert_paragraph_embedding(conn, paragraph_id, embedding, model_name)
+#     # Insert embeddings into database
+#     print("Storing embeddings in database...")
+#     for paragraph_id, embedding in zip(paragraph_ids, embeddings):
+#         insert_paragraph_embedding(conn, paragraph_id, embedding, model_name)
 
-    conn.close()
+#     conn.close()
 
-    print(f"Created {len(embeddings)} paragraph embeddings")
-    return len(embeddings)
+#     print(f"Created {len(embeddings)} paragraph embeddings")
+#     return len(embeddings)
 
 
 # ============================================================================
@@ -461,8 +461,8 @@ def main():
         print(f"Error: Output directory not found: {output_dir}")
         return 1
 
-    entities_db_path = output_dir / "entities.db"
-    provenance_db_path = output_dir / "provenance.db"
+    entities_db_path = output_dir / "ingest.db"
+    provenance_db_path = output_dir / "ingest.db"
 
     print("=" * 60)
     print("Stage 3: Embeddings Generation Pipeline")
@@ -485,17 +485,17 @@ def main():
             total_embeddings += count
             print()
 
-    # Generate paragraph embeddings
-    if not args.entities_only:
-        if not provenance_db_path.exists():
-            print(f"Warning: provenance.db not found at {provenance_db_path}")
-            print("Skipping paragraph embeddings")
-        else:
-            print("Generating paragraph embeddings...")
-            print("-" * 60)
-            count = generate_paragraph_embeddings(provenance_db_path, model_name=args.model, batch_size=args.batch_size)
-            total_embeddings += count
-            print()
+    # # Generate paragraph embeddings
+    # if not args.entities_only:
+    #     if not provenance_db_path.exists():
+    #         print(f"Warning: provenance.db not found at {provenance_db_path}")
+    #         print("Skipping paragraph embeddings")
+    #     else:
+    #         print("Generating paragraph embeddings...")
+    #         print("-" * 60)
+    #         count = generate_paragraph_embeddings(provenance_db_path, model_name=args.model, batch_size=args.batch_size)
+    #         total_embeddings += count
+    #         print()
 
     # Print summary
     print("=" * 60)

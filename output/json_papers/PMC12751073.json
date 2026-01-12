@@ -1,0 +1,73 @@
+{
+  "paper_id": "PMC12751073",
+  "pmid": "41003242",
+  "doi": "10.1042/BCJ20253431",
+  "title": "Unconventional binding of calmodulin to CHK2 kinase inhibits catalytic activity",
+  "abstract": "Calmodulin (CaM) serves an essential role in eukaryotic cells as a Ca2+ sensor. Ca2+ binding leads to conformation changes in CaM that enable engagement of a repertoire of enzymes and the regulation of their catalytic activities. Classically, Ca2+-CaM binds to an inhibitory pseudosubstrate sequence C-terminal to the kinase domain in members of the Ca2+-CaM-dependent protein kinase (CAMK) family and relieves inhibition to promote catalytic activity. Here, we report an unexpected mechanism by which CaM can bind CHK2 kinase to inhibit its kinase activity. Using biochemical, biophysical and structural mass spectrometry, we identify a direct interaction of Ca2+-CaM with the CHK2 kinase domain that suppresses CHK2 catalytic activity in vitro and identify K373 in CHK2 as crucial for cell proliferation in human cells following DNA damage. Our findings add direct suppression of kinase activity to the repertoire of CaM’s functions, complementing the paradigmatic mechanism of promoting kinase activity through autoinhibitory domain sequestration.",
+  "authors": [
+    "Horne, Christopher R.",
+    "Wang, Tingting",
+    "Young, Samuel N.",
+    "Dite, Toby A.",
+    "Nyvall, Hunter G.",
+    "Suresh, Sushant",
+    "Davies, Katherine A.",
+    "Gonzalez Castro, Abner",
+    "Vaibhav, Vineet",
+    "Mather, Lucy J.",
+    "Dagley, Laura F.",
+    "Belousoff, Matthew J.",
+    "Manning, Gerard",
+    "Means, Anthony R.",
+    "Burke, John E.",
+    "Petersen, Janni",
+    "Scott, John W.",
+    "Murphy, James M."
+  ],
+  "publication_date": "2025-12-05",
+  "journal": "Biochemical Journal",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-05",
+    "journal": "Biochemical Journal",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "allosteric regulation",
+      "calmodulin",
+      "calcium signalling",
+      "cell cycle",
+      "kinases"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.597278",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

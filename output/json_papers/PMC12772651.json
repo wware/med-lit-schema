@@ -1,0 +1,56 @@
+{
+  "paper_id": "PMC12772651",
+  "pmid": "41503465",
+  "doi": "10.64898/2025.12.30.25343229",
+  "title": "Individuals whose phenotype deviates from genetic expectation defined by common variation are enriched for rare damaging variants in genes that cause rare disease",
+  "abstract": "Polygenic scores (PGS) predict complex traits and stratify disease risk but often fail to fully capture individual-level variation. “Misaligned” individuals, whose observed phenotypes deviate from their genetically expected values based on polygenic scores (PGS), provide a powerful model for identifying factors beyond common-variant effects, including additional genetic factors. Here, we apply misalignment classification and enrichment testing frameworks to seven continuous and three dichotomous traits, assessing whether misaligned individuals in the UK Biobank are enriched for rare (minor allele frequency (MAF) < 0.1%) damaging genetic variation. We identify significant enrichment (false discovery rate (FDR)-adjusted P < 0.05) of predicted loss-of-function (pLoF) variants in COPB2 and GORAB among individuals misaligned for lower-than-expected bone mineral density. We refine previously observed grouped-gene enrichment in individuals with misaligned stature to the single-gene level: shorter-than-expected individuals are enriched for pLoF variants in ACAN and IGF1, and taller-than-expected individuals are enriched for predicted damaging missense in FBN1. Using an individual’s misalignment classification as a phenotype, we perform an exome-wide scan across seven traits, resulting in 74 FDR-significant genes. We identify KANK1 as a gene associated with later age at menopause, potentially protective against primary ovarian insufficiency. For dichotomous disease status traits, we demonstrate evidence for the liability threshold model in the context of counteracting conditionally-orthogonal common and rare variant pathogenic/protective effects. Among individuals diagnosed with type 2 diabetes, carriers of rare pathogenic pLoF variants in HNF1A and HNF4A had significantly lower polygenic risk than non-carriers (FDR-adjusted one-sided t-test P < 5 × 10−3). We also show that coronary artery disease controls carrying rare protective pLoF variants in ANGPTL3 had nominally higher polygenic risk (one-sided t-test P = 0.03) than non-carriers. This study highlights the power of misalignment-based analyses in complex continuous phenotypes and disease, with the potential to validate known genetic contributors to traits and identify novel genes. This work paves the way for better molecular diagnoses and targeted therapeutic discovery.",
+  "authors": [
+    "Baya, Nikolas A.",
+    "Lassen, Frederik H.",
+    "Hill, Barney",
+    "Venkatesh, Samvida S.",
+    "Currant, Hannah",
+    "Lindgren, Cecilia M.",
+    "Palmer, Duncan S."
+  ],
+  "publication_date": "2025-12-31",
+  "journal": "medRxiv",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-31",
+    "journal": "medRxiv",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.176973",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

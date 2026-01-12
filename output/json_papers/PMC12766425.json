@@ -1,0 +1,82 @@
+{
+  "paper_id": "PMC12766425",
+  "pmid": "41497507",
+  "doi": "10.1016/j.eclinm.2025.103618",
+  "title": "Incidence of non-colorectal/endometrial malignancies in individuals with Lynch syndrome: a retrospective cohort study",
+  "abstract": "Lynch syndrome (LS) is strongly associated with colorectal (CRC) and endometrial (EC) cancers, for which Universal Tumor Screening (UTS) via mismatch repair proteins (MMRs) immunohistochemistry is currently recommended. However, emerging evidence suggests an association between LS and several other tumor types. We therefore evaluate the incidence of non-CRC/ECs in LS individuals. A retrospective analysis of 570 patients with LS diagnosed between 1995 and 2023 was performed (Ethics approval: AOP3125, July 27, 2023). Patients were stratified based on MMR gene mutations. Clinical data, including cancer type, age at diagnosis, and time to LS confirmation, were analyzed. Non-CRC/ECs accounted for 40% (228/573) of all malignancies. The most common types were urothelial/kidney (8%), breast (8%), ovarian (6%) and gastric (4%) cancers. The highest SIRs were observed for cancers of the small intestine [SIR: 10.54; 95% CI: 5.90–17.39], urothelium/kidney [7.55; 95% CI: 5.42–10.24], gastric [4.68; 95% CI: 2.90–7.16], ovary [3.80; 95% CI: 2.32–5.87], and pancreas [3.09; 95% CI: 1.69–5.18]. Among the 63 (11%) patients diagnosed with non-CRC/ECs before genetic testing, 29 (46%) later developed CRC or EC, with a median time to onset of 10 years for CRC (IQR: 5–15) and 6 years for EC (IQR: 2–9). The findings show that 40% of patients had non-CRC/ECs, with 11% of these cases diagnosed prior to undergoing genetic testing. Prospective studies with MMRs immunohistochemistry on all tumors arising in Lynch patients are needed to confirm our results and to explore the cost-effectiveness and feasibility of implementing broader screening strategies. None.",
+  "authors": [
+    "Negro, Silvia",
+    "Celotto, Francesco",
+    "Schiavi, Francesca",
+    "Scarpa, Marco",
+    "Mammi, Isabella",
+    "Rossi, Silvia",
+    "Dell’Atti, Lorenzo",
+    "De Grandis, Maria Caterina",
+    "Crivellari, Gino",
+    "Fassan, Matteo",
+    "Agostini, Marco",
+    "Spolverato, Gaya",
+    "Cappello, Filippo",
+    "D'Angelo, Edoardo",
+    "Milella, Michele",
+    "Bencivenga, Maria",
+    "Pilati, Pierluigi",
+    "Lonardi, Sara",
+    "Intini, Rossana",
+    "Guarneri, Valentina",
+    "Dieci, Maria Vittoria",
+    "Morabito, Alberto",
+    "Barana, Daniela",
+    "D'Urso, Alessandra",
+    "Iafrate, Massimo",
+    "Bergamo, Francesca",
+    "Urso, Emanuele D.L."
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "eClinicalMedicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "eClinicalMedicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Lynch syndrome",
+      "Universal tumor screening",
+      "Non-colorectal/endometrial tumors",
+      "Extracolonic malignancies",
+      "Mismatch repair genes"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.955235",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

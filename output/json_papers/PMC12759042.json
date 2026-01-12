@@ -1,0 +1,61 @@
+{
+  "paper_id": "PMC12759042",
+  "pmid": "41482634",
+  "doi": "10.1002/ctm2.70557",
+  "title": "Fallopian tube lavage sampling towards early detection of pre‐invasive ovarian cancer",
+  "abstract": "",
+  "authors": [
+    "Seaton, Melanie",
+    "Harbach, Sarah",
+    "Oke, Joanne",
+    "Walker, Thomas D. J.",
+    "Dalton‐O'Reilly, Jessica",
+    "Selley, Julian",
+    "Brison, Daniel R.",
+    "Bolton, James",
+    "Meyer, Stefan",
+    "Knight, David",
+    "Edmondson, Richard J.",
+    "Schmidt, Christine K."
+  ],
+  "publication_date": "2026-01-02",
+  "journal": "Clinical and Translational Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-02",
+    "journal": "Clinical and Translational Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.835217",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

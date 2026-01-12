@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12784769",
+  "pmid": null,
+  "doi": "10.3390/cancers18010078",
+  "title": "Human Cancers Derived from Either Genetic or Lifestyle Factors Are Initiated by Impaired Estrogen Signaling",
+  "abstract": "Impaired estrogen signaling caused by either endogenous or environmental factors alarms the hypothalamus, which then issues neural and hormonal commands throughout the whole body to restore genomic stability. In the first, compensated phase of defective estrogen signaling, patients appear healthy. Hyperinsulinemia is a subtle signal of the genome that indicates successful restoration of estrogen signaling at the expense of excessive insulin synthesis. Over time, the strengthening defect in estrogen signaling and impaired glucose uptake result in metabolic syndrome, with various symptoms and altered laboratory findings. The compensatory molecular changes are warnings from an endangered genome struggling to restore estrogen signaling and DNA stability. The worsening defect in estrogen signaling leads to type-2 diabetes, reflected by increased serum glucose levels despite all compensatory actions, while organs suffer from the lack of glucose and excessive lipid deposition. The complete breakdown of estrogen signaling results in DNA damage and cancer initiation in the affected organ. Cancer development is the genome’s cry for help to combat against dysregulation.",
+  "authors": [
+    "Suba, Zsuzsanna"
+  ],
+  "publication_date": "2025-12-26",
+  "journal": "Cancers",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-26",
+    "journal": "Cancers",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "alcohol consumption",
+      "DNA damage",
+      "DNA repair",
+      "endocrine disruptor",
+      "estrogen",
+      "estrogen receptor",
+      "growth factor receptor",
+      "immune reaction",
+      "lifestyle factors",
+      "mutation",
+      "smoking"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.471793",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

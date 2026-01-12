@@ -1,0 +1,66 @@
+{
+  "paper_id": "PMC12775561",
+  "pmid": "41128349",
+  "doi": "10.1111/cas.70214",
+  "title": "Comparative Analysis of a Dual DNA–RNA Panel and a DNA‐Only Panel for Sarcoma: Real‐World Data From a Nationwide Genomic Database",
+  "abstract": "Next‐generation sequencing‐based comprehensive cancer genomic profiling is promising in cancer management; however, most studies rely on tumor‐only DNA panels from single institutions. In 2023, Japan introduced an insurance‐covered cancer genomic profiling test—the GenMine TOP Cancer Genome Profiling System—a dual DNA–RNA panel with matched tumor–normal testing. This study evaluated its utility compared to a conventional DNA‐only test (FoundationOne CDx) in managing sarcoma patients using a nationwide genetic profiling database provided by the Center for Cancer Genomics and Advanced Therapeutics. This study included 1046 patients registered between August 2023 and October 2024. The dual DNA–RNA test identified significantly more fusion genes (20.3% vs. 7.4%, p < 0.001) and therapeutically targetable kinase fusions (3.5% vs. 1.2%, p = 0.019) than the DNA‐only test. Among patients with translocation‐related sarcomas, histology‐specific fusion genes were identified in 77.5% using the dual panel, compared to 40.0% with the DNA‐only panel (p < 0.001). In non‐gastrointestinal stromal tumor sarcomas, the dual test showed a trend toward higher rates of genotype‐matched therapy (4.3% vs. 2.6%, p = 0.25) and a significantly higher rate of molecular targeted therapy (4.3% vs. 1.5%, p = 0.03). Additionally, 5.7% of patients had pathogenic germline variants identified through tumor–normal matched analysis. These findings suggest that a dual DNA–RNA panel with matched tumor–normal testing may improve diagnostic accuracy and inform treatment decisions in the routine clinical management of sarcoma.",
+  "authors": [
+    "Nakata, Eiji",
+    "Ninomiya, Kiichiro",
+    "Osone, Tatsunori",
+    "Ennishi, Daisuke",
+    "Tomida, Shuta",
+    "Fujiwara, Tomohiro",
+    "Kunisada, Toshiyuki",
+    "Futagawa, Mashu",
+    "Hirasawa, Akira",
+    "Toyooka, Shinichi",
+    "Ozaki, Toshifumi"
+  ],
+  "publication_date": "2025-10-23",
+  "journal": "Cancer Science",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-10-23",
+    "journal": "Cancer Science",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "comprehensive cancer genomic profiling (CGP)",
+      "fusion genes",
+      "gene alterations",
+      "genotype‐matched therapy",
+      "potential germline variants (PGVs)"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.916104",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

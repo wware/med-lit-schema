@@ -1,0 +1,70 @@
+{
+  "paper_id": "PMC12750178",
+  "pmid": "41477324",
+  "doi": "10.1016/j.apsb.2025.09.043",
+  "title": "Ferroptosis meets cancer immunotherapy: Overcoming the crosstalk challenges through advanced drug delivery strategies",
+  "abstract": "The integration of ferroptosis induction with cancer immunotherapy has emerged as a promising approach in oncology, offering dual mechanisms to overcome therapeutic resistance and tumor heterogeneity. Nevertheless, the dynamic and complicated crosstalk between ferroptosis processes and immune regulation in tumor microenvironments presents both opportunities and challenges. By inducing lipid peroxidation in tumor tissues, ferroptotic tumor cell death can stimulate immunogenicity. Nevertheless, excessive lipid peroxidation may paradoxically impair the functionality of multiple immune cells, thereby presenting crosstalk challenges in therapeutic strategies. To address these crosstalk challenges, several advanced drug delivery strategies have been proposed, such as immunostimulatory active pharmaceutical ingredients co-delivery, tumor-targeted delivery, and stimuli-responsive delivery. These drug delivery strategies demonstrate dual therapeutic efficacy by synergistically potentiating ferroptosis induction in malignant cells while concurrently mitigating immunotoxicity and even augmenting antitumor immunity. This review offers detailed insights into the crosstalk between ferroptosis and tumor immunity, along with a guiding overview of the three delivery strategies. The current obstacles and translational potential were thoroughly analyzed, providing valuable perspectives for future research.",
+  "authors": [
+    "Gan, Lu",
+    "Lin, Xincheng",
+    "Zhong, Ziqiao",
+    "Zheng, Yichun",
+    "Chen, Xinyi",
+    "Chen, Jun",
+    "Yue, Xiao",
+    "Liu, Yingshan",
+    "Pan, Xin",
+    "Wu, Chuanbin",
+    "Huang, Ying",
+    "Wang, Wenhao"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "Acta Pharmaceutica Sinica. B",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "Acta Pharmaceutica Sinica. B",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Cancer",
+      "Ferroptosis",
+      "Immunotherapy",
+      "Immune cells",
+      "Crosstalk challenges",
+      "Tumor targeted delivery",
+      "Immunostimulatory active pharmaceutical ingredients co-delivery",
+      "Stimuli-responsive delivery"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.081191",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

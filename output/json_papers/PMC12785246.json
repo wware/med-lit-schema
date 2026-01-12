@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12785246",
+  "pmid": null,
+  "doi": "10.3390/cells15010084",
+  "title": "SOX11 Is Regulated by EGFR-STAT3 and Promotes Epithelial–Mesenchymal Transition in Head and Neck Squamous Cell Carcinoma",
+  "abstract": "The transcription factor SOX11 is implicated in tumor progression across multiple types of cancers, including head and neck squamous cell carcinoma (HNSCC). However, its mechanistic role in HNSCC remains elusive. In this study, we found that the expression of SOX11 was induced by epidermal growth factor (EGF) but suppressed by an epidermal growth factor receptor (EGFR) inhibitor in HNSCC cells. The signal transducer and activator of transcription 3 (STAT3) bound to the Sox11 gene promoter and transcriptionally upregulated the expression of Sox11 in HNSCC cells. Meanwhile, analyses of The Cancer Genome Atlas (TCGA) gene expression datasets indicated that Sox11 gene expression was significantly overexpressed in HNSCC versus adjacent normal tissues and correlated with those of most epithelial–mesenchymal transition transcription factors (EMT-TFs) and marker genes. Knockdown of SOX11 significantly downregulated the expression of EMT-related genes, including EMT-TFs, vimentin, fibronectin, and N-cadherin, but significantly upregulated E-cadherin and vice versa when SOX11 was overexpressed. Collectively, our studies demonstrated that SOX11 was regulated by EGF-EGFR-STAT3 signals, promoting EMT in HNSCC.",
+  "authors": [
+    "Peng, Jiayi",
+    "Cui, Li",
+    "Guo, Mian",
+    "Liu, Yi",
+    "Jia, Wanqi",
+    "Misuno, Kaori",
+    "Barrett, Jeremy",
+    "Messadi, Diana",
+    "Yang, Shun-Fa",
+    "Hu, Shen"
+  ],
+  "publication_date": "2026-01-04",
+  "journal": "Cells",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-04",
+    "journal": "Cells",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "head and neck squamous cell carcinoma",
+      "SOX11",
+      "STAT3",
+      "epithelial–mesenchymal transition"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.384118",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

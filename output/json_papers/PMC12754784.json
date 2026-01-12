@@ -1,0 +1,51 @@
+{
+  "paper_id": "PMC12754784",
+  "pmid": "41480636",
+  "doi": "10.1093/narcan/zcaf056",
+  "title": "The alternative lengthening of telomeres pathway through a DNA repair lens: mechanism and therapeutic opportunities",
+  "abstract": "The alternative lengthening of telomeres (ALT) pathway is a telomerase-independent telomere maintenance mechanism leveraged by a subset of human cancers. In these tumors, telomere DNA synthesis is achieved via homologous recombination-based mechanisms. ALT-positive tumors harbor distinctive hallmarks, including heterogeneous telomere lengths, the presence of ALT-associated PML bodies, extrachromosomal telomeric repeats, telomere fragility, and mitotic DNA synthesis. These features reflect underlying replication stress and deregulated DNA repair mechanisms. ALT is associated with various tumor types and can often contribute to worsening the patient’s prognosis. Strikingly, ALT cancers are particularly enriched in childhood cancers, especially in high-grade gliomas, neuroblastoma, and osteosarcomas, three cancer types that are very common in children. Here, we provide a comprehensive review of the DNA repair factors that drive ALT activation and maintenance and explore emerging therapeutic opportunities associated with the selective dependence of ALT cancer cells on these specific DNA damage response factors. We aim to promote a growing interest in deciphering the DNA-repair-dependent mechanisms of ALT, ultimately helping to build a foundation for the discovery of novel therapeutics against aggressive ALT tumors, for which prognosis is particularly poor and treatments are currently severely lacking.",
+  "authors": [
+    "Muoio, Daniela",
+    "Fouquerel, Elise"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "NAR Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "NAR Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.941444",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

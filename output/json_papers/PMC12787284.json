@@ -1,0 +1,57 @@
+{
+  "paper_id": "PMC12787284",
+  "pmid": null,
+  "doi": "10.3390/jcm15010144",
+  "title": "Primary Ovarian Poorly Differentiated Adenocarcinoma with Signet-Ring Cells: A Case Report and Literature Review",
+  "abstract": "Background: Primary ovarian signet-ring cell carcinoma (POSRCC) is exceedingly rare. Most previously reported cases have involved primary ovarian mucinous neoplasms containing signet-ring cells. Methods: We report a unique case of advanced primary ovarian adenocarcinoma with a signet-ring cell component, accompanied by features inconsistent with typical mucinous morphology, which distinguished it from most previously documented cases. A review of the literature is also provided. Results: A 57-year-old woman presented with abdominal pain. Imaging revealed a 10 cm pelvic mass. Surgical exploration and pathological examination revealed poorly differentiated adenocarcinoma with focal signet-ring cell features in both ovaries. Extensive preoperative and postoperative evaluation revealed no evidence of an alternative primary tumor. The tumor did not meet diagnostic criteria for mucinous carcinoma. Therefore, the final diagnosis was primary ovarian poorly differentiated adenocarcinoma with a focal signet-ring cell component, FIGO stage IIIC. The patient received six cycles of adjuvant paclitaxel and carboplatin, followed by four cycles of single-agent bevacizumab for maintenance therapy. Despite treatment, disease recurred eight months after surgery, and the patient died of disease progression 18 months postoperatively. Conclusions: This case highlights the aggressive behavior of non-mucinous POSRCC and underscores the diagnostic challenge in distinguishing primary from metastatic ovarian signet-ring cell carcinoma. Awareness of this rare entity is crucial for accurate diagnosis and appropriate management.",
+  "authors": [
+    "Koo, Yu-Jin",
+    "Jang, Min Hye",
+    "Lee, Dae-Hyung"
+  ],
+  "publication_date": "2025-12-24",
+  "journal": "Journal of Clinical Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-24",
+    "journal": "Journal of Clinical Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ovarian neoplasm",
+      "signet ring cell carcinoma",
+      "krukenberg tumor",
+      "mucinous adenocarcinoma"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.851750",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

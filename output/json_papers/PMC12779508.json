@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12779508",
+  "pmid": null,
+  "doi": "10.1155/tbj/8821629",
+  "title": "Information Needs and Preferences of Men With Breast Cancer: A Qualitative Analysis of Internet Forum Posts",
+  "abstract": "Sex‐/gender‐specific health information for men with breast cancer is lacking. Health information supports patients in shared decision‐making. When developing evidence‐based health information, it is important to identify the patients’ information needs and preferences with regard to age, sex or gender, and other diversity aspects, including how the content is provided for the target group. However, studies show that sex/gender differences have rarely been considered. Our study investigates the information needs and preferences of cisgender men with breast cancer. A content‐structuring, qualitative content analysis of forum posts was performed. Internet forums and posts were selected according to the following criteria: relevance of the topic, English or German language, and public availability without registration. A qualitative content analysis according to Kuckartz was conducted. The selected posts were coded using MAXQDA. A total of 1025 posts from three Internet forums were screened, and 96 posts were included for analysis—most of them from a German Internet forum. We identified seven main categories and 26 subcategories. Information needs and preferences are represented by the following main categories: “Epidemiology and general questions about the disease,” “Diagnostics,” “Therapy,” “Physician specialist services,” “Rehabilitation and lifestyle adaption,” and “Mental health.” Additionally, the “Preference for and access to current information” plays a role for the patients. Our study provides new insights into the information needs and preferences of men with breast cancer, mainly from German‐speaking countries. Providing accurate and reliable health information that meets patients’ needs and preferences is an ethical duty and has to be provided by healthcare systems. Such patient‐centered and inclusive health care will empower patients to make informed decisions.",
+  "authors": [
+    "Schemmel, Nicole",
+    "Lauberger, Julia",
+    "Lühnen, Julia",
+    "Steckelberg, Anke"
+  ],
+  "publication_date": "2026-01-07",
+  "journal": "The Breast Journal",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-07",
+    "journal": "The Breast Journal",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "breast cancer",
+      "health information",
+      "information needs",
+      "male breast cancer",
+      "patient information"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.881011",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

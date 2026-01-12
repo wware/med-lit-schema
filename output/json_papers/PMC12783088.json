@@ -1,0 +1,61 @@
+{
+  "paper_id": "PMC12783088",
+  "pmid": null,
+  "doi": "10.1093/emph/eoaf038",
+  "title": "Divergent evolution of hepatocellular carcinoma genomes in chimpanzees and humans",
+  "abstract": "Somatic mutation patterns in cancer remain largely unexplored outside humans, despite their significance for aging and oncogenesis. Chimpanzees (Pan troglodytes), sharing >98% genomic similarity with humans, display markedly different cancer spectra. To gain comparative insights into cancer susceptibility and resistance, we sequenced chimpanzee hepatocellular carcinoma (HCC) genomes and analyzed their mutational profiles alongside human counterparts. HCC and matched non-cancerous tissues from five chimpanzees were examined using histopathology, immunohistochemistry (β-catenin, ARID1A, TSC2, FAP, vimentin, TGF-β), whole-genome sequencing (one pair), and whole-exome sequencing (four pairs). Somatic variants were identified with GATK MuTect2, annotated with Ensembl VEP, and analyzed for functional enrichment. Comparative analyses were performed with subsets of human HCC datasets (TCGA, ICGC) including TSC2-positive and TSC2-negative cases. Chimpanzee HCCs exhibited histological and immunohistochemical features similar to human tumors but displayed sharply divergent genomic landscapes. Chimpanzee tumors carried significantly higher coding mutation loads (mean 5632 per sample vs. 96–275 in humans). Non-synonymous TSC2 mutations occurred in 80% of chimpanzees, versus ~7% in human HCC, suggesting a species-specific oncogenic pathway linked to the scirrhous subtype. Additional recurrently mutated genes included ARID1A, FAT1–4, TP53, and FGA. Despite greater heterogeneity in chimpanzee tumors, humans showed stronger enrichment of non-synonymous single nucleotide variants, implying more intense positive selection. Shared alterations across species involved canonical drivers such as TP53, CTNNB1, FAT4, and TTN. Chimpanzee HCCs are defined by high mutational burden and frequent TSC2 alterations, contrasting with the more selectively constrained mutation spectrum of human HCC. Divergent evolutionary patterns highlight species-specific oncogenic routes while underscoring conserved pathways. Comparative primate cancer genomics offers novel insights into cancer evolution, biomarkers, and therapeutic targets.",
+  "authors": [
+    "Kang, Lin",
+    "Michalak, Katarzyna",
+    "Varghese, Robin",
+    "Anandakrishnan, Ramu",
+    "Dick, Edward J",
+    "Abd Elmageed, Zakaria",
+    "Michalak, Pawel"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Evolution, Medicine, and Public Health",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Evolution, Medicine, and Public Health",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "comparative cancer genomics",
+      "cancer evolution",
+      "primate genomics",
+      "somatic mutations"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.352403",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

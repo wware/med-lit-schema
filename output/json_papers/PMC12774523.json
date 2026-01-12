@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12774523",
+  "pmid": "41502996",
+  "doi": "10.1055/s-0045-1809310",
+  "title": "Diagnostic Challenges in a Case of Suspected Breast Cancer with Low FDG Uptake and an Incidental Thyroid Lesion: A Case Report and Literature Review",
+  "abstract": "The coexistence of multiple malignancies presents diagnostic and therapeutic challenges. Breast and thyroid cancers are among the most frequently diagnosed malignancies in women, and studies suggest a potential bidirectional association. While fluorodeoxyglucose (FDG)-positron emission tomography (PET)/computed tomography (CT) is a valuable imaging modality for evaluating breast cancer, its sensitivity in detecting low-metabolic subtypes remains limited. Additionally, incidental FDG-avid thyroid lesions require further evaluation due to their potential malignancy risk. We present a 61-year-old female with a suspected left breast malignancy, suggestive of luminal A subtype, showing low FDG uptake (maximum standardized uptake value [SUVmax] 2.0) on PET/CT, despite mammographic and ultrasound findings suggestive of malignancy (Breast Imaging-Reporting and Data System 4A and V). Additionally, an incidental left thyroid lesion (4.0 × 3.8 cm, SUVmax 3.4) with calcifications was detected, raising suspicion for malignancy. The discordant imaging findings in this case highlight the limitations of FDG-PET/CT and emphasize the necessity of multimodal imaging and histopathological confirmation. This case underscores the importance of integrating multiple imaging modalities for accurate diagnosis. While PET/CT is useful for systemic staging, its limitations in detecting certain breast cancer subtypes necessitate complementary imaging techniques and histopathological confirmation. The incidental thyroid lesion also required further assessment, reinforcing the need for a comprehensive diagnostic approach.",
+  "authors": [
+    "Amalo, Raydel Briankwee",
+    "Tuti, Yustia",
+    "Dewi, Ayu Rosemeilia"
+  ],
+  "publication_date": "2025-05-19",
+  "journal": "World Journal of Nuclear Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-05-19",
+    "journal": "World Journal of Nuclear Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "bidirectional breast and thyroid cancer",
+      "breast cancer",
+      "dual malignancy",
+      "incidentaloma thyroid",
+      "low FDG Uptake"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.715329",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

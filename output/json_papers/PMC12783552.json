@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12783552",
+  "pmid": "41506624",
+  "doi": "10.1177/15579883251410526",
+  "title": "Feasibility of Recruitment, Perceived Genetic Risk and Susceptibility Beliefs, and Saliva Sample Collection in a Community-Based Prostate Cancer Genetic Risk Pilot Study",
+  "abstract": "While prostate-specific antigen (PSA) testing can reduce mortality, there is potential for over-detection of indolent prostate cancer that would never become clinically important. Thus, research is needed to understand individual genetic risk profiles among unaffected men to help guide personalized PSA screening. This pilot study explored recruitment outcomes, genetic risk perceptions, and willingness to provide a biospecimen (saliva sample) for prostate cancer genetic risk testing among unaffected men. Recruitment approaches included: (1) active (in-person) recruitment that entailed face-to-face communications with men at different community settings, such as health fairs, senior centers, and barbershops and (2) passive (contactless) recruitment—flyers posted at various community locations, such as libraries and laundromats, and online including Facebook pages and other social media. Consenting participants completed a structured questionnaire and provided a saliva sample. A total of 154 individuals were reached and 100 consented (62 of whom were Black). In-person recruitment was associated with higher enrollment. Participants reported high genetic susceptibility beliefs in terms of perceived lifetime risk and comparative risk. Black males reported greater perceived risk compared with white men, but saliva sample return was comparable (89% and 90%, respectively). Overall, the saliva sample return rate was 85%, with an in-person return rate of 95%, and a mail return rate of 69%. This pilot study demonstrated high feasibility of enrollment, high perceived genetic risk and willingness to submit a saliva sample for prostate cancer genetic risk testing. Multimodal approaches are beneficial to reach racially diverse participants in various community settings.",
+  "authors": [
+    "Boxtha, Carol",
+    "El-Kolalli, Samaa",
+    "Denis, Justin",
+    "O’Neil, Ashley",
+    "Vadaparampil, Susan T.",
+    "Abdulla, Rania",
+    "Park, Hyun",
+    "Park, Jong Y.",
+    "Gwede, Clement K."
+  ],
+  "publication_date": "2026-01-08",
+  "journal": "American Journal of Men's Health",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-08",
+    "journal": "American Journal of Men's Health",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "genetic risk perceptions and beliefs",
+      "biospecimen donation for genetic risk testing",
+      "prostate cancer"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.234847",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

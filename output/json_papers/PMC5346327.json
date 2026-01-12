@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC5346327",
+  "pmid": "27939396",
+  "doi": "10.1016/j.biopsych.2016.10.024",
+  "title": "A role for PGC1-alpha in nucleus accumbens neuron subtypes in cocaine action",
+  "abstract": "Molecules critically involved in cocaine behavioral plasticity are known to regulate and interact with peroxisome proliferator-activated receptor gamma coactivator-1alpha, PGC-1α. Additionally, the PGC-1α promoter has binding sites for early growth response 3 (Egr3), which plays a dynamic role in cocaine action in nucleus accumbens (NAc) medium spiny neurons (MSN) subtypes, those enriched in dopamine receptor D1 vs. D2. However, the role of PGC-1α in NAc in cocaine action is unknown. PGC-1α mRNA and protein were examined in NAc after repeated cocaine exposure. Binding of Egr3 to and histone methylation at the PGC-1α promoter was examined in NAc, using chromatin immunoprecipitation (ChIP), after repeated cocaine. PGC-1α ribosome-associated mRNA in MSN subtypes was assessed after repeated cocaine using D1-Cre-RiboTag and D2-Cre-RiboTag lines. Finally, PGC-1α was expressed in NAc D1-MSNs vs. D2-MSNs using a Cre-inducible AAV and Cre lines during cocaine conditioned place preference and cocaine-induced locomotion. Repeated cocaine increased PGC-1α levels, and increased Egr3 binding and H3K4me3 at the PGC-1α promoter in NAc. Increased PGC-1α occurred in D1-MSNs, while D2-MSNs showed reduced levels. Viral mediated expression of PGC-1α in D1-MSNs enhanced behavioral responses to cocaine, while expression in D2-MSNs blunted these behaviors. We demonstrate a novel role for PGC-1α in NAc in cocaine action. PGC-1α is enhanced in NAc D1-MSNs specifically after cocaine exposure. These data are consistent with increased active methylation and Egr3 binding at the PGC-1α promoter. Finally, we demonstrate a bidirectional role for PGC-1α in mediating behavioral plasticity to cocaine through D1-MSNs vs. D2-MSNs.",
+  "authors": [
+    "Chandra, Ramesh",
+    "Engeln, Michel",
+    "Francis, T. Chase",
+    "Konkalmatt, Prasad",
+    "Patel, Dipal",
+    "Lobo, Mary Kay"
+  ],
+  "publication_date": "2017-04-01",
+  "journal": "Biological psychiatry",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2017-04-01",
+    "journal": "Biological psychiatry",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Cocaine",
+      "Nucleus accumbens",
+      "MSN subtype",
+      "RiboTag",
+      "PGC-1α",
+      "Epigenetics"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.283348",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

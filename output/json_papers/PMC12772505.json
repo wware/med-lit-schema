@@ -1,0 +1,57 @@
+{
+  "paper_id": "PMC12772505",
+  "pmid": "41503597",
+  "doi": "10.1002/ccr3.71794",
+  "title": "Bilateral Breast Fibroadenoma With Bilateral Ductal Carcinoma In Situ: A Case Report",
+  "abstract": "Breast fibroadenoma coexisting with ductal carcinoma in situ (DCIS) is clinically rare, with bilateral concurrent occurrence presenting greater diagnostic complexity. This report describes a young female patient who was initially diagnosed with bilateral breast fibroadenoma. Postoperative pathological examination revealed coexisting bilateral mammary fibroadenomas with DCIS. While mammary fibroadenomas are common benign lesions, their coexistence with DCIS often leads to missed diagnoses, potentially resulting in serious consequences. This case study highlights the importance of enhancing clinicians' understanding of breast lesion complexity and optimizing diagnostic and therapeutic protocols.",
+  "authors": [
+    "Wang, Siyang",
+    "Zhang, Xiaohua",
+    "Tian, Wuguo"
+  ],
+  "publication_date": "2026-01-06",
+  "journal": "Clinical Case Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-06",
+    "journal": "Clinical Case Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "bilateral",
+      "breast cancer",
+      "breast fibroadenoma",
+      "ductal carcinoma in situ"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.601521",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

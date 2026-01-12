@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12769638",
+  "pmid": "40824344",
+  "doi": "10.1007/s11604-025-01852-z",
+  "title": "Enhancing radiosensitivity of boron neutron capture therapy for liver cancer with homologous recombination repair inhibitor",
+  "abstract": "Hepatocellular carcinoma (HCC), particularly in recurrent or treatment-refractory cases, often exhibits poor responsiveness to radiation therapy, increasing the risk of radiation-induced liver disease, necessitating innovative treatment approaches. Boric acid-mediated boron neutron capture therapy (BA-BNCT) has emerged as a promising approach for liver cancer. This study aims to improve BA-BNCT efficacy for radioresistant HCC by exploring sensitization agents, enhancing treatment while minimizing irradiation doses and side effects. We targeted the DNA homologous recombination repair (HRR) protein RAD51. Before neutron irradiation, a RAD51 inhibitor, B02, was administered to evaluate its sensitization effect on both HepG2 and the radioresistant HepG2R cells. We examined the cell death mechanism, focusing on the expression profile of LC3B after BA-BNCT, to investigate its impact on DNA repair responses, especially on autophagy and apoptosis. We observed that inhibition of RAD51 led to increased γH2AX, the DNA double-strand break marker. Additionally, combining the RAD51 inhibitor B02 with BA-BNCT resulted in tumor cell arrest in the G0/G1 phase, indicating altered cell cycle regulation. In exploring cell death mechanisms, we observed increased autophagy following BNCT, potentially as a response to cellular stress induced by DNA damage in tumor cells. The combination of B02 and BA-BNCT significantly disrupted autophagic flux and promoted apoptosis in the tumor cells. Combining a RAD51 inhibitor with BA-BNCT significantly enhances the anti-tumor efficacy against radioresistant HCC and parental HCC cells. This proof-of-concept study suggests that the combination treatment can achieve comparable or superior therapeutic effects using lower radiation doses, thereby reinforcing the potential of BNCT for treating recurrent HCC. The online version contains supplementary material available at 10.1007/s11604-025-01852-z.",
+  "authors": [
+    "Lai, Zih-Yin",
+    "Huang, Yu-Hsuan",
+    "Zhou, Ting-Yu",
+    "Lee, Chi-Ying",
+    "Shiao, Yu-Ming",
+    "Chen, Yi-Wei",
+    "Chou, Fong-In",
+    "Chen, Jen-Kun",
+    "Chuang, Yung-Jen"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Japanese Journal of Radiology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Japanese Journal of Radiology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Hepatocellular Carcinoma",
+      "BNCT",
+      "RAD51",
+      "Autophagy",
+      "DNA Repair"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.145027",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

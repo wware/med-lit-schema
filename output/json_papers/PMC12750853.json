@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12750853",
+  "pmid": "41462289",
+  "doi": "10.1186/s13046-025-03572-8",
+  "title": "Combine mitochondrial-targeted gene therapy and chemotherapy to treat triple-negative breast cancer",
+  "abstract": "Triple-negative breast cancer (TNBC) is an aggressive and chemotherapy resistant subtype with high metastatic potential and frequent recurrence after standard treatment. While poly (ADP-ribose) polymerase inhibitors (PARPi) show efficacy in TNBCs with DNA repair deficiencies, only ~ 20% of patients respond, underscoring the need for more effective therapies. Mitochondria, as central regulators of cancer cell survival, present a compelling therapeutic target. Here, we introduce a novel gene-chemotherapy combining our mitochondria-targeted luminoptogenetics technology (cmLumiOpto), which directly disrupts mitochondrial membrane potential and induces cancer cell death, with PARPi to enhance TNBC treatment outcomes. To achieve targeted delivery, we conjugated a high-affinity anti-CD276 monoclonal antibody (mAb) that selectively binds human and mouse TNBCs to an exosome-associated adeno-associated virus (mAb-Exo-AAV). In vitro studies confirmed successful transfection, internalization, and functional expression of cmLumiOpto, leading to significantly enhanced cytotoxicity when combined with PARPi. In vivo, the combination therapy achieved a 95–100% reduction in tumor burden, suppressed patient-derived xenograft growth, and inhibited metastasis in four TNBC mouse models. Post-treatment analyses confirmed mitochondrial depolarization, downregulation of DNA replication, cytokine upregulation, and immune cell infiltration in tumor. These findings highlight the potential of mitochondria-targeted gene therapy combined with chemotherapy as a powerful and innovative strategy for TNBC treatment. The online version contains supplementary material available at 10.1186/s13046-025-03572-8.",
+  "authors": [
+    "Varadkar, Tanvi",
+    "Zhou, Zhuoxin Zora ",
+    "Zhang, Jiashuai",
+    "Sarkar, Anusua",
+    "Du, Zhantao",
+    "Chowdhury, Srijita",
+    "Lim, Hwayeon",
+    "Zhou, Lufang",
+    "Liu, Xiaoguang Margaret"
+  ],
+  "publication_date": "2025-12-29",
+  "journal": "Journal of Experimental & Clinical Cancer Research : CR",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-29",
+    "journal": "Journal of Experimental & Clinical Cancer Research : CR",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Mitochondrial targeting",
+      "MAb-Exo-AAV",
+      "PARPi",
+      "Combined therapy",
+      "TNBC treatment"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.847889",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

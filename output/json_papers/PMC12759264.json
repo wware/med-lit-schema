@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12759264",
+  "pmid": "41488399",
+  "doi": "10.1155/humu/6601291",
+  "title": "Characterization of Copy Number Variants in Hereditary Cancer Patients Through NGS Shows a Distinctive PALB2 Contribution to the Diagnostic Yield",
+  "abstract": "The extensive use of next‐generation sequencing (NGS) multi‐gene panels and advanced analysis algorithms have led to the identification of numerous genetic variants associated with breast, ovarian, and pancreatic cancer. Copynumber variations (CNVs), defined as deletions and duplications of specific DNA regions, account for up to 10% of pathogenic variants and can affect any of the cancer‐predisposing genes. Despite this, CNVs’ contribution beyond BRCA1 and BRCA2 remains underexplored. This observational study analyzed data from 2949 patients, primarily affected by breast or ovarian cancer, who underwent NGS testing with a 22‐gene hereditary cancer panel between 2018 and 2023, with a focus on CNV results. In line with comparison studies, a total diagnostic yield of 14.8% was observed with pathogenic variants in BRCA1, BRCA2, CHEK2, ATM, and PALB2 accounting for most of positive findings. In contrast, CNVs were found in 1.4% of patients, displaying a peculiar distribution pattern. PALB2 exhibited the highest frequency of pathogenic CNVs (66.7%), representing 62.2% of all PALB2 pathogenic variants. Notably, 24 out of 28 PALB2 CNV carriers shared the deletion of Exon 11. Further investigations revealed identical breakpoints and common geographical origins, and moreover, the same haplotype for some of the families suggests a relatively recent founder effect. Simultaneous sequence and copy number analyses resulted in likely higher positive predictive value of the test and, more interestingly, disclosed an unforeseen single contribution of CNVs in PALB2 gene, confirming geography as a key factor in shaping human genetic variations.",
+  "authors": [
+    "Bonamici, Lia",
+    "Artuso, Lucia",
+    "Marino, Marco",
+    "Toss, Angela",
+    "Sidoti, Diletta",
+    "Barbieri, Elena",
+    "Venturelli, Marta",
+    "Marchi, Isabella",
+    "Pescucci, Chiara",
+    "Manfredini, Rossella",
+    "Papi, Laura",
+    "Dominici, Massimo",
+    "Cortesi, Laura",
+    "Tenedini, Elena",
+    "Tagliafico, Enrico"
+  ],
+  "publication_date": "2026-01-03",
+  "journal": "Human Mutation",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-03",
+    "journal": "Human Mutation",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.970374",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

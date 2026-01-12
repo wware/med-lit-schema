@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12768587",
+  "pmid": "41311334",
+  "doi": "10.4048/jbc.2025.0121",
+  "title": "Prospective Multicenter Study Comparing Magnetic Resonance Imaging and Ultrasonography for Second Breast Cancer Surveillance in Women With Prior Breast Cancer and Dense Breasts: KBCSG-27 Trial",
+  "abstract": "Surveillance guidelines following breast cancer surgery recommend mammography as the sole imaging modality. However, the accuracy of mammography is low in younger women and in those with dense breast tissue. Additional imaging modalities, such as ultrasonography and magnetic resonance imaging (MRI), may offer diagnostic benefits. This prospective, multicenter study (KBCSG-27) aims to compare the diagnostic performances of mammography, ultrasonography, and MRI for detecting second breast cancer (SBC) in women with a personal history of breast cancer (PHBC) and dense breasts. This study will recruit approximately 1,756 women, aged 20–75 years, who were treated for stage 0–III breast cancer and have dense breast tissue on mammography. Participants will undergo two annual breast screenings, each consisting of mammography, ultrasonography, and MRI. MRI will be performed using either abbreviated magnetic resonance imaging (AB-MRI) or full-protocol magnetic resonance imaging (FP-MRI), which will be randomly assigned such that each participant receives both protocols alternately. Radiologists will independently interpret all images. A combination of pathology results and 12-month follow-up will serve as the reference standard. A patient-reported outcome (PRO) tool will be used to assess patients’ experiences and preferences between AB-MRI and FP-MRI. The primary objective is to compare the cancer detection rates of ultrasonography versus AB-MRI and ultrasonography versus FP-MRI. Secondary outcomes include comparisons of the invasive cancer detection rates, abnormal interpretation rates, sensitivity, specificity, positive and negative predictive values, accuracy, and interval cancer rates. Subgroup analyses will be conducted based on age, menopausal status, mammographic breast density, and molecular subtype. Additionally, PRO results of AB-MRI and FP-MRI will be compared. This ongoing, prospective, multicenter study aims to evaluate the performance of ultrasonography, AB-MRI, and FP-MRI in SBC surveillance in women with PHBC and dense breasts. Enrollment is expected to be completed by 2025, with results anticipated after 2028. ClinicalTrials.gov Identifier: NCT05797545. Registered on April 23, 2023",
+  "authors": [
+    "Chang, Yun-Woo",
+    "Park, Young Mi",
+    "Kim, Kyunga",
+    "Kim, Min-Ji",
+    "Kim, Myoung Kyoung",
+    "Yu, Jonghan",
+    "Ko, Eun Sook"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "Journal of Breast Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "Journal of Breast Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Breast Neoplasms",
+      "Clinical Trial",
+      "Magnetic Resonance Imaging",
+      "Mass Screening",
+      "Ultrasonography"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.118226",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

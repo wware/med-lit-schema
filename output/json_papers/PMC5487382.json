@@ -1,0 +1,66 @@
+{
+  "paper_id": "PMC5487382",
+  "pmid": "28701922",
+  "doi": "10.3389/fncel.2017.00172",
+  "title": "Bone Marrow Mesenchymal Stem-Cell Transplantation Promotes Functional Improvement Associated with CNTF-STAT3 Activation after Hemi-Sectioned Spinal Cord Injury in Tree Shrews",
+  "abstract": "Hemi-sectioned spinal cord injury (hSCI) can lead to spastic paralysis on the injured side, as well as flaccid paralysis on the contralateral side, which can negatively affect a patient’s daily life. Stem-cell therapy may offer an effective treatment option for individuals with hSCI. To examine the role of bone marrow mesenchymal stem cells (BMSCs) transplantation on hSCI and explore related mechanisms in the tree shrews, here, we created a model of hSCI by inducing injury at the tenth thoracic vertebra (T10). Hoechst 33342-labeled BMSCs derived from adult tree shrews were isolated, cultured, and implanted into the spinal cord around the injury site at 9 days after injury. The isolated BMSCs were able to survive, proliferate and release a variety of neurotrophic factors (NTFs) both in vitro and in vivo. At 28 days after injury, compared with the sham group, the hSCI group displayed scar formation and dramatic elevations in the mean interleukin 1 beta (IL-1β) density and cell apoptosis level, whereas the expression of signal transducer and activator of transcription 3 (STAT3) and ciliary neurotrophic factor (CNTF) mRNA was reduced. Following BMSC transplantation, motoneurons extent of shrinkage were reduced and the animals’ Basso, Beattie, and Bresnahan (BBB) locomotion scale scores were significantly higher at 21 and 28 days after injury when compared with the injured group. Moreover, the hSCI-induced elevations in scar formation, IL-1β, and cell apoptosis were reduced by BMSC transplantation to levels that were close to those of the sham group. Corresponding elevations in the expression of STAT3 and CNTF mRNA were observed in the hSCI + BMSCs group, and the levels were not significantly different from those observed in the sham group. Together, our results support that grafted BMSCs can significantly improve locomotor function in tree shrews subjected to hSCI and that this improvement is associated with the upregulation of CNTF and STAT3 signaling.",
+  "authors": [
+    "Xiong, Liu-Lin",
+    "Liu, Fei",
+    "Lu, Bing-Tuan",
+    "Zhao, Wen-Ling",
+    "Dong, Xiu-Juan",
+    "Liu, Jia",
+    "Zhang, Rong-Ping",
+    "Zhang, Piao",
+    "Wang, Ting-Hua"
+  ],
+  "publication_date": "2017-06-28",
+  "journal": "Frontiers in Cellular Neuroscience",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2017-06-28",
+    "journal": "Frontiers in Cellular Neuroscience",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "tree shrews",
+      "bone marrow mesenchymal stem cells",
+      "spinal cord injury",
+      "cell transplantation",
+      "STAT3",
+      "CNTF",
+      "cell apoptosis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.916804",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

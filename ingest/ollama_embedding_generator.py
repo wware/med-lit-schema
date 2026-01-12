@@ -27,22 +27,22 @@ class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
         # Determine embedding dimension by encoding a dummy string
         # This requires the model to be downloaded and available
         try:
-            dummy_embedding = self._client.embed(model=self._model_name, prompt="dummy text")
-            self._embedding_dim = len(dummy_embedding["embedding"])
+            dummy_embedding = self._client.embed(model=self._model_name, input="dummy text")
+            self._embedding_dim = len(dummy_embedding["embeddings"][0])
         except Exception as e:
             raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. "
                                f"Ensure the model is pulled and Ollama is running. Error: {e}")
 
     def generate_embedding(self, text: str) -> List[float]:
         """Generate a single embedding for text."""
-        response = self._client.embed(model=self._model_name, prompt=text)
-        return response["embedding"]
+        response = self._client.embed(model=self._model_name, input=text)
+        return response["embeddings"][0]
 
     def generate_embeddings_batch(self, texts: List[str], batch_size: Optional[int] = None) -> List[List[float]]:
         """Generate embeddings for multiple texts in batch."""
         # Ollama's embed function can take multiple prompts directly
-        responses = self._client.embed(model=self._model_name, prompt=texts)
-        return [res["embedding"] for res in responses]
+        responses = self._client.embed(model=self._model_name, input=texts)
+        return responses["embeddings"]
 
     @property
     def model_name(self) -> str:

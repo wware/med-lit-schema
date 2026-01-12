@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12764813",
+  "pmid": "41326503",
+  "doi": "10.1038/s41598-025-29124-w",
+  "title": "Knowledge attitude and practice regarding cancer screening among Chinese medical students",
+  "abstract": "To investigate the knowledge, attitude, and practice (KAP) of cancer screening among medical students. A web-based cross-sectional study was conducted between June and July 2023 across two medical universities in China. A self-administered questionnaire was distributed to medical students to collect their demographic characteristics and KAP of cancer screening. A total of 520 valid questionnaires were collected, with 304 (58.46%) females and a mean age of 21.07 ± 2.25 years. The mean knowledge, attitude, and practice scores were 9.39 ± 3.82 (possible range: 0–20), 31.4 ± 4.06 (possible range: 8–40), and 25.2 ± 7.04 (possible range: 8–40), respectively. Structural equation modeling (SEM) indicated that knowledge directly influenced attitude (β = 0.140, P = 0.003), attitude directly affected practice (β = 0.145, P = 0.002), and knowledge had a substantial and direct impact on practice impact on practice (β = 0.219, P < 0.001). The study highlights inadequate knowledge, suboptimal attitude, and moderate practice towards cancer screening among medical students. The findings emphasize the need to enrich their knowledge through curriculum enhancements, foster positive attitudes via educational initiatives, and provide practical training opportunities. The online version contains supplementary material available at 10.1038/s41598-025-29124-w.",
+  "authors": [
+    "Wang, Chundan",
+    "Jin, Juan",
+    "Wang, Changliang",
+    "Wu, Jianjun",
+    "Liu, Yufeng"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "Scientific Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "Scientific Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Knowledge, attitude and practice",
+      "Medical student",
+      "Cancer screening",
+      "Cross-sectional study",
+      "China"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.521516",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

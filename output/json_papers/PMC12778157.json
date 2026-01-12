@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12778157",
+  "pmid": "41496120",
+  "doi": "10.1097/MD.0000000000047164",
+  "title": "Interaction between ENPP1 and homologous recombination deficiency defines distinct pan-cancer signatures: A retrospective observational study",
+  "abstract": "Ectonucleotide pyrophosphatase/phosphodiesterase 1 (ENPP1), 1st identified in breast cancer and subsequently in multiple other cancer types, is an innate immune checkpoint regulator that recently emerged as a promising biomarker and therapeutic target. Homologous recombination deficiency (HRD) has gained clinical relevance with therapeutic vulnerability, particularly in breast and ovarian cancers. Despite the increasing significance of ENPP1 and HRD in cancer biology and treatment, their potential relationships have not yet been comprehensively investigated. We analyzed the relationship between ENPP1 expression and HRD score across the Cancer Genome Atlas pan-cancer and individual tumor types using the Pearson and Spearman correlations. To account for heterogeneity, pan-cancer samples were clustered using linear regression into 3 groups based on Bayesian Information Criterion. Differential expression, functional enrichment, and survival analyses were performed for these clusters at both the pan-cancer and representative tumor type levels. Although the pan-cancer relationship between ENPP1 expression and HRD score was heterogeneous, significant correlations were observed in 11 tumor types. Linear regression-based clustering resolved this heterogeneity into 3 functionally and clinically distinct groups: Cluster 1 was characterized by proliferation programs; Cluster 2 by extracellular matrix remodeling, differentiation, and immune response; and Cluster 3, by metabolic reprogramming. Clinically, Cluster 3 was associated with better survival than Clusters 1 and 2 in a pan-cancer analysis (P < .0001). At the individual tumor type level, these global cluster features were further modified in tissue-specific contexts, reflecting local microenvironment adaptation. Significant survival differences were observed in patients with adrenocortical carcinoma, chromophobe renal cell carcinoma, low grade glioma, and mesothelioma, further underscoring the tissue-specific modification of global cluster features. Our comprehensive pan-cancer analysis revealed the intrinsic heterogeneity of ENPP1 expression and HRD score, which may arise from complex and dynamic interactions with diverse cancer hallmarks, including proliferation, extracellular matrix remodeling, immune response, and metabolic reprogramming, and can be generalized into 3 clusters with distinct molecular and clinical characteristics. At the individual tumor type level, these global cluster features were further modified to adapt to a tissue-specific microenvironment, manifesting distinct tissue-specific patterns. Collectively, these findings provide a foundation for refining biomarker-driven precision medicine strategies for diverse tumor types.",
+  "authors": [
+    "Kim, Yong Min",
+    "Lee, Sung Hak",
+    "Na, Woong",
+    "Lee, Il Ju",
+    "Kwon, Mihye",
+    "Jo, Oyeon",
+    "Song, Young Soo"
+  ],
+  "publication_date": "2026-01-02",
+  "journal": "Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-02",
+    "journal": "Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ENPP1",
+      "functional enrichment analysis",
+      "HRD score",
+      "linear regression-based clustering",
+      "pan-cancer",
+      "survival analysis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.500976",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

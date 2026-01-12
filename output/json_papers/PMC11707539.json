@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC11707539",
+  "pmid": "39790360",
+  "doi": "10.1093/toxres/tfae235",
+  "title": "Therapeutic potential of Achillea millefolium L. extract on 7,12-dimethylbenz(a)anthracene (DMBA) -induced ovary cancer in Wistar rats: a biochemical, molecular and histopathological approach",
+  "abstract": "Ovarian cancer (OC) is a significant cause of cancer-related mortality among women. This study explores the efficacy of Achillea millefolium L. (A. millefolium) extract, known for its phytoestrogenic properties, in treating OC through hormonal and metabolic modulation. Using a Wistar rat model, OC was induced with 7,12-dimethylbenz(a)anthracene (DMBA), and the effects of A. millefolium, both alone and in combination with paclitaxel (PTX), were evaluated. The study involved five groups of ten rats each: normal, OC, and those receiving 100 mg/kg of A. millefolium with or without PTX. Key hormonal levels, oxidative stress markers, and inflammatory cytokines were measured. Additionally, ovarian tissues were analyzed for malondialdehyde and ferric reducing ability of plasma, while gene and protein expressions related to apoptosis were assessed. Results showed that A. millefolium, particularly when combined with PTX, reduced the luteinizing hormone/follicle-stimulating hormone ratio, increased antioxidant enzyme activity, and upregulated apoptosis-related pathways, leading to higher p53 expression and fewer Ki-67 positive cells. These findings suggest A. millefolium’s potential as a complementary therapy for women with OC, particularly those with ovulation disorders.",
+  "authors": [
+    "Zhang, Linsen",
+    "Yuan, Xiu",
+    "Peng, Qingmei"
+  ],
+  "publication_date": "2025-02-01",
+  "journal": "Toxicology Research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-02-01",
+    "journal": "Toxicology Research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "apoptosis",
+      "paclitaxel",
+      "7,12-dimethylbenz(a)anthracene",
+      "ovary cancer",
+      "rat",
+      "Achillea millefolium L"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.718049",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

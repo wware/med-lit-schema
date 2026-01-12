@@ -1,0 +1,67 @@
+{
+  "paper_id": "PMC12748135",
+  "pmid": "41460629",
+  "doi": "10.1007/s13402-025-01130-0",
+  "title": "TRIM47-facilitated PLK1 stabilization promotes the proliferation of liver cancer cells",
+  "abstract": "Liver cancer (LC) remains a leading cause of cancer-related mortality worldwide, with limited therapeutic options for advanced-stage disease. While tripartite motif-containing 47 (TRIM47), a typical E3 ubiquitin ligase, has been implicated in cancer progression, its precise role in LC pathogenesis remains unclear. TRIM47 expression in hepatocellular carcinoma (HCC) tissues was analyzed through public databases. Functional assays, including TRIM47 knockdown and overexpression experiments, were performed to investigate its impact on cell proliferation, apoptosis and the cell cycle both in vitro and in vivo. The investigation was conducted using a combination of methodologies, including yeast-two hybrid screening, ubiquitination assays, and signaling pathway analyses, to elucidate the underlying mechanisms. In addition, rescue assays were performed to validate the effect of TRIM47-PLK1 axis on LC growth. TRIM47 was significantly elevated in HCC tissues and positively correlated with advanced clinical stage and poor overall survival. Functionally, TRIM47 knockdown suppressed LC cell growth, while its overexpression promoted tumor proliferation. Furthermore, TRIM47 facilitates cell cycle progression by alleviating G2/M phase arrest and inhibits apoptosis in LC cells. Mechanistically, TRIM47 catalyzes K63-linked ubiquitination of polo-like kinase 1 (PLK1), leading to its stabilization and subsequent activation of the NF-κB and MAPK pathways. Clinical validation confirmed a significant positive correlation between TRIM47 and PLK1 expression in human HCC specimens. Importantly, pharmacological inhibition of PLK1 effectively abrogated TRIM47-driven tumor growth in xenograft models. This study identifies TRIM47 as a critical regulator of LC progression through PLK1 stabilization and proposes the TRIM47-PLK1 axis as a potential therapeutic target for LC treatment. The online version contains supplementary material available at 10.1007/s13402-025-01130-0.",
+  "authors": [
+    "Xie, Tao",
+    "Fan, Xiaoqi",
+    "Yu, Tian",
+    "Zhu, Qing",
+    "Zhang, Qi",
+    "Li, Na",
+    "Wang, Tao",
+    "Qian, Yisong",
+    "Deng, Keyu",
+    "Xin, Hongbo",
+    "Li, Yong",
+    "Huang, Xuan"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Cellular Oncology (Dordrecht, Netherlands)",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Cellular Oncology (Dordrecht, Netherlands)",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "TRIM47",
+      "Liver cancer",
+      "Cell proliferation",
+      "PLK1",
+      "Ubiquitination"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.726968",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

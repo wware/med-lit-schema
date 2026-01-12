@@ -1,0 +1,57 @@
+{
+  "paper_id": "PMC12780783",
+  "pmid": null,
+  "doi": "10.21147/j.issn.1000-9604.2025.06.02",
+  "title": "Epidemiology, early detection, and management of breast cancer in China: A comprehensive review",
+  "abstract": "Breast cancer represents a significant and growing public health challenge in China, marked by a rising incidence and distinct variations across age groups and geographical regions. This review synthesizes recent evidence regarding the epidemiology, early detection, and early treatment in the Chinese context. We outline current patterns of disease burden and the spectrum of risk factors—both modifiable and non-modifiable. We note ongoing shifts linked to reproductive trends, lifestyle changes, and an aging population. Screening practices are increasingly evolving towards stratified, risk-adapted pathways. These approaches often combine mammography with adjunct imaging modalities such as ultrasound, digital breast tomosynthesis, or magnetic resonance imaging for selected populations, while artificial intelligence is under active investigation to enhance image interpretation and streamline workflow. Contemporary early management strategies emphasize breast-conserving surgery and selective axillary surgery, alongside the expanded application of hypofractionated and precision-targeted radiotherapy. Systemic therapy is increasingly guided by tumor subtype. In the adjuvant setting, molecular profiling and multigene assays are now routinely utilized to tailor treatment intensity to individual tumor biology, facilitating both treatment escalation or de-escalation where appropriate. Concurrently, in the neoadjuvant setting, research efforts within China and globally are focused on evaluating novel therapeutic regimens and biomarker-driven strategies to improve pathologic complete response rates and inform subsequent postoperative care. A consolidated understanding of these evolving themes is crucial for shaping effective clinical practice and health policies, ultimately supporting the goals of earlier diagnosis and improved patient outcomes in China.",
+  "authors": [
+    "Xu, Hangcheng",
+    "Xu, Binghe"
+  ],
+  "publication_date": "2025-12-30",
+  "journal": "Chinese Journal of Cancer Research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-30",
+    "journal": "Chinese Journal of Cancer Research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Breast cancer",
+      "epidemiology",
+      "risk factors",
+      "early detection",
+      "early treatment"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.364680",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

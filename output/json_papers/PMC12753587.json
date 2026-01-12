@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12753587",
+  "pmid": "41313521",
+  "doi": "10.1007/s12672-025-04128-0",
+  "title": "PTBP1 functions as a suppressor of ferroptosis in endometrial carcinoma cells by stabilizing SLC7A11 mRNA",
+  "abstract": "PTBP1 disruption induces ferroptosis in EC cells.PTBP1 stabilizes SLC7A11 mRNA.PTBP1 regulates EC cell ferroptosis via SLC7A11. PTBP1 disruption induces ferroptosis in EC cells. PTBP1 stabilizes SLC7A11 mRNA. PTBP1 regulates EC cell ferroptosis via SLC7A11. The online version contains supplementary material available at 10.1007/s12672-025-04128-0.",
+  "authors": [
+    "Zhu, Keke",
+    "Zhang, Ke",
+    "Li, Hui",
+    "Shen, Yao",
+    "Wang, Lu",
+    "Hu, Qinghong",
+    "Xing, Hanwen",
+    "Han, Liping"
+  ],
+  "publication_date": "2025-11-28",
+  "journal": "Discover Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-28",
+    "journal": "Discover Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Ferroptosis",
+      "Endometrial carcinoma",
+      "RNA binding protein",
+      "PTBP1",
+      "mRNA stability",
+      "SLC7A11"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.296005",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

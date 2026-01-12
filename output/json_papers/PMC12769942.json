@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12769942",
+  "pmid": "40491286",
+  "doi": "10.1177/10668969251346939",
+  "title": "Histomorphological and Molecular Features of Colonic Large-Cell Neuroendocrine Carcinoma in a Patient With Familial Adenomatous Polyposis: A Case Report and Review of Literature",
+  "abstract": "Colorectal large-cell neuroendocrine carcinoma, a rare and aggressive type of cancer, accounts for <0.6% of all colorectal cancers. Neuroendocrine carcinomas are associated with hereditary conditions such as Lynch syndrome; however, their co-occurrence with familial adenomatous polyposis (FAP) is poorly documented. To date, only 1 patient of colorectal neuroendocrine carcinoma in a patient with FAP has been reported. This report presents a patient with FAP. Large-cell neuroendocrine carcinoma with lymph node metastasis was discovered during right colectomy. Histopathological and immunohistochemical assessments confirmed neuroendocrine differentiation with a high Ki-67 index (>90%). Genetic analysis revealed a pathogenic germline APC mutation and somatic alterations in APC, TP53, RB1, PALB2, MAP3K1, NTRK3, and KRAS. Adjuvant chemotherapy commenced postoperatively. No evidence of recurrence was observed for 18 months postoperatively. This case report highlights the rare presentation of colorectal large-cell neuroendocrine carcinoma in a patient with FAP, thereby contributing to the limited literature on this association. APC mutations have been characterized in adenomatous polyposis and colorectal adenocarcinomas; however, their role in the pathogenesis of neuroendocrine carcinoma remains unclear. Additional mutations of TP53, RB1, PALB2, MAP3K1, NTRK3, and KRAS suggest a unique molecular profile that may contribute to the development of neuroendocrine carcinoma in patients with FAP. This is the second reported patient of colorectal large-cell neuroendocrine carcinoma in a patient with FAP. Further studies must be conducted to elucidate the role of APC mutations in the pathogenesis of neuroendocrine tumorigenesis.",
+  "authors": [
+    "Moustafa, Mohamed",
+    "Xu, Jing",
+    "Wang, Hua",
+    "Peng, Lan",
+    "Chi, Zhikai"
+  ],
+  "publication_date": "2025-06-10",
+  "journal": "International Journal of Surgical Pathology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-06-10",
+    "journal": "International Journal of Surgical Pathology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "colon",
+      "cecum",
+      "large-cell neuroendocrine carcinoma",
+      "familial adenomatous polyposis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.454590",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

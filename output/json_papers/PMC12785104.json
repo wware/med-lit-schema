@@ -1,0 +1,61 @@
+{
+  "paper_id": "PMC12785104",
+  "pmid": null,
+  "doi": "10.3390/cancers18010086",
+  "title": "Nanomedicine in Ovarian Cancer: Advances in Imaging, Targeted Delivery, and Theranostic Therapeutic Platforms",
+  "abstract": "The major advances in nanomedicine for ovarian cancer are outlined in this review, underlining how engineered lipid, polymeric, inorganic, hybrid and biomimetic platforms improve imaging accuracy, intraperitoneal delivery, and therapeutic precision. Targeted ligands, stimuli-responsive release, and stealth coatings are key design principles which are demonstrated alongside applications in magnetic resonance imaging (MRI), positron emission tomography (PET)/single-photon emission computed tomography (SPECT), near-infrared imaging (NIR), ultrasound, and multimodal imaging. Nucleic acid nanotherapies, photothermal and enzyme-responsive systems, immune-nanomedicine and intraperitoneal depot strategies are also discussed in this article. The importance of standardisation and personalised nanotherapeutic approaches in ovarian cancer is highlighted by the evaluation of biodistribution, safety, manufacturing, and regulatory framework challenges.",
+  "authors": [
+    "Bartusik-Aebisher, Dorota",
+    "Wilk, Izabella",
+    "Aebisher, David"
+  ],
+  "publication_date": "2025-12-27",
+  "journal": "Cancers",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-27",
+    "journal": "Cancers",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ovarian cancer nanomedicine",
+      "targeted drug delivery",
+      "multimodal imaging",
+      "theranostic nanoparticles",
+      "intraperitoneal nanotherapy",
+      "tumour microenvironment (TME) targeting",
+      "stimuli-responsive nanocarriers",
+      "theranostic therapeutic platforms"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.315320",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

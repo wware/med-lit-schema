@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12757429",
+  "pmid": "41488674",
+  "doi": "10.3389/fimmu.2025.1720799",
+  "title": "PSMD14 drives lung adenocarcinoma progression through HMMR stabilization and dual activation of TGF-β/Smad and PI3K/AKT/mTOR signaling",
+  "abstract": "Lung adenocarcinoma (LUAD) represents a major subtype of non-small cell lung cancer with limited therapeutic options. While the ubiquitin-proteasome system has been implicated in cancer pathogenesis, the specific role of deubiquitinating enzymes in LUAD remains incompletely understood. This study investigates the clinical significance and molecular mechanisms of PSMD14, a crucial proteasome subunit, in LUAD progression. We analyzed PSMD14 expression patterns across multiple databases including TCGA, GEO, and CPTAC. Functional characterization was performed through in vitro and in vivo experiments including CCK-8, colony formation, Transwell, and xenograft assays. Molecular mechanisms were elucidated using co-immunoprecipitation, ubiquitination assays, and Western blotting. Drug sensitivity was evaluated using CTRP and PRISM databases, and therapeutic potential was validated with the PSMD14 inhibitor Capzimin. PSMD14 was significantly overexpressed in LUAD tissues at both mRNA and protein levels, demonstrating excellent diagnostic value (AUC = 0.898) and strong prognostic significance for multiple survival endpoints. Mechanistically, PSMD14 directly interacted with HMMR, removing K63-linked ubiquitin chains to enhance its protein stability. The PSMD14-HMMR axis promoted malignant phenotypes, including proliferation, migration, and invasion. Notably, HMMR overexpression rescued these impaired phenotypes induced by PSMD14 deficiency. PSMD14 high expression correlated with immunosuppressive features and coordinated activation of TGF-β/Smad and PI3K/AKT/mTOR signaling pathways. The PSMD14 inhibitor Capzimin exhibited potent anti-tumor effects in vitro and in vivo, and combination therapy with the TGF-β inhibitor galunisertib demonstrated enhanced efficacy. Our findings demonstrate that PSMD14 acts as a key driver of LUAD progression by stabilizing HMMR and consequently activates both the TGF-β/Smad and PI3K/AKT/mTOR signaling pathways. Consequently, the PSMD14-HMMR axis emerges as a promising therapeutic target. Inhibition of PSMD14 exhibited significant anti-tumor efficacy, underscoring its potential for clinical translation in LUAD treatment.",
+  "authors": [
+    "Chen, Rui",
+    "Wang, Shijing",
+    "Xie, Junping"
+  ],
+  "publication_date": "2025-12-19",
+  "journal": "Frontiers in Immunology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-19",
+    "journal": "Frontiers in Immunology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Capzimin",
+      "deubiquitination",
+      "HMMR",
+      "lung adenocarcinoma",
+      "PSMD14"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.567345",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

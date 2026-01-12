@@ -1,0 +1,82 @@
+{
+  "paper_id": "PMC12766194",
+  "pmid": "41497262",
+  "doi": "10.1016/j.jncc.2025.05.006",
+  "title": "Do ethnic disparities exist in disease burden and healthcare utilization of male breast cancer? A 9-year cohort study of 9.08 million adults in China",
+  "abstract": "As a rare disease, male breast cancer (MBC) is of increasing concern in China. Whether health inequalities of disease burden and healthcare utilization exist by ethnicity in male breast cancer remains unclear. We aim to measure disease burden and healthcare utilization by ethnicity among male breast cancer patients in China. A retrospective cohort study was established during 2012–2021 based on the Inner Mongolia Regional Health Information Platform. Disease burden, including incidence, 5-year prevalence, mortality, survival rate, and medical cost were analyzed. Among 630 participants (mean [SD] age, 59.4 [13.1] years), age-standardized rates of incidence were 1.2 (95% CI: 0.4–2.1) per 100, 000. All-cause mortality was 50.8 per 1000 person-years (95% CI: 42.4–60.4). Regarding ethnicity, Mongolian had a higher age-standardized 5-year prevalence rate than Han (3.2[95% CI: 2.5–4.0] vs 2.3[95% CI: 1.7–3.0], P=0.016), but no significant differences existed in incidence rates, survival rates, and risk of all-cause and breast cancer-specific mortality. Meanwhile, few significant disparities in healthcare utilization between Han and Mongolian were observed. This study revealed a moderate disease burden and relatively lower healthcare utilization for male breast cancer in Inner Mongolia, China. No significant ethnic disparities existed in disease burden and healthcare utilization. However, increased attention to male breast cancer is warranted due to the crucial influence of economic factors on potential ethnic disparities.",
+  "authors": [
+    "Chen, Jieying",
+    "Qiao, Liying",
+    "Yan, Ying",
+    "Qi, Meng",
+    "Zhang, Yunjing",
+    "Kang, Weiwei",
+    "Zhou, Huziwei",
+    "Yu, Yuelin",
+    "Ke, Yalei",
+    "Jiang, Yuling",
+    "Rao, Yingting",
+    "Xu, Lu",
+    "He, Guohua",
+    "Ren, Jing",
+    "Yan, Xue",
+    "Deng, Siwei",
+    "Yang, Xinyu",
+    "Song, Yutong",
+    "Yang, Yingzi",
+    "Wen, Qiaorui",
+    "Han, Jing",
+    "Wu, Yiwei",
+    "Liu, Guozhen",
+    "Wang, Mingyuan",
+    "Zhang, Xiaoyu",
+    "Xi, Yunfeng",
+    "Wang, Shengfeng"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "Journal of the National Cancer Center",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "Journal of the National Cancer Center",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Male breast cancer",
+      "Ethnic disparities",
+      "Rare disease",
+      "Disease burden",
+      "Healthcare utilization"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.927707",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

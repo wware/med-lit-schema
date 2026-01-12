@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12754786",
+  "pmid": "41480640",
+  "doi": "10.1093/narcan/zcaf057",
+  "title": "Replication-associated base excision repair/single-strand break repair regulates PARG inhibitor response via the PRMT1/PRMT5/ATR axis",
+  "abstract": "Poly(ADP-ribose) polymerases 1 and 2 (PARP1/PARP2), and poly(ADP-ribose) glycohydrolase (PARG), modulate the level of poly(ADP-ribose) (PAR), a post-translational protein modification, in response to DNA damage or replication stress. Here, we find that replication-dependent and PARP1/PARP2-mediated PARylation recruits the base excision repair (BER)/single-strand break repair (SSBR) scaffold protein XRCC1 and the associated factors DNA polymerase β (POLB), aprataxin (APTX), and DNA ligase isoform 3 (LIG3). Further, these BER/SSBR proteins promote resistance to inhibitors of PARP1/PARP2 and PARG, as loss of these proteins sensitizes glioblastoma and ovarian cancer cells to each. In addition, depletion of these replication-associated BER/SSBR factors leads to enhanced PAR levels and PARG inhibitor-induced activation of the ATR/CHK1 S-phase checkpoint kinases. Both PARG inhibition and ATR inhibition lead to elevated ATM- and DNA-PK-dependent KAP1 phosphorylation. In turn, inhibition of either ATR or CHK1 enhances the cellular response to PARG inhibitors. Finally, inhibition of the ATR regulators PRMT1 or PRMT5 synergizes with PARG inhibition, implicating replication-associated BER/SSBR and PARylation in the activation of the PRMT1/PRMT5/ATR axis. This study highlights the role of BER/SSBR in protecting the cell during S-phase to suppress PARylation-induced checkpoint activation, which may suggest a potential intervention strategy for PARG inhibitor-resistant tumors.",
+  "authors": [
+    "Ibrahim, Md",
+    "Roos, Wynand P",
+    "Schwartz, Jacob C",
+    "Khan, Md Maruf",
+    "Al-Rahahleh, Rasha Q",
+    "Beers, Libby A",
+    "Pearson, Charlotte R",
+    "Langham, Kahrie T",
+    "Boyang, Louis",
+    "Clark, Jennifer",
+    "Hayat, Faisal",
+    "Fang, Qingming",
+    "Koczor, Christopher A",
+    "Migaud, Marie E",
+    "Sobol, Robert W"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "NAR Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "NAR Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.954300",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

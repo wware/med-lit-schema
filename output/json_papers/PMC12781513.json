@@ -1,0 +1,67 @@
+{
+  "paper_id": "PMC12781513",
+  "pmid": "41310581",
+  "doi": "10.1186/s12885-025-15381-5",
+  "title": "Therapy-induced remodeling of IgG and plasma N-glycans in breast cancer",
+  "abstract": "Protein N-glycosylation plays a key role in cancer biology and may offer insights into tumor behavior and treatment response. This study investigated changes in N-glycosylation of immunoglobulin G (IgG) and total plasma proteins in patients with breast cancer undergoing neoadjuvant chemotherapy. A prospective cohort of 34 women with early-stage or locally advanced breast cancer was recruited. Plasma samples were collected before and after neoadjuvant chemotherapy. IgG was isolated by immunoaffinity chromatography, and IgG and total plasma N-glycans were enzymatically released, fluorescently labeled, and analyzed using ultra-high performance liquid chromatography. Glycan traits were expressed as relative abundances and summarized into derived structural features. Longitudinal changes were assessed using linear mixed-effects models adjusted for age and body mass index. Chemotherapy induced significant decrease in IgG core fucosylation. This effect varied by treatment: anthracycline-based regimen led to decreased core fucosylation and digalactosylation and increased monogalactosylation. The greatest reduction in core fucosylation was observed in patients treated with docetaxel and cyclophosphamide. HER2-targeted therapy was associated with decreased bisecting N-acetylglucosamine. Plasma glycosylation remained largely stable, though oligomannose glycans increased in patients following chemotherapy. Tumor size was significantly associated with several plasma glycan traits, particularly digalactosylation and oligomannosylation. IgG glycosylation patterns change in a treatment-specific manner during chemotherapy, potentially reflecting immune modulation. Plasma glycan traits are more stable but may reflect tumor burden. These results support the potential of glycan profiling as a biomarker for monitoring the impact of therapy and disease progression in breast cancer. The online version contains supplementary material available at 10.1186/s12885-025-15381-5.",
+  "authors": [
+    "Maričić Vrban, Martina",
+    "Radovani Trbojević, Barbara",
+    "Visentin, David",
+    "Ramljak, Katarina",
+    "Kirac, Iva",
+    "Gaće, Mihaela",
+    "Milas, Ivan",
+    "Lauc, Gordan",
+    "Primorac, Dragan",
+    "Gudelj, Ivan"
+  ],
+  "publication_date": "2025-11-27",
+  "journal": "BMC Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-27",
+    "journal": "BMC Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Breast cancer",
+      "Neoadjuvant chemotherapy",
+      "Immunoglobulin G",
+      "N-glycosylation",
+      "Plasma proteins",
+      "Glycan biomarkers",
+      "Glycoprofiling"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.361672",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

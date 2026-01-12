@@ -1,0 +1,56 @@
+{
+  "paper_id": "PMC12784249",
+  "pmid": null,
+  "doi": "10.1093/bioadv/vbaf319",
+  "title": "Beyond synthetic lethality in large-scale metabolic and regulatory network models via genetic minimal intervention set",
+  "abstract": "The integration of genome-scale metabolic and regulatory networks has received significant interest in cancer systems biology. However, the identification of lethal genetic interventions in these integrated models remains challenging due to the combinatorial explosion of potential solutions. To address this, we developed the genetic Minimal Cut Set (gMCS) framework, which computes synthetic lethal interactions—minimal sets of gene knockouts that are lethal for cellular proliferation- in genome-scale metabolic networks with signed directed acyclic regulatory pathways. Here, we present a novel formulation to calculate genetic Minimal Intervention Sets, gMISs, which incorporate both gene knockouts and knock-ins. With our gMIS approach, we assessed the landscape of lethal genetic interactions in human cells, capturing interventions beyond synthetic lethality, including synthetic dosage lethality and tumor suppressor gene complexes. We applied the concept of synthetic dosage lethality to predict essential genes in cancer and demonstrated a significant increase in sensitivity when compared to large-scale gene knockout screen data. We also analyzed tumor suppressors in cancer cell lines and identified lethal gene knock-in strategies. Finally, we demonstrate how gMISs can help uncover potential therapeutic targets, providing examples in hematological malignancies. The gMCSpy Python package now includes gMIS functionalities. Access: https://github.com/PlanesLab/gMCSpy.",
+  "authors": [
+    "Barrena, Naroa",
+    "Rodriguez-Flores, Carlos",
+    "Valcárcel, Luis V",
+    "Olaverri-Mendizabal, Danel",
+    "Agirre, Xabier",
+    "Prósper, Felipe",
+    "Planes, Francisco J"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Bioinformatics Advances",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Bioinformatics Advances",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.112770",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

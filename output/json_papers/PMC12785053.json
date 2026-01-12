@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12785053",
+  "pmid": null,
+  "doi": "10.3390/cancers18010157",
+  "title": "Global Patterns and Temporal Trends in Ovarian and Uterine Cancer Mortality Attributable to High Body-Mass Index, 1990–2023",
+  "abstract": "Although several risk factors for ovarian and uterine cancers are well-documented, these diseases still represent major public health concerns for women worldwide, and the full complexity of the drivers of global mortality trends requires further clarification. The main goal of this study was to evaluate global mortality of ovarian and uterine cancer attributable to high body-mass index (BMI) in 1990–2023. A total of 7.7 million deaths from ovarian and uterine cancer together were recorded worldwide (5.1 million ovarian cancer deaths and 2.6 million uterine cancer deaths) in the period observed. Globally, the fraction of deaths from ovarian cancer attributable to high BMI in 2023 was 8.65%, whereas for uterine cancer it reached 33.33%. From 1990 to 2023, global trends in mortality from both ovarian and uterine cancer attributable to high BMI increased significantly, with an accelerated growth during 2020–2023, a period which corresponds to the COVID-19 pandemic.",
+  "authors": [
+    "Ilic, Irena",
+    "Jakovljevic, Vladimir",
+    "Lazic, Srdjan",
+    "Ilic, Milena"
+  ],
+  "publication_date": "2026-01-02",
+  "journal": "Cancers",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-02",
+    "journal": "Cancers",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ovarian cancer",
+      "uterine cancer",
+      "high body-mass index",
+      "mortality",
+      "trends"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.900147",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

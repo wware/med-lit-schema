@@ -85,34 +85,7 @@ PREDICATE_PATTERNS = [
 # ============================================================================
 
 
-def get_paragraphs_from_provenance_db(provenance_db_path: Path) -> list[tuple[str, str, str, str, str]]:
-    """
-    Retrieve paragraphs with their section and paper information from provenance.db.
 
-    Note: This reads from the old SQLite format. In the future, this should
-    read from provenance storage interface when paragraph storage is added.
-
-    Args:
-        provenance_db_path: Path to provenance.db
-
-    Returns:
-        List of (paragraph_id, section_id, paper_id, text, section_type) tuples
-    """
-    conn = sqlite3.connect(provenance_db_path)
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        SELECT p.paragraph_id, p.section_id, s.paper_id, p.text, s.section_type
-        FROM paragraphs p
-        JOIN sections s ON p.section_id = s.section_id
-        ORDER BY s.paper_id, p.paragraph_id
-    """
-    )
-
-    result = cursor.fetchall()
-    conn.close()
-    return result
 
 
 def extract_relationships_from_paragraph(
@@ -233,17 +206,6 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # Determine provenance DB path
-    if args.provenance_db:
-        provenance_db_path = Path(args.provenance_db)
-    else:
-        provenance_db_path = output_dir / "provenance.db"
-
-    if not provenance_db_path.exists():
-        print(f"Error: provenance.db not found at {provenance_db_path}")
-        print("Please run Stage 2 (provenance extraction) first")
-        return 1
-
     # Initialize storage
     if args.storage == "sqlite":
         db_path = output_dir / "ingest.db"
@@ -262,26 +224,30 @@ def main():
     print("=" * 60)
     print()
 
-    # Get paragraphs from provenance database
-    print(f"Loading paragraphs from {provenance_db_path}...")
-    paragraphs = get_paragraphs_from_provenance_db(provenance_db_path)
-    print(f"Found {len(paragraphs)} paragraphs")
+    # Get papers from storage
+    print("Loading papers from storage...")
+    papers = storage.papers.list_papers(limit=None)
+    print(f"Found {len(papers)} papers")
     print()
 
     # Extract relationships
-    print("Extracting relationships...")
+    print("Extracting relationships from abstracts...")
     print("-" * 60)
 
     total_relationships = 0
-    for para_id, sec_id, paper_id, text, sec_type in paragraphs:
-        relationships = extract_relationships_from_paragraph(para_id, sec_id, paper_id, text, sec_type, storage)
+    for paper in papers:
+        # We'll use the paper's abstract as the text to process.
+        # We pass paper.paper_id as a stand-in for paragraph_id and section_id.
+        relationships = extract_relationships_from_paragraph(
+            paper.paper_id, paper.paper_id, paper.paper_id, paper.abstract, "abstract", storage
+        )
 
         for relationship in relationships:
             storage.relationships.add_relationship(relationship)
             total_relationships += 1
 
         if relationships:
-            print(f"{paper_id}: Found {len(relationships)} relationships in {para_id}")
+            print(f"{paper.paper_id}: Found {len(relationships)} relationships in abstract")
 
     print()
     print(f"Extracted {total_relationships} relationships")

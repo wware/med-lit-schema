@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12785482",
+  "pmid": null,
+  "doi": "10.3390/ijms27010362",
+  "title": "Postbiotics Combination Synergises the Antiproliferative Effects of Doxorubicin in Gastric Cancer Cells: A Cellular and Molecular Deep Dive",
+  "abstract": "Short-chain fatty acids (SCFAs) acetate, propionate, and butyrate are microbial metabolites with recognised roles in gut and immune homeostasis, but their therapeutic relevance in gastric cancer, particularly in combination with chemotherapeutics, remains unclear. This study investigated the antiproliferative synergy between a combined SCFA mixture (APB) and doxorubicin (Dox) in AGS gastric adenocarcinoma cells using integrated cellular, molecular, and proteomic approaches. APB and Dox each inhibited cell proliferation, with IC50 values of 568.33 ± 82.56 μg/mL and 0.22 ± 0.04 μg/mL, respectively, and their combination (3000 + 0.27 μg/mL) enhanced cytotoxicity, achieving 103.46% inhibition and reducing the APB IC50 to 512.80 ± 18.37 μg/mL. Combination index values confirmed synergistic interactions (CI50 = 0.61; CI95 = 0.13). APB+Dox significantly increased apoptosis (94.83%) with minimal necrosis (4.64%) and induced strong ROS generation comparable to APB alone, while Dox showed limited oxidative effects. Proteomic profiling revealed downregulation of ribosomal proteins and cell cycle regulators in Dox and APB+Dox groups, with the combination further enhancing apoptosis-related pathways and stress responses. Overall, these findings indicate that SCFA-based interventions, exemplified by APB+Dox, may offer a low-toxicity strategy to potentiate chemotherapy efficacy in gastric cancer through apoptosis induction, redox disruption, and attenuation of drug resistance.",
+  "authors": [
+    "Eladwy, Radwa A.",
+    "Fares, Mohamed",
+    "Alsherbiny, Muhammad A.",
+    "Chang, Dennis",
+    "Li, Chun-Guang",
+    "Bhuyan, Deep Jyoti"
+  ],
+  "publication_date": "2025-12-29",
+  "journal": "International Journal of Molecular Sciences",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-29",
+    "journal": "International Journal of Molecular Sciences",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "postbiotics",
+      "SCFAs",
+      "gastric cancer",
+      "doxorubicin",
+      "apoptosis",
+      "proteomics"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.406255",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

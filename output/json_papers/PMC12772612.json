@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12772612",
+  "pmid": "41159931",
+  "doi": "10.1136/jmg-2025-110979",
+  "title": "Recontact and follow-up for individuals with germline pathogenic variants in hereditary breast and ovarian cancer susceptibility genes: a UK Cancer Genetics Group consensus meeting",
+  "abstract": "Routine genetic testing for germline pathogenic variants (GPVs) in cancer susceptibility genes (CSGs) in individuals with suspected hereditary cancer risk, and subsequent cascade testing in close relatives, has led to a significantly increased number of individuals identified to be at increased lifetime cancer risk in the UK. These individuals have differing clinical needs over their lifetime to implement cancer surveillance and discuss risk-reducing interventions, to advise on risk to close relatives and counsel on reproductive options. Regional clinical genetics services across the UK have implemented a range of clinical pathways to manage this patient cohort, with differences in practice across centres. Our aim was to provide consensus guidelines on best practice for recontact and follow-up for individuals with GPVs in BRCA1, BRCA2, PALB2, ATM, CHEK2, BARD1, BRIP1, RAD51C, RAD51D and mismatch repair (MMR) genes (MLH1, MSH2, MSH6 and PMS2) to ensure appropriate lifelong clinical management. The UK Cancer Genetics Group convened a virtual consensus meeting involving key stakeholders. Consensus for best practice guidance was achieved through premeeting surveys, structured discussions and in-meeting polling. We identified variability in the extent of active recontact and follow-up for individuals with a GPV in CSGs across the UK. The availability of resources was a key determinant of the level of follow-up currently provided. We achieved consensus on best practice guidelines on key time points for recontact for those with a GPV in a CSG, processes for referral to specialist services and follow-up, the preferred method for recontact and the content of information given during recontact. The consensus meeting broadly supported recontact and follow-up for most individuals with a GPV in a CSG. The consensus achieved by the multidisciplinary and expert group of healthcare professionals gives clear guidance on the long-term management of this patient cohort at increased lifetime risk of cancer and highlights the additional resources that would be required to effectively deliver this.",
+  "authors": [
+    "Christopher, Joseph",
+    "Edgerley, Katharine",
+    "McIldowie, Beth",
+    "Jewell, Rosalyn",
+    "Kemp, Zoe",
+    "Snape, Katie",
+    "Hanson, Helen",
+    "Barwell, Julian"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Journal of Medical Genetics",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Journal of Medical Genetics",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Genetic Predisposition to Disease",
+      "Genetic Testing",
+      "Genetic Counseling",
+      "Neoplasms",
+      "Patient Care"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.344409",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

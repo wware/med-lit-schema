@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12775696",
+  "pmid": "41510378",
+  "doi": "10.21037/tlcr-2025-915",
+  "title": "Targeting ferroptosis to overcome drug resistance in lung cancer",
+  "abstract": "Lung cancer represents one of the most prevalent malignant tumors and the leading cause of mortality from neoplastic diseases worldwide. Despite significant advancements of lung cancer treatment in recent years, thanks to advancements in technologies such as chemotherapy, targeted therapy, immunotherapy, and so on, the development of drug resistance in lung cancer remains a major challenge. Ferroptosis, dependent on iron and accompanied by lipid peroxidation, is a unique form of cell death. Strategies targeting ferroptosis, either by blocking antioxidant defense pathways or activating oxidative pathways, are usually aimed at killing cancer cells or boosting cancer therapy effectiveness. The regulation of ferroptosis entails synergistic interactions among multiple pathways. Core pathways, including the glutathione peroxidase 4 (GPX4)-glutathione (GSH) axis, iron metabolism pathway, lipid metabolism pathway, and non-coding RNAs, are all involved in modulating ferroptosis sensitivity. Here, we describe in detail the mechanisms of ferroptosis and elucidate its promising therapeutic role of modulating ferroptosis in countering lung cancer resistance to conventional therapies, such as chemotherapy, targeted therapy, immunotherapy, and photodynamic therapy. At the same time, we emphasize the challenges and prospect of translating these findings on the use of strategies aimed at reversing lung cancer resistance, and expect that our review will serve as a valuable reference for further research.",
+  "authors": [
+    "Sheng, Pengfei",
+    "Jin, Jiang",
+    "Liu, Hao",
+    "Sun, Cien",
+    "Chen, Yutao",
+    "Chen, Xin",
+    "Ma, Dehua",
+    "Shen, Jianfei"
+  ],
+  "publication_date": "2025-12-31",
+  "journal": "Translational Lung Cancer Research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-31",
+    "journal": "Translational Lung Cancer Research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Lung cancer",
+      "ferroptosis",
+      "drug resistance",
+      "cell death",
+      "iron"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.964673",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

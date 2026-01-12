@@ -1,0 +1,71 @@
+{
+  "paper_id": "PMC12774997",
+  "pmid": "41318666",
+  "doi": "10.1038/s41523-025-00866-0",
+  "title": "Plasma assay of methylated DNA markers detects recurrent metastatic breast cancer",
+  "abstract": "Up to 30% of women with no evidence of disease after curative intent breast cancer treatment will relapse and succumb to metastatic disease. Liquid biopsy of circulating tumor DNA (ctDNA) has been shown to identify patients with relapse prior to imaging. Tumor-informed ctDNA panels are expensive and require patient tumor tissue for customization. We aimed to assess tumor-agnostic methylated DNA markers (MDMs) to detect recurrent metastatic breast cancer in comparison to cancer-free patients and those with no evidence of disease. We discovered and down-selected candidate MDMs from a series of tissue-based experiments on primary breast cancer tissue from a balance of molecular subtypes compared to matched non-cancer patient breast tissues. We then used Target Enrichment Long-probe Quantitative Amplified Signal assays to quantify 16 MDMs from cfDNA extracted from peripheral blood samples from 60 metastatic breast cancer patients (59 females, 1 male), 60 age-matched females with no prior cancer, and 60 age-matched females without evidence of metastatic disease at least 9 months after curative intent treatment of primary breast cancer. Among the 16 MDMs, ten had single-marker areas under the curve (AUCs) above 0.90, with the highest at 0.96, whereas in the same patients, three protein markers (CA153, CEA, CA125) performed with an AUC of 0.86, 0.84, and 0.75, respectively. The results indicate that a multi-marker methylation panel can detect metastatic breast cancer patients.",
+  "authors": [
+    "Giridhar, Karthik V.",
+    "Sinnwell, Jason P.",
+    "Slettedahl, Seth W.",
+    "Taylor, William R.",
+    "Mahoney, Douglas W.",
+    "Foote, Patrick H.",
+    "O’Connell, Maria C.",
+    "Robran, Mariah J.",
+    "Devens, Mary E.",
+    "Gonser, Anna M.",
+    "Larson, Nicole L.",
+    "Doering, Karen A.",
+    "Burger, Kelli N.",
+    "Kaiser, Michael W.",
+    "Allawi, Hatim T.",
+    "Ruddy, Kathryn J.",
+    "Olson, Janet E.",
+    "Couch, Fergus J.",
+    "Kisiel, John B."
+  ],
+  "publication_date": "2025-11-29",
+  "journal": "NPJ Breast Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-29",
+    "journal": "NPJ Breast Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Diagnostic markers",
+      "Cancer"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.830739",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

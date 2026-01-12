@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12778424",
+  "pmid": "41510186",
+  "doi": "10.1002/mco2.70560",
+  "title": "Breast Cancer: Molecular Pathogenesis, Targeted Therapy, Screening, and Prevention",
+  "abstract": "Breast cancer is the most common cancer and the leading cause of cancer‐related death among women worldwide. Advances in molecular biology, high‐throughput sequencing, and integrative‐omics have deepened the understanding of its heterogeneity by clarifying mechanisms linked to genetic susceptibility, epigenetic regulation, oncogenic signaling, and immune evasion. Although those developments have driven progress in targeted therapy and screening, concerns on drug resistance, toxicity, global inequities, and suboptimal risk stratification continue to limit outcomes. This review systematically summarizes current advances across four interconnected areas of breast cancer research and management, including molecular pathogenesis, targeted therapy, screening, and prevention. It describes key biological processes that shape tumor heterogeneity and examines targeted therapies, including endocrine agents, HER2‐directed drugs, CDK4/6 and PI3K/AKT/mTOR inhibitors, antibody–drug conjugates, and immunotherapies, together with mechanisms of resistance and emerging treatment targets. It also evaluates evolving approaches in risk stratification and screening, highlighting progress in digital breast tomosynthesis, magnetic resonance imaging, contrast‐enhanced mammography, and artificial intelligence‐assisted interpretation. By integrating cutting‐edge molecular insights with clinical advances, this review further highlights the expanding opportunities for personalized therapy and precision prevention. It outlines future directions linking multiomics and artificial intelligence to more equitable and effective breast cancer management.",
+  "authors": [
+    "Lei, Huijun",
+    "Fu, Jinzhen",
+    "Gu, Wei",
+    "Qiao, Hongjin",
+    "Guo, Huixue",
+    "Chen, Zijian",
+    "Wang, San Ming",
+    "Chen, Tianhui"
+  ],
+  "publication_date": "2026-01-07",
+  "journal": "MedComm",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-07",
+    "journal": "MedComm",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "breast cancer",
+      "pathogenesis",
+      "targeted therapy",
+      "screening",
+      "prevention",
+      "risk assessment"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.698135",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

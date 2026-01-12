@@ -168,7 +168,7 @@ def main():
     print("Provenance extraction complete!")
     print(f"Successfully processed: {success_count}/{total_count} files")
     print(f"Storage: {args.storage}")
-    print(f"Paper count: {storage.papers.paper_count}")
+    # print(f"Paper count: {storage.papers.paper_count}")
     print("=" * 60)
 
     return 0

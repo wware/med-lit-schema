@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12785631",
+  "pmid": null,
+  "doi": "10.3390/diagnostics16010160",
+  "title": "The Role of Aurora Kinase A in HBV-Associated Hepatocellular Carcinomas: A Molecular and Immunohistochemical Study",
+  "abstract": "Objectives: Although Aurora kinase A (AURKA) expression has been investigated in many cancer types, studies focusing on its role in hepatitis B virus-associated hepatocellular carcinoma (HBV-HCC) are limited. In this study, we examined the activity of AURKA and its substrates (PLK1, P53, and BRCA1) in HBV-HCC and cryptogenic hepatocellular carcinoma (Cr-HCC) cases. Methods: The study groups consisted of HBV-HCC, Cr-HCC, and healthy liver tissue cases. AURKA copy number variation (CNV) was analyzed using molecular methods. AURKA expression was evaluated by molecular and immunohistochemical (IHC) methods. AURKA substrates P53Ser315, PLK1Thr210, and BRCA1 were also analyzed by IHC. Results: There was no increase in AURKA gene copy number among the groups (2−∆∆Ct < 2). AURKA level was significantly increased in both test groups (p < 0.001). At the protein level, AURKA was significantly higher in both cancer groups compared to the control group (p < 0.001). Phospho-P53Ser315 levels were significantly higher in both HBV-HCC and Cr-HCC groups compared to the control group (p = 0.002 and p < 0.001, respectively). Cr-HCC cases also showed significantly higher levels compared to HBV-HCC (p = 0.025). For phospho-PLK1Thr210, Cr-HCC cases showed statistically higher expression compared to both the control group and HBV-HCC cases (p = 0.001).",
+  "authors": [
+    "Huz, Mustafa",
+    "Karadag Soylu, Nese",
+    "Koc, Ahmet",
+    "Kucukakcali, Zeynep",
+    "Danis, Nefsun",
+    "Ozhan, Onural"
+  ],
+  "publication_date": "2026-01-04",
+  "journal": "Diagnostics",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-04",
+    "journal": "Diagnostics",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "HBV-related HCC",
+      "cryptogenic HCC",
+      "Aurora kinase A",
+      "phospho-PLK1",
+      "phospho-P53",
+      "BRCA1"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.673620",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

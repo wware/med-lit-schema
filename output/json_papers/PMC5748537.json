@@ -1,0 +1,54 @@
+{
+  "paper_id": "PMC5748537",
+  "pmid": "29035338",
+  "doi": "10.3390/pharmacy5040056",
+  "title": "Integrating Medication Therapy Management (MTM) Services Provided by Community Pharmacists into a Community-Based Accountable Care Organization (ACO)",
+  "abstract": "(1) Background: As the U.S. healthcare system evolves from fee-for-service financing to global population-based payments designed to be accountable for both quality and total cost of care, the effective and safe use of medications is gaining increased importance. The purpose of this project was to determine the feasibility of integrating medication therapy management (MTM) services provided by community pharmacists into the clinical care teams and the health information technology (HIT) infrastructure for Minnesota Medicaid recipients of a 12-county community-based accountable care organization (ACO). (2) Methods: The continuous quality improvement evaluation methodology employed in this project was the context + mechanism = outcome (CMO) model to account for the fact that programs only work insofar as they introduce promising ideas, solutions and opportunities in the appropriate social and cultural contexts. Collaborations between a 12-county ACO and 15 community pharmacies in Southwest Minnesota served as the social context for this feasibility study of MTM referrals to community pharmacists. (3) Results: All 15 community pharmacy sites were integrated into the HIT infrastructure through Direct Secure Messaging, and there were 32 recipients who received MTM services subsequent to referrals from the ACO at 5 of the 15 community pharmacies over a 1-year implementation phase. (4) Conclusion: At the conclusion of this project, an effective electronic communication and MTM referral system was activated, and consideration was given to community pharmacists providing MTM in future ACO shared savings agreements.",
+  "authors": [
+    "Isetts, Brian"
+  ],
+  "publication_date": "2017-10-16",
+  "journal": "Pharmacy: Journal of Pharmacy Education and Practice",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2017-10-16",
+    "journal": "Pharmacy: Journal of Pharmacy Education and Practice",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "community pharmacist interventions",
+      "value-based care models",
+      "medication therapy management"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.047960",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

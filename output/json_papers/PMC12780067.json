@@ -1,0 +1,65 @@
+{
+  "paper_id": "PMC12780067",
+  "pmid": "41495194",
+  "doi": "10.1038/s41598-025-32827-9",
+  "title": "Bioactive glass nanoparticles induce intrinsic p53-dependent apoptosis and promote genomic instability via ROS overproduction and mitochondrial depolarization in triple-negative breast cancer cells",
+  "abstract": "Triple-negative breast cancer (TNBC) is among the most aggressive breast cancer subtypes, characterized by the absence of estrogen receptor, progesterone receptor, and HER2 expression. The lack of these molecular targets, combined with the limitations of current treatment, particularly chemotherapy, which suffers from poor tumor selectivity, systemic toxicity, rapid development of resistance, and high recurrence rates, underscores the urgent need for innovative therapeutic strategies. Nanoparticle-based therapies have emerged as promising alternatives to overcome these challenges. Bioactive glass nanoparticles (BGNps), in particular, are recognized for their biocompatibility and multifunctional biological activity, yet their anticancer potential against TNBC remains fully unexplored. This study therefore aimed to investigate the therapeutic efficacy and molecular mechanisms of BGNps in highly aggressive triple-negative MDA-MB-231 breast cancer cells. Cells were treated with two-fold increasing concentrations of BGNps (7.8–1000 µg/ml), and cytotoxicity was assessed using the MTT assay. Genomic DNA integrity was evaluated using the alkaline comet assay, while oxidative stress and mitochondrial function were measured with 2′,7′-dichlorodihydrofluorescein diacetate (2′,7′-DCFH-DA) and Rhodamine-123 staining, respectively. Apoptotic induction was further examined using DAPI nuclear staining and chromatin diffusion assays, and transcriptional regulation of apoptosis- and mitochondria-related genes was analyzed by qRT-PCR. The results of MTT assay demonstrated that BGNps exerted potent, concentration-dependent cytotoxicity in MDA-MB-231 cells, with an IC50 value of 184.3 µg/ml. Treatment with BGNps at the IC50 concentration induced excessive reactive oxygen species (ROS) generation, severe mitochondrial membrane depolarization, extensive genomic DNA damage, and pronounced apoptotic cell death in MDA-MB-231 cancer cells. These effects were associated with marked upregulation of p53 and concurrent downregulation of anti-apoptotic Bcl-2 and mitochondrial ND3 genes, amplifying oxidative stress and mitochondrial dysfunction. In conclusion, BGNps display strong potential as a novel nanotherapeutic for TNBC, offering an effective alternative to conventional chemotherapy. Their multi-step mechanism; encompassing ROS induction, mitochondrial disruption, and apoptosis activation, highlights their promise in overcoming the intrinsic resistance and therapeutic limitations of this highly aggressive breast cancer subtype.",
+  "authors": [
+    "Mohamed, Hanan R. H.",
+    "Borai, Mayada E.",
+    "Mosaad, Shahd",
+    "Osman, Aya A.",
+    "Elsewedy, Alaa H.",
+    "Zaki, Habiba M.",
+    "Diab, Ayman",
+    "Safwat, Gehan"
+  ],
+  "publication_date": "2026-01-06",
+  "journal": "Scientific Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-06",
+    "journal": "Scientific Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "BGNps",
+      "TNBC",
+      "MDA-MB-231 cancer cells",
+      "Cytotoxicity",
+      "Oxidative stress",
+      "Genomic DNA integrity",
+      "Mitochondrial deplorization and apoptosis induction"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.733701",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

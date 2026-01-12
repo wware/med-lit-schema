@@ -1,0 +1,57 @@
+{
+  "paper_id": "PMC12756687",
+  "pmid": "41239938",
+  "doi": "10.1002/dc.70049",
+  "title": "Pleural Metastasis From Male Breast Cancer: A Case Report",
+  "abstract": "Male breast cancer (MBC) is a rare disease accounting for less than 1% of breast cancers and for 0.11% of all male malignancies. Despite the fact that the epidemiologic, clinical, and therapeutic literature regarding female breast cancer is well documented, little is known about the features of male breast cancer. Here, we present a case of cytological pleural metastasis from ductal breast carcinoma in a 55‐year‐old man. Immunohistochemical staining showed that the tumor cells were positive for BerEp4, GATA‐3, AE1/AE3, CAM5.2, ER (70%), AR (10%), PR (10%), and ki67 (10%). In our experience, effusion cytology remains an accurate tool for the diagnosis of metastatic carcinomas.",
+  "authors": [
+    "Straccia, Patrizia",
+    "Rossi, Esther Diana"
+  ],
+  "publication_date": "2026-02-01",
+  "journal": "Diagnostic Cytopathology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-02-01",
+    "journal": "Diagnostic Cytopathology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "breast cancer",
+      "cytology",
+      "diagnosis",
+      "effusions",
+      "metastasis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.588344",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

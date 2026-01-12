@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12780001",
+  "pmid": "41345436",
+  "doi": "10.1038/s41598-025-30366-x",
+  "title": "Gene expression profiling and predictive modeling of cancer biomarkers using machine learning and IoT-Enabled biosensors",
+  "abstract": "Cancer is a leading cause of global mortality, accounting for nearly 10 million deaths annually. Traditional diagnostic methods, such as biopsies, imaging techniques, and laboratory-based biomarker testing, have several limitations, including invasiveness, high costs, and delayed results, making frequent monitoring impractical. The development of IoT-enabled biosensors integrated with machine learning (ML)-based predictive analytics offers real-time, non-invasive biomarker tracking, enabling early cancer detection, personalized treatment strategies, and remote patient monitoring. This study aims to integrate gene expression profiling, IoT biosensing, and machine learning to enhance cancer biomarker detection, classification, and monitoring. The key objectives include identifying significant cancer biomarkers, evaluating their detection efficiency using biosensors, implementing ML models for classification, and conducting STRING-based PPI and KEGG pathway enrichment analysis to understand their biological significance. Gene expression data were retrieved from the GEO database, comprising 57,736 genes from 285 cancer patients. Five key biomarkers (PSA, HER2, CEA, CA-125, AFP) were selected based on STRING-based protein-protein interaction (PPI) analysis and KEGG pathway enrichment. Biosensor performance was modeled using Nernst equation (electrochemical sensing), Beer’s Law (optical absorbance), and Shannon-Hartley theorem (wireless transmission). Machine learning models, including Support Vector Classifier (SVC), Decision Tree, Multi-Layer Perceptron (MLP), and Convolutional Neural Networks (CNNs), were trained to classify biosensor data. Wearable biosensors detected CEA (-0.133 V) and HER2 (-0.130 V) efficiently, while implantable biosensors identified AFP (0.26 A) with high optical absorbance. Portable biosensors demonstrated the highest transmission efficiency for CEA (51.7 Mbps). CNN achieved the highest accuracy (97.2%) using stratified 5-fold cross-validation, precision-recall-balanced evaluation, and dropout-based regularization to reduce overfitting. Despite the limited sample size (n = 285), the model showed strong generalization metrics, including F1-score (0.97) and AUC (0.97). STRING analysis revealed HER2 and AKT1 as key hub genes involved in PI3K-Akt, JAK-STAT, and MAPK signaling pathways, which play critical roles in tumor proliferation and metastasis.Beyond canonical pathways, enrichment analysis also identified underreported processes such as viral carcinogenesis and immune checkpoint dysregulation, offering additional translational insight. This study demonstrates that IoT-enabled biosensors, integrated with AI-driven predictive models, can revolutionize cancer monitoring by enabling real-time, non-invasive detection of biomarkers. The CNN model proved most effective in biosensor classification, and STRING-based pathway analysis confirmed the biological significance of key biomarkers. These findings support the use of AI-enhanced biosensors for precision oncology, reducing hospital dependency and improving remote patient care in cancer management. However, the current work is theoretical and does not involve the fabrication of real-world biosensors or the validation of patient data. Future studies will focus on clinical translation and experimental validation to establish the real-world applicability of the proposed biosensor system. While this study integrates multiple domains—biosensing, machine learning, and gene expression—it is intended as a theoretical framework rather than a validated clinical system. All biosensor outputs are simulation-based, and no physical devices or patient trials were conducted. This work serves as a computational proof-of-concept illustrating how biosensor physics, gene-expression analytics, and AI can be mathematically unified. It establishes a foundation for subsequent experimental translation rather than claiming immediate clinical deployment.",
+  "authors": [
+    "KalaiSelvi, B.",
+    "Babu, R. Ganesh",
+    "Cho, Jaehyuk",
+    "Yoo, Seohyun"
+  ],
+  "publication_date": "2025-12-04",
+  "journal": "Scientific Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-04",
+    "journal": "Scientific Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Cancer biomarkers",
+      "IoT biosensors",
+      "Machine learning",
+      "STRING PPI",
+      "KEGG pathways",
+      "AI in oncology",
+      "Real-Time monitoring",
+      "Convolutional neural network (CNN)",
+      "Gene expression",
+      "Precision medicine."
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.054933",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

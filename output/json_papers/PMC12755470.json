@@ -1,0 +1,66 @@
+{
+  "paper_id": "PMC12755470",
+  "pmid": "36943722",
+  "doi": "10.1097/JCMA.0000000000000918",
+  "title": "Correlation of Q223R and K109R polymorphisms in leptin receptor gene with susceptibility of breast cancer: A systematic review and meta-analysis",
+  "abstract": "Increasing evidence has suggested a strong association of Q223R (rs1137101) and K109R (rs1137100) polymorphisms in leptin receptor (LEPR) gene with susceptibility of breast cancer (BC), but inconsistent results were obtained. To provide a quantitative assessment of this association, a systematic review and meta-analysis was performed. A literature search of PubMed, EMBASE, Google Scholar, and the Chinese National Knowledge Infrastructure was collected. Odds ratios (ORs) and 95% confidence intervals (95% CIs) were calculated. A total of 20 case-control studies for Q223R polymorphism and 8 case-control studies for K109R polymorphism were included. Significant association between Q223R polymorphism and BC risk was not found in total, Asian or Caucasian population, but in African population: allelic model, OR = 0.72, 95% CI = 0.60-0.86, p < 0.001; recessive model, OR = 0.67, 95%CI = 0.52-0.87, P = 0.003; dominant model, OR = 1.58, 95% CI = 1.15-2.17, p = 0.004; homozygous model, OR = 0.51, 95% CI = 0.36-0.78, p < 0.001. Significant association between K109R polymorphism and BC risk was not found in total or Caucasian population, but in Asian population: dominant model, OR = 0.24, 95% CI = 0.07-0.84, p = 0.03; heterozygous model, OR = 1.87, 95% CI = 1.07-3.26, p = 0.03. The available evidence suggests that Q223R polymorphism may be significantly associated with BC risk in African population. K109R polymorphism may be significantly associated with BC risk in Asian population.",
+  "authors": [
+    "Zhu, Shaoliang",
+    "Tang, Zhenyong",
+    "Tang, Yi",
+    "Tan, Tingting",
+    "Chen, Bin",
+    "Xie, Dongyi",
+    "Xie, Shaowei",
+    "Luo, Honglin",
+    "Jiang, Wenyu",
+    "Tang, Yuntian",
+    "Yang, Jianrong"
+  ],
+  "publication_date": "2023-06-01",
+  "journal": "Journal of the Chinese Medical Association : JCMA",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2023-06-01",
+    "journal": "Journal of the Chinese Medical Association : JCMA",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Breast cancer",
+      "Leptin receptor",
+      "Meta-analysis",
+      "Polymorphism",
+      "System review"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.909523",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

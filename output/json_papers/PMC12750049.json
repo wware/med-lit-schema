@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12750049",
+  "pmid": "41416445",
+  "doi": "10.3892/mmr.2025.13783",
+  "title": "ST3Gal1 modulates intestinal barrier function and impacts human ulcerative colitis",
+  "abstract": "The pathogenesis of inflammatory bowel disease is associated with dysfunction of the intestinal mucosal barrier. Protein sialylation serves an important role in maintaining the integrity of this barrier. The present study investigated how α2,3-linked sialylation catalyzed by protein ST3Gal1 affected intestinal barrier function and impacted the pathogenesis of human ulcerative colitis (UC). The present study employed Caco-2, HT29-MTX-E12 and THP-1 cells with distinct functionalities to establish an in vitro triple-culture model. This model was utilized to simulate both healthy and inflamed states of the human intestine for investigating the impact of ST3Gal1-mediated α2,3-sialylation on the integrity of the intestinal barrier. The triple-culture model was stably infected with adenoviral particles or lentiviral vectors to establish ST3Gal1 knockdown and overexpression, respectively, followed by isolation through incubation with 4 µg/ml puromycin. The functionality of the intestinal barrier was assessed via trans-epithelial electrical resistance and FITC-dextran permeability assays. ST3Gal1 expression was found to be associated with inflammation of the intestinal mucosa in patients with UC and a mouse model of dextran sulfate sodium-induced colitis. Notably, suppressed expression of ST3Gal1 in the intestinal epithelial cell (IEC) monolayer enhanced the functionality of the intestinal barrier, whereas its overexpression caused intestinal barrier function deterioration. ST3Gal1 expression in the IEC monolayer altered the expression of intestinal mucus barrier-associated mucin 2 (MUC2) and trefoil factor 3 (TFF3), goblet cell differentiation-associated homeobox protein CDX-2 (CDX2), inflammation-associated phosphorylated (p)-STAT3, and the inflammatory mediators IL-1β, IL-6 and IL-8. Specifically, MUC2, TFF3 and CDX2 were positively associated with enhanced barrier integrity, whereas p-STAT3, IL-1β, IL-6 and IL-8 were negatively correlated with barrier function. Collectively, these results demonstrated a strong association between these factors and the regulation of intestinal barrier function. In conclusion, ST3Gal1-catalyzed α2,3-linkage formation in IECs may be closely associated with intestinal barrier function via its effect on the expression of barrier-associated proteins and inflammatory mediators related to intestinal mucosa inflammation.",
+  "authors": [
+    "Tian, Yin",
+    "Liu, Yun",
+    "Shang, Yangyang",
+    "Ran, Lijian",
+    "Liu, Li",
+    "Wang, Rongquan",
+    "Ye, Jun"
+  ],
+  "publication_date": "2026-02-01",
+  "journal": "Molecular Medicine Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-02-01",
+    "journal": "Molecular Medicine Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "sialylation",
+      "barrier",
+      "inflammation",
+      "ST3Gal1",
+      "triple culture model"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.183749",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

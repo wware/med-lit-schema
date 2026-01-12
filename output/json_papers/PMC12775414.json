@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12775414",
+  "pmid": "41353271",
+  "doi": "10.1038/s41598-025-29921-3",
+  "title": "Discriminative biomarker selection using hybrid multi-population evolutionary computation",
+  "abstract": "The rapid advancement of Deoxyribonucleic acid (DNA) sequencing technology has gained more attention, especially in interpreting high-dimensional, low-sample-size microarray data for disease identification. However, conventional gene selection techniques struggle to identify optimal biomarker subsets from gene data within a feasible time. To address this, we propose a novel hybrid method for robust cancer classification and biomarker discovery. To reduce the dimensionality of gene data while preserving biologically meaningful patterns, in the first stage of our approach, Kernel Principal Component Analysis (KPCA) is utilized. The refined gene subsets are then processed by the Multi-Population Gravitational Search Algorithm (GSA) known as MPKGSA with Opposition-Based Learning (OBL). The hybridization mechanism involves using OBL to generate a set of opposite solutions for each population, which is then integrated into the GSA update process. This process provides a more diverse exploration of the search space, preventing premature convergence on suboptimal gene subsets. The effectiveness of MPKGSA was evaluated on six microarray cancer datasets and a breast cancer single-nucleotide polymorphism (SNP) dataset from the National Center for Biotechnology Information (NCBI) Gene Expression Omnibus (GEO). Numerical results demonstrate that MPKGSA excels at balancing convergence and diversity, achieving high prediction accuracy with minimal biomarker subsets. Furthermore, it outperformed existing meta-heuristic methods, selecting a small number of gene biomarkers strongly correlated with the biological response class, confirming its utility for precise cancer identification and classification.",
+  "authors": [
+    "Shukla, Alok Kumar",
+    "Dwivedi, Shubhra",
+    "Mishra, Aishwarya"
+  ],
+  "publication_date": "2025-12-06",
+  "journal": "Scientific Reports",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-06",
+    "journal": "Scientific Reports",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Minimum redundancy maximum relevance",
+      "Long short-term memory",
+      "Deep neural network",
+      "Convolution neural network",
+      "Intrusion detection"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.196864",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

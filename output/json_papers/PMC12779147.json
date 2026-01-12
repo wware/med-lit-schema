@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12779147",
+  "pmid": "41134662",
+  "doi": "10.1080/10409238.2025.2574638",
+  "title": "Ubiquitin and SUMO pathways in DNA replication and replication-coupled repair",
+  "abstract": "Accurate and efficient DNA replication constitutes the most effective safeguard against genome instability. Numerous aspects of replication initiation, elongation, and termination are tightly regulated by post-translational modifications. In this review, we summarize recent advances in elucidating pathways regulated by ubiquitin and the small ubiquitin-like modifier, SUMO, and compare insights gained in yeast with those obtained in vertebrate systems. These reversible modifications play critical roles in both DNA replication and replication-coupled repair processes. When active replisomes encounter obstacles such as nucleotide depletion, DNA secondary structures, or base lesions that impede fork progression, multiple genome surveillance pathways are activated to coordinate the replication stress response. Stalled replication forks undergo remodeling and reversal, thereby stabilizing the fork and facilitating replication restart. In parallel, diverse tolerance mechanisms have evolved to enable lesion bypass or replication traverse, which transiently alters the replication machinery yet permits continuation of DNA synthesis. At the core of these processes are the DNA damage tolerance and Fanconi anemia pathways, whose components collaborate to prevent under-replication during S phase and beyond. Furthermore, ubiquitin and SUMO signaling act synergistically through the activity of SUMO-targeted ubiquitin ligases. These enzymes sequester damaged replication forks at the nuclear periphery and promote recombination-mediated restart under stringent spatiotemporal control of the replication checkpoint. Failure of these mechanisms forces the cell to engage in a final, “do-or-die” attempt to initiate DNA synthesis during mitosis, a process that is also orchestrated by ubiquitin signaling.",
+  "authors": [
+    "Fiedorowicz, Lidia M.",
+    "Baxley, Ryan M.",
+    "Hendrickson, Eric A.",
+    "Bielinsky, Anja Katrin"
+  ],
+  "publication_date": "2025-01-01",
+  "journal": "Critical reviews in biochemistry and molecular biology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-01-01",
+    "journal": "Critical reviews in biochemistry and molecular biology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "DNA damage tolerance",
+      "DNA replication",
+      "Fanconi anemia",
+      "mitotic DNA synthesis",
+      "PCNA",
+      "SUMO",
+      "SUMO-targeted ubiquitin ligases",
+      "ubiquitin"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.329612",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

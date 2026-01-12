@@ -1,0 +1,66 @@
+{
+  "paper_id": "PMC12766696",
+  "pmid": "41241298",
+  "doi": "10.1016/j.nbd.2025.107190",
+  "title": "Disentangling the inverse relationship between cancer and Alzheimer’s or Parkinson’s disease: A systematic review on Mendelian randomization studies",
+  "abstract": "Although studies have reported an inverse relationship between cancer and neurodegenerative diseases such as Alzheimer’s disease (AD) and Parkinson’s disease (PD), findings remain inconsistent. Observational studies are limited by survival bias and reverse causation. To better understand the relationship, we conducted a systematic review of Mendelian randomization (MR) studies examining both directions—assessing cancer as a risk factor for AD or PD, as well as AD or PD as exposures influencing cancer risk. We systematically reviewed MR studies investigating the causal relation between cancer and either AD or PD. Cancer could be specified as either an exposure or an outcome of interest. Articles published until August 2024 were identified, screened, and abstracted by two reviewers following the “Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA)” guidelines. Twelve studies met the inclusion criteria, comprising data from approximately 10,000 individuals and examining over 20 cancer types in relation to AD and PD risk. Of these, seven studies focused on AD, three on PD, and two examined both. Among nine studies on AD, an inverse association between several cancers and AD was reported, especially with breast cancer (overall and estrogen receptor-positive), with reduced odds (OR < 1) using inverse variance weighting. Studies on PD yielded inconclusive evidence of any causal relationship with cancer. These results highlight inverse associations between AD and breast cancers, potentially implicating hormonal signaling pathways. Despite variations in methods and GWAS datasets, consistent protective trends were observed. However, further research is required to confirm causality.",
+  "authors": [
+    "Aung, Khine Zin",
+    "Zin, Su Su",
+    "Wu, Xian",
+    "Myint, Zin War",
+    "Karanth, Shama",
+    "Estus, Steven",
+    "Norris, Christopher M.",
+    "Nelson, Peter T.",
+    "Fardo, David W.",
+    "Abner, Erin L.",
+    "Katsumata, Yuriko"
+  ],
+  "publication_date": "2025-12-01",
+  "journal": "Neurobiology of disease",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-01",
+    "journal": "Neurobiology of disease",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Alzheimer’s disease",
+      "Parkinson’s disease",
+      "Cancer",
+      "Mendelian randomization",
+      "Cognitive decline"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.156794",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

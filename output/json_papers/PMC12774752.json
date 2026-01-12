@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12774752",
+  "pmid": "41308988",
+  "doi": "10.1016/j.jbc.2025.110976",
+  "title": "4E-BP1 differentially regulates translation of a subset of human mRNAs",
+  "abstract": "Elevated levels of eukaryotic initiation factor 4E-binding protein 1 (4E-BP1) influence cap-independent translation by forming a complex with eukaryotic initiation factor 4E (eIF4E) (eIF4E•4E-BP1). Certain mRNAs—including those encoding hypoxia-inducible factor-1α (HIF-1α), fibroblast growth factor-9 (FGF-9), and two isoforms of tumor suppressors, p53 (p53A, and p53B)—contain structured 5′untranslated regions (UTRs) that enable translation either via cap-independent translation enhancer (CITE)-like or internal ribosomal entry site (IRES)-like mechanisms. However, how 4E-BP1 modulates these mechanisms remains unclear. Using fluorescence-based anisotropy assays, we showed that the eIF4E•4E-BP1 binds more tightly to the 5′ m7G-cap of these mRNAs than eIF4E alone. Luciferase reporter assays further demonstrated that 4E-BP1 inhibits translation of CITE-like (HIF-1α, and p53A) more effectively than IRES-like (FGF-9, and p53B) mRNAs. Although binding affinity of eIF4E•4E-BP1 to each of these mRNAs increased, only CITE-like mRNA translation was significantly inhibited. Importantly, eIF4GI557-1599 and its binding partner eIF4A, overcomes this inhibition selectively for CITE-like mRNAs, while eIF4E alone has only partial effects. In contrast, IRES-like mRNAs, despite binding to eIF4E•4E-BP1, exhibited only a modest translational repression and were minimally affected by eIF4GI557-1599•eIF4A or eIF4E. These findings reveal that 4E-BP1 selectively represses cap-independent translation in a transcript-specific manner. Moreover, fluorescence anisotropy revealed that 4E-BP1 enhances eIF4GI557-1599 recruitment to certain mRNAs, potentially facilitating 43S pre-initiation complex (43S PIC) assembly during stress. These results provide new mechanistic insights into selective translational control with implications for stress response and cancer progression via non-canonical translation.",
+  "authors": [
+    "Mahbub, Mehreen",
+    "Saha, Baishakhi",
+    "Goss, Dixie J."
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "The Journal of Biological Chemistry",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "The Journal of Biological Chemistry",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "cap-independent translation initiation",
+      "5′ cap-independent translation enhancer (CITE)",
+      "internal ribosome entry site (IRES)",
+      "eIF4GI557-1599",
+      "eIF4E",
+      "4E-BP1",
+      "eIF4A"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.874100",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "paper_id": "PMC12784210",
+  "pmid": "41510594",
+  "doi": "10.1002/ctm2.70583",
+  "title": "Targeted demethylation of the BRD7 promoter based on CRISPR/dCas9 system inhibits the malignant progression of nasopharyngeal carcinoma",
+  "abstract": "BRD7 has been confirmed to be lowly expressed in nasopharyngeal carcinoma (NPC) tissues and exerts tumour suppressive roles. However, the molecular mechanism of the downregulation of BRD7 expression and whether the strategy of activating BRD7 expression plays anti‐tumour effects still needs to be clarified. Methylation‐specific polymerase chain reaction (PCR) was used to identify the methylation levels of BRD7 promoter. In vitro experiments were used to evaluate the effects of BRD7‐targeted demethylation system on the malignant progression of NPC cells. Chromatin immunoprecipitation (ChIP)‐qPCR experiment was employed to examine the regulatory mechanisms underlying the demethylation system. Xenograft tumour models were used to assess impact of this demethylation system on tumour growth in vivo and the anti‐tumour effects of the lentivirus‐mediated demethylation system in NPC. There was hypermethylation modification in BRD7 promoter, which was negatively correlated with BRD7 expression. Next, we constructed a LentiCRISPRv2/dCas9‐TET1CD‐sgRNAs system targeting specific methylation sites of BRD7 promoter based on five sgRNAs, and confirmed that all five sgRNA‐guided CRISPR/dCas9 systems could activate BRD7 and inhibit cell proliferation to varying degrees, among which sgRNA2&sgRNA5 were the most significant. Further, we constructed NPC cell lines stably transfected with LentiCRISPRv2/dCas9‐TET1CD‐sgRNA2&5, and confirmed that both sgRNA2&sgRNA5 could promote the transcriptional activation by reducing its methylation, and inhibit the cell proliferation, migration, invasion and tumour growth in vivo of NPC, and the combination of them has a more significant demethylation, transcriptional activation and anti‐tumour effect. In addition, BRD7 had hypermethylation modification in its promoter and decreased expression in NPC tissues, and both of them were negatively correlated, making it a potential diagnostic marker for NPC diagnosis. The hypermethylation modification of BRD7 is an important mechanism leading to the inactivation of BRD7, and targeting demethylation of BRD7 inhibits the malignant progression of NPC, which might be a promising targeted therapeutic approach for treating NPC.",
+  "authors": [
+    "Wei, Jianxia",
+    "Duan, Yumei",
+    "Xue, Changning",
+    "Zheng, Lemei",
+    "Wei, Qingqing",
+    "Wu, Zubing",
+    "Xin, Huizhen",
+    "Zeng, Ting",
+    "Deng, Hongyu",
+    "Fan, Songqing",
+    "Xiong, Wei",
+    "Zeng, Zhaoyang",
+    "Li, Mengna",
+    "Zhou, Ming"
+  ],
+  "publication_date": "2026-01-09",
+  "journal": "Clinical and Translational Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-09",
+    "journal": "Clinical and Translational Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "BRD7",
+      "CRISPR/dCas9",
+      "demethylation",
+      "malignant progression",
+      "nasopharyngeal carcinoma"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.229260",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

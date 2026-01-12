@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12753621",
+  "pmid": "41315111",
+  "doi": "10.1007/s12672-025-04188-2",
+  "title": "Innovations in cancer treatment as novel potential and the myth of personalized vaccines, immunotherapy, CRISPR/Cas9, and bacteriotherapy as promising therapeutic strategies",
+  "abstract": "Recent advancements in cancer treatment, including targeted therapy, tailored vaccines, immunotherapy, and bacteriotherapy, have demonstrated remarkable potential in addressing various types of cancer. However, the pursuit of novel therapeutic strategies remains challenged by significant obstacles, including toxicity to healthy tissues, limited penetration into malignant tissues, and the potential for tumor cell resistance to pharmacological agents. This study explored the potential of tailored vaccinations, immunotherapy, CRISPR/Cas9, and bacteriotherapy for cancer treatment. Randomized and non-randomized studies were reviewed using the Cochrane Central Register of Controlled Trials (CENTRAL), PubMed (NCBI), Scopus (ELSEVIER), and Web of Science (CLAVIRATE) databases. This research highlights the promising use of personalized cancer vaccines, which induce tumor-specific immune responses targeting neoantigens unique to each patient. Immunotherapy, which enhances the ability of the immune system to identify and destroy cancer cells, has revitalized tumor immunology. While the effectiveness of immunotherapies, such as immune checkpoint inhibitors (ICIs) and adoptive cell transfer (ACT), is variable, certain cancer patients show substantial benefits. Bacteriotherapy has also proven effective in promoting tumor remission and inhibiting metastasis, either alone or in combination with conventional treatments, by reducing tumor proliferation and metastasis. Additionally, bacteriotherapy serves as a potential platform for delivering therapeutics, genes, or medications directly to tumors. The CRISPR-Cas9 genome-editing technique shows promise for advancing cancer treatment, with the potential to target and treat genetic mutations at the tumor level, although its application in human cancer therapy is still under development. This study highlights the potential of these innovative approaches in the fight against cancer.",
+  "authors": [
+    "Zubair, Akmal",
+    "Wdidi, Safa"
+  ],
+  "publication_date": "2025-11-28",
+  "journal": "Discover Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-28",
+    "journal": "Discover Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Adoptive cell transfer (ACT)",
+      "CRISPR/Cas9",
+      "Cancer treatment",
+      "Immune checkpoint inhibitors (ICIs)",
+      "Immunotherapy",
+      "Personalized cancer therapy"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.766149",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

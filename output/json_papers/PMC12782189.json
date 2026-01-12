@@ -1,0 +1,77 @@
+{
+  "paper_id": "PMC12782189",
+  "pmid": "40497580",
+  "doi": "10.1111/1475-6773.14652",
+  "title": "Importance of prior patient interactions with the healthcare system to engaging with pre-test cancer genetic services via digital health tools among unaffected primary care patients: findings from the BRIDGE trial",
+  "abstract": "To examine whether patient sociodemographic and clinical characteristics and prior interactions with the healthcare system were associated with opening patient portal messages related to cancer genetic services and beginning services. The trial was conducted in the University of Utah Health (UHealth) and NYU Langone Health (NYULH) systems. Between 2020–2023, 3,073 eligible primary care patients aged 25–60 years meeting family history-based criteria for cancer genetic evaluation were randomized 1:1 to receive a patient portal message with a hyperlink to a pre-test genetics education chatbot or information about scheduling a pre-test standard of care (SOC) appointment. Primary data were collected. Eligible patients had a primary care visit in the previous three years, patient portal account, no prior cancer diagnosis except non-melanoma skin cancer, no prior cancer genetic services, and English or Spanish as their preferred language. Multivariable models identified predictors of opening patient portal messages by site, and beginning pre-test genetic services by site and experimental condition. Number of previous patient portal logins (UHealth average marginal effect [AME]: 0.32; 95% CI: 0.27, 0.38; NYULH AME: 0.33; 95% CI: 0.27, 0.39), having a recorded primary care provider (NYULH AME: 0.15; 95% CI: 0.08, 0.22), and more primary care visits in the previous three years (NYULH AME: 0.09; 95% CI: 0.02, 0.16) were associated with opening patient portal messages about genetic services. Number of previous patient portal logins (UHealth AME: 0.14; 95% CI: 0.08, 0.21; NYULH AME: 0.18; 95% CI: 0.12, 0.23), having a recorded primary care provider (NYULH AME: 0.08; 95% CI: 0.01, 0.14), and more primary care visits in the previous three years (NYULH AME: 0.07; 95% CI: 0.01, 0.13) were associated with beginning pre-test genetic services. Patient sociodemographic and clinical characteristics were not significantly associated with either outcome. As system-level initiatives aim to reach patients eligible for cancer genetic services, patients already interacting with the healthcare system may be most likely to respond. Addressing barriers to accessing healthcare and technology may increase engagement with genetic services.",
+  "authors": [
+    "Zhong, Lingzi",
+    "Bather, Jemar R.",
+    "Goodman, Melody S.",
+    "Kaiser-Jackson, Lauren",
+    "Volkmar, Molly",
+    "Bradshaw, Richard L.",
+    "Chambers, Rachelle Lorenz",
+    "Chavez-Yenter, Daniel",
+    "Colonna, Sarah V.",
+    "Maxwell, Whitney",
+    "Flynn, Michael",
+    "Gammon, Amanda",
+    "Hess, Rachel",
+    "Mann, Devin M.",
+    "Monahan, Rachel",
+    "Yi, Yang",
+    "Sigireddi, Meenakshi",
+    "Wetter, David W.",
+    "Kawamoto, Kensaku",
+    "Del Fiol, Guilherme",
+    "Buys, Saundra S.",
+    "Kaphingst, Kimberly A."
+  ],
+  "publication_date": "2025-06-11",
+  "journal": "Health services research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-06-11",
+    "journal": "Health services research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "genetic services",
+      "genetic counseling",
+      "primary care",
+      "digital health technology",
+      "chatbot"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.085597",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

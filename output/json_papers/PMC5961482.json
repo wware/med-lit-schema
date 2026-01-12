@@ -1,0 +1,68 @@
+{
+  "paper_id": "PMC5961482",
+  "pmid": "29779491",
+  "doi": "10.1186/s40249-018-0432-5",
+  "title": "Trypanosoma brucei rhodesiense infection in a Chinese traveler returning from the Serengeti National Park in Tanzania",
+  "abstract": "Human African trypanosomiasis (HAT) is one of the most complex parasitic diseases known to humankind. It usually occurs in endemic areas in Africa, but is occasionally detected in returning travelers and migrants in non-endemic countries. In August 2017, a case of HAT was diagnosed in China in a traveler returning from the Masai Mara area in Kenya and the Serengeti area in Tanzania. The traveler visited Africa from 23 July to 5 August, 2017. Upon return to China, she developed a fever (on 8 August), and Trypanosoma brucei rhodesiense infection was confirmed by laboratory tests (on 14 August) including observation of parasites in blood films and by polymerase chain reaction. She was treated with pentamidine followed by suramin, and recovered 1 month later. This is the first imported rhodesiense HAT case reported in China. This case alerts clinical and public health workers to be aware of HAT in travelers, and expatriates and migrants who have visited at-risk areas in Africa. The online version of this article (10.1186/s40249-018-0432-5) contains supplementary material, which is available to authorized users.",
+  "authors": [
+    "Liu, Qin",
+    "Chen, Xiao-Ling",
+    "Chen, Mu-Xin",
+    "Xie, Han-Guo",
+    "Liu, Qing",
+    "Chen, Zhu-Yun",
+    "Lin, Yao-Ying",
+    "Zheng, Hua",
+    "Chen, Jia-Xu",
+    "Zhang, Yi",
+    "Zhou, Xiao-Nong"
+  ],
+  "publication_date": "2018-05-21",
+  "journal": "Infectious Diseases of Poverty",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2018-05-21",
+    "journal": "Infectious Diseases of Poverty",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Trypanosoma brucei rhodesiense",
+      "Human African trypanosomiasis",
+      "Imported infection",
+      "China",
+      "Treatment",
+      "Suramin",
+      "Tanzania"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.969569",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

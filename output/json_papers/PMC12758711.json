@@ -1,0 +1,72 @@
+{
+  "paper_id": "PMC12758711",
+  "pmid": "41482355",
+  "doi": "10.21873/cgp.20561",
+  "title": "Comparative Transcriptomic Analysis Identifies Predictive Biomarkers of Pathological Complete Response in Triple-negative Breast Cancer",
+  "abstract": "Pathologic complete response (pCR) to neoadjuvant chemotherapy (NACT) is a strong prognostic indicator in triple-negative breast cancer (TNBC). However, reliable predictive biomarkers for pCR remain limited. This study aimed to identify gene expression signatures associated with pCR in TNBC to facilitate more precise treatment stratification. Tumor samples from 16 TNBC patients treated with NAC at the Kaohsiung Medical University Hospital (KMUH) were analyzed, including 5 pCR and 11 non-pCR cases. RNA sequencing (RNA-seq) was performed, and differentially expressed genes (DEGs) were identified using DESeq2 (|log2FC| ≥2, adjusted p<0.05). Gene expression profiles were compared with a validation cohort of 27 NAC-responsive TNBC cases from The Cancer Genome Atlas (TCGA). Overlapping DEGs were identified using Venn diagram analysis, and drug-gene interaction databases were queried to explore therapeutic relevance. In the KMUH cohort, 175 DEGs were identified, including 146 up-regulated and 29 down-regulated genes in non-pCR tumors. Fifteen DEGs demonstrated consistent differential expression patterns between KMUH and TCGA datasets, showing enrichment in pCR samples. These genes may serve as predictive biomarkers for NAC response. Notably, several of these genes are potentially druggable, suggesting opportunities for targeted therapy in chemoresistant TNBC. We identified and validated a 15 gene signature associated with pCR in TNBC across independent cohorts. These findings offer a promising basis for improving patient stratification, guiding treatment decisions, and developing targeted therapies for NAC-resistant TNBC.",
+  "authors": [
+    "CHEN, FANG-MING",
+    "LI, CHUNG-LIANG",
+    "PAN, MEI-REN",
+    "HUANG, YUN-CIAN",
+    "HUANG, LI-JU",
+    "MOI, SIN-HUA",
+    "CHANG, SHU-JYUAN",
+    "YANG, PING-FU",
+    "KAO, CHIEH-NI",
+    "KAN, JUNG-YU",
+    "KO, LI-KUN",
+    "TAKAHASHI, HIDENOBU",
+    "KUO, CHIA-YU",
+    "SHIH, SHEN-LIANG",
+    "HOU, MING-FENG",
+    "LIN, YI-HSIUNG",
+    "LUO, CHI-WEN"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Cancer Genomics & Proteomics",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Cancer Genomics & Proteomics",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Triple-negative breast cancer",
+      "pathological complete response",
+      "neoadjuvant chemotherapy",
+      "gene expression signature",
+      "biomarker"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.538819",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

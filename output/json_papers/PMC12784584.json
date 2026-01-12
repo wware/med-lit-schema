@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12784584",
+  "pmid": "41495854",
+  "doi": "10.1186/s40360-025-01082-z",
+  "title": "Integrated in silico and in vitro evaluation of Genistein and Apigenin as dual inhibitors of PARP1 and ESR1 in breast cancer",
+  "abstract": "Breast cancer remains a leading cause of cancer-related mortality among women worldwide, highlighting the need for safer multitarget therapies. Genistein (GNT) and Apigenin are plant-derived flavonoids with reported anticancer properties, but their dual mechanisms against key breast cancer targets have not been comprehensively explored. An integrative in silico approach was employed, including network pharmacology, onco-omics profiling, protein–protein interaction analysis, molecular docking, and 100 ns molecular dynamics (MD) simulations, to identify and validate key targets of GNT and Apigenin. Gene expression, immune infiltration, and survival analyses were performed using GEPIA2 and TIMER2.0. ADMET and toxicity predictions assessed drug-likeness and safety. Cytotoxic activity was evaluated in HCC1937 cells, a triple-negative breast cancer cell line selected to assess estrogen receptor–independent anticancer effects, using the MTT assay. Network analysis prioritized PARP1 and ESR1 as central targets. Docking showed strong affinities of Apigenin for PARP1 (–9.6 kcal/mol) and GNT for ESR1 (–8.3 kcal/mol). MD simulations and MM-GBSA confirmed stable binding with favorable free energy (ΔG_bind = − 74.9 kcal/mol). KEGG enrichment highlighted pathways including estrogen signaling, endocrine resistance, and PI3K–Akt signaling. Both compounds exhibited favorable ADMET profiles and low predicted toxicity. In vitro, GNT and Apigenin produced dose-dependent cytotoxicity against HCC1937 cells with IC50 values of 67.01 ± 1.67 µM and 70.24 ± 1.45 µM, respectively. These findings demonstrate that GNT and Apigenin modulate key oncogenic pathways through PARP1 and ESR1 interaction and exert cytotoxic effects in TNBC cells. This suggests their potential as low-toxicity adjuvant agents in breast cancer therapy, particularly where endocrine resistance or BRCA1-associated tumor progression is involved. The online version contains supplementary material available at 10.1186/s40360-025-01082-z.",
+  "authors": [
+    "Arora, Monica",
+    "Yaseen, Yahya S.",
+    "Mahmood, Ammar A. Razzak",
+    "Sangi, Sibghatullah Muhammad Ali",
+    "Nagaraja, Sreeharsha",
+    "Kurmi, Santosh Prasad Chaudhary",
+    "Thapa, Shankar"
+  ],
+  "publication_date": "2026-01-06",
+  "journal": "BMC Pharmacology & Toxicology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-06",
+    "journal": "BMC Pharmacology & Toxicology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Apigenin",
+      "Breast cancer",
+      "ESR1",
+      "GNT",
+      "Network pharmacology"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.219148",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

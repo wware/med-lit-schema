@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12765812",
+  "pmid": "41486508",
+  "doi": "10.1111/jcmm.71000",
+  "title": "Betulinic Acid Suppresses UBE2T Expression via MAPK/ERK Inhibition to Block FANCI and FANCD2 Monoubiquitination in Glioblastoma",
+  "abstract": "Platinum‐based chemotherapy remains a cornerstone of glioma treatment, yet resistance driven by the Fanconi anaemia (FA) DNA repair pathway limits efficacy. Here, we identified betulinic acid (BA) as a potent inhibitor of FA pathway activation. BA pretreatment abrogated cisplatin‐induced monoubiquitination of FANCI/FANCD2 and disrupted their nuclear foci formation and interactions with downstream repair proteins (ERCC1, REV1 and BRCA1), leading to persistent DNA interstrand crosslinks without affecting intrastrand lesion repair. Biochemical analyses revealed that BA selectively suppressed UBE2T expression at the transcriptional level, without altering mRNA stability or protein degradation, thereby blocking the FANCL‐UBE2T‐mediated ID2 monoubiquitination cascade. In vivo, BA significantly enhanced the antitumour efficacy of cisplatin in xenograft models. Mechanistically, BA inhibited MAPK/ERK signalling, and pharmacological reactivation of ERK reversed BA‐induced suppression of UBE2T and tumour growth. Collectively, these findings uncover a previously unrecognised MAPK/ERK‐UBE2T‐FA axis in glioma and highlight BA as a potential adjuvant to overcome cisplatin resistance through transcriptional repression of UBE2T.",
+  "authors": [
+    "Bao, Yifeng",
+    "Wang, Maode"
+  ],
+  "publication_date": "2026-01-04",
+  "journal": "Journal of Cellular and Molecular Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-04",
+    "journal": "Journal of Cellular and Molecular Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "betulinic acid",
+      "DNA damage repair",
+      "Fanconi anaemia pathway",
+      "glioblastoma",
+      "MAPK/ERK",
+      "UBE2T"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.546213",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

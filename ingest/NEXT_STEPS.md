@@ -1,18 +1,69 @@
-# Next steps as of 10 Jan 2026
+# Next steps as of 12 Jan 2026
 
-I've downloaded 100 PMC papers (see `ingest/download` directory). So those are avilable
-to work with.
+## Summary of Recent Progress
 
-## Building and sharing a small corpus
+We have successfully run the initial stages of the data ingestion pipeline. Here is a summary of the steps that worked:
 
-I want to tweak the `ingest/*.py` files to load these files, and I want to do ingestion with
-local Ollama (not the Lambda Labs cloud instance) because it's only 100 papers, I'm not in a
-rush, and I want to save money.
+1.  **Database Setup:** The PostgreSQL database was successfully set up with the required schema by running the `setup_database.py` script.
+2.  **NER Pipeline (PostgreSQL):** The `ner_pipeline.py` was successfully run to extract entities from the XML files and store them in the PostgreSQL database.
+3.  **Claims Pipeline (PostgreSQL):** *Currently debugging.* The `claims_pipeline.py` ran, but found 0 papers, leading to 0 relationships extracted. This indicates an issue with how papers are being stored or retrieved from the PostgreSQL backend. We need to investigate the `PostgresPaperStorage` class and the `provenance_pipeline.py` to ensure papers are being correctly added and retrieved.
+4.  **Embeddings Pipeline (SQLite):** The `embeddings_pipeline.py` was successfully run to generate entity embeddings using the `nomic-embed-text` model and store them in a SQLite database. This involved several fixes to the script to handle Ollama client errors and database schema mismatches.
 
-That will produce a JSON file for each paper, and the last ingestion step is to pull those
-into one big graph (however the storage HW represents that graph).
+## Complete Pipeline Instructions (Updated)
 
-Then I can share that corpus with others who want to tinker with querying.
+The ingestion pipeline consists of several stages that should be run in order. Here are the verified commands to run the pipeline so far:
+
+### Prerequisites
+
+1.  **PostgreSQL Database**: Set up a PostgreSQL database and ensure it is running.
+2.  **Ollama**: Make sure Ollama is running with the `nomic-embed-text` model:
+    ```bash
+    docker compose exec ollama ollama pull nomic-embed-text
+    # And ensure ollama service is running via: docker compose up -d ollama
+    ```
+
+### Pipeline Execution
+
+To run the complete pipeline on your 100 downloaded papers:
+
+```bash
+# Set your database URL (adjust user/password/host/port/database as needed)
+export DB_URL="postgresql://postgres:postgres@localhost:5432/medlit"
+
+# Stage 1: Setup PostgreSQL Database (creates tables)
+uv run python setup_database.py --database-url $DB_URL
+
+# Stage 2: Run Provenance Pipeline (to populate papers table in PostgreSQL)
+uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+
+# Stage 3: Extract entities (NER) and store in PostgreSQL
+uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+
+# Stage 4: Extract claims (Currently debugging - found 0 papers)
+uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+
+# Stage 5: Extract evidence (Pending successful completion of Stage 4)
+uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+```
+
+### Outputs
+
+After running these stages, you'll have:
+
+*   **PostgreSQL database:** A queryable knowledge graph containing:
+    *   **papers table:** Metadata for each paper (expected, but currently being debugged for retrieval by claims pipeline).
+    *   **entities table:** Canonical entities.
+    *   **relationships table:** Claims/relationships between entities (expected to be populated after claims pipeline fix).
+*   **SQLite database (output/ingest.db):** Contains entity embeddings (from the initial `embeddings_pipeline.py` run on SQLite).
+
+## Next Steps (from current state)
+
+1.  **Debug Claims Pipeline:** The immediate next step is to investigate why `claims_pipeline.py` is finding 0 papers when running with PostgreSQL. This involves inspecting the `PostgresPaperStorage` class in `med_lit_schema/storage/backends/postgres.py` to understand how `add_paper` stores papers and how `list_papers` retrieves them.
+2.  **Run the Evidence Pipeline:** Once the claims pipeline is successfully populating relationships, the `evidence_pipeline.py` can be run.
+3.  **Run the Graph Pipeline:** The `graph_pipeline.py` script likely builds the final graph structure from the extracted data. This should be run after all other ingestion pipelines are complete.
+4.  **Generate Relationship Embeddings:** The `claims_pipeline.py` has an option to generate embeddings for the extracted relationships. This would be a valuable next step for semantic querying of claims.
+5.  **Entity Resolution:** The `claims_pipeline.py` creates relationships with placeholder entity IDs. A crucial next step is to implement and run an entity resolution process to link these placeholders to the canonical entities in the `entities` table.
+6.  **Query the Knowledge Graph:** Once the data is ingested and linked, you can start exploring the knowledge graph using the `query/` directory tools or by writing custom SQL/ORM queries.
 
 ## Python packaging
 
@@ -24,142 +75,3 @@ interested. And if not him, maybe other folks.
 
 I have some preliminary notes on how to do this. I want to make sure that when I'm ready, it's
 a smooth thing to do.
-
-## Other stuff
-
-1. Ollama Integration:
-
-* I've installed the ollama Python library.
-* I've created `ingest/ollama_embedding_generator.py` to provide an EmbeddingGeneratorInterface implementation for Ollama.
-* I've updated `ingest/embeddings_pipeline.py` to use OllamaEmbeddingGenerator instead of SentenceTransformer, and it now dynamically determines the embedding dimension
-  from the Ollama model.
-
-2. JSON Output for Papers:
-
-    * I've updated `ingest/parser_interfaces.py` to include a parse_directory method in the PaperParserInterface.
-    * I've implemented the parse_directory method in ingest/pmc_parser.py to allow parsing all XML files in a given directory.
-    * I've added an optional --json-output-dir argument to ingest/provenance_pipeline.py. If provided, this script will now save each parsed Paper object as a JSON file
-      in the specified directory, alongside storing data in the SQLite database.
-
-## Complete Pipeline Instructions
-
-The ingestion pipeline consists of 6 stages that should be run in order:
-
-### Stage 1: Generate Provenance and JSON (if desired)
-
-First, ensure you have PMC XML files in a directory (e.g., `ingest/download/pmc_xmls`). You can then run the `provenance_pipeline.py` to parse them and optionally output JSON files:
-
-    uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output --json-output-dir output/json_papers
-
-This will create output/provenance.db, output/entities.db, and a directory `output/json_papers` containing the JSON representations of each paper.
-
-### Stage 2: Generate Embeddings using Ollama
-
-Before running this, make sure Ollama is running and you have pulled the nomic-embed-text model (or your preferred embedding model) using `ollama pull nomic-embed-text`.
-
-    uv run python ingest/embeddings_pipeline.py --output-dir output --model nomic-embed-text
-
-This will generate embeddings for entities and paragraphs in output/entities.db and output/provenance.db using your local Ollama instance.
-
-### Stage 3: Extract Biomedical Entities (NER)
-
-Extract biomedical entities (diseases, genes, etc.) from the papers using BioBERT NER model:
-
-    uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
-
-This will extract entities and create co-occurrence relationships, storing them in PostgreSQL. It also generates:
-- output/extraction_edges.jsonl - Entity co-occurrence edges
-- output/extraction_provenance.json - Extraction metadata
-
-### Stage 4: Extract Claims (Relationships)
-
-Extract semantic relationships (claims) from paragraphs using pattern matching:
-
-    uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
-
-This will extract relationships like "X CAUSES Y", "X TREATS Y", etc. from paragraph text and store them in PostgreSQL. Optionally generates embeddings for the claims if --skip-embeddings is not specified.
-
-Note: Claims are created with placeholder entity IDs. Entity resolution is needed to link claims to canonical entities.
-
-### Stage 5: Extract Evidence
-
-Extract quantitative evidence (sample sizes, p-values, etc.) supporting relationships:
-
-    uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url postgresql://user:password@localhost:5432/medlit
-
-This will extract statistical evidence from paragraph text and associate it with existing claims in PostgreSQL.
-
-### Stage 6: Query the Database
-
-After stage 5, your PostgreSQL database contains the complete knowledge graph with:
-- Entities (diseases, genes, etc.)
-- Relationships (claims) between entities
-- Evidence supporting those relationships
-- Entity and relationship embeddings for semantic search
-
-You can now query this database using the query client library (see query/ directory) or directly with SQL/ORM queries.
-
-## Running the Full Pipeline
-
-### Prerequisites
-
-1. **PostgreSQL Database**: Set up a PostgreSQL database for storing the extracted data. For example:
-   ```bash
-   createdb medlit
-   ```
-
-2. **Ollama**: Make sure Ollama is running with the nomic-embed-text model:
-   ```bash
-   ollama pull nomic-embed-text
-   ollama serve
-   ```
-
-### Pipeline Execution
-
-To run the complete pipeline on your 100 downloaded papers:
-
-```bash
-# Set your database URL (adjust user/password/host/port/database as needed)
-export DB_URL="postgresql://user:password@localhost:5432/medlit"
-
-# Stage 1: Parse XML files
-uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output
-
-# Stage 2: Generate embeddings
-uv run python ingest/embeddings_pipeline.py --output-dir output --model nomic-embed-text
-
-# Stage 3: Extract entities
-uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
-
-# Stage 4: Extract claims
-uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
-
-# Stage 5: Extract evidence
-uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
-```
-
-### Outputs
-
-After running these stages, you'll have:
-
-**SQLite databases (temporary, used during ingestion):**
-- **output/provenance.db** - Paper metadata, sections, paragraphs (used by stages 2-5)
-- **output/entities.db** - Entity collection for canonical ID management (used by stages 3-5)
-
-**PostgreSQL database (final queryable knowledge graph):**
-- **Entities table** - Canonical entities with embeddings
-- **Relationships table** - Claims/relationships between entities with embeddings
-- **Evidence table** - Supporting evidence with quantitative metrics
-
-The SQLite databases can be discarded after stage 5. The PostgreSQL database contains the complete queryable knowledge graph.
-
-### Regarding PyPI Publication Preparation:
-
-The `PYPI_PREPARATION.md` file contains detailed instructions. Please review the "Required Actions" section:
-
-1. Update Author Email: You need to manually edit pyproject.toml (line 9) to change wware@example.com to your actual email address.
-2. Test Installation Locally: Follow the instructions in `PYPI_PREPARATION.md` to build and install the package locally.
-3. Test on TestPyPI First: This is highly recommended. You will need to create an account and generate an API token on test.pypi.org as described in the document.
-4. Verify Package Contents: Manually check the contents of the generated package to ensure all necessary files are included.
-
-Once these steps are completed and you are satisfied with the package, you can proceed with publishing to pypi.org using the instructions provided in `PYPI_PREPARATION.md`.

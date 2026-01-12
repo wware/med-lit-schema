@@ -1,0 +1,52 @@
+{
+  "paper_id": "PMC12774643",
+  "pmid": "41495912",
+  "doi": "10.1093/nar/gkaf1464",
+  "title": "Phosphorylation-dependent modulation of the Lamin A/C–EZH2 complex regulates epithelial–mesenchymal plasticity",
+  "abstract": "Epithelial-to-mesenchymal transition (EMT) is essential for normal development and cancer progression. However, how nuclear Lamins regulate EMT is unclear. Here, we show that Lamin A/C modulates the epithelial–mesenchymal (E-M) plasticity of cells through its interaction with the chromatin organizer, EZH2. The overexpression of Lamin A reinforces an epithelial identity, while its depletion promotes a mesenchymal phenotype. This positions Lamin A/C as a crucial modulator of Epithelial-Mesenchymal plasticity. Furthermore, CDK1-mediated phosphorylation of Lamin A/C (Ser22) and EZH2 (Thr345) disrupts Lamin A/C–EZH2 interaction, destabilizing EZH2, with a concomitant decrease in the occupancy of the heterochromatin mark (H3K27me3) on the SNAI1, TWIST1, and ZEB1 promoters, thereby facilitating a transition towards mesenchymal transcriptional programs. Conversely, phosphodeficient Lamin A/C (S22A) and EZH2 (T345A) mutants restore epithelial identity, highlighting a regulatory role of the Lamin A/C–EZH2 axis in maintaining epithelial homeostasis. In vivo, xenograft assays in NOD-SCID mice reveal that while phosphorylated Lamin A/C or EZH2 promote tumor growth and metastasis, phospho-deficient mutants markedly suppress it. Lamin A/C–EZH2 interaction regulates the expression of E–M-associated transcription factors, highlighting the role of this interaction in modulating transcriptional plasticity, thereby serving as a potential therapeutic target for regulating metastasis in breast cancers.",
+  "authors": [
+    "AK, Balaji",
+    "Saha, Santam",
+    "Sengupta, Kundan"
+  ],
+  "publication_date": "2026-01-13",
+  "journal": "Nucleic Acids Research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-13",
+    "journal": "Nucleic Acids Research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.096129",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

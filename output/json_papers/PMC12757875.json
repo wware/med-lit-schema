@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12757875",
+  "pmid": "41487593",
+  "doi": "10.3389/fonc.2025.1680921",
+  "title": "The DDR-immune fitness score: a biomarker for guiding parp and immunotherapy synergy in extensive-stage small cell lung cancer",
+  "abstract": "Despite the integration of PD-L1 inhibitors with chemotherapy, extensive-stage small-cell lung cancer (ES-SCLC) continues to portend a dismal prognosis, with a 5-year survival rate below 10%. A critical unmet need is the lack of validated biomarkers to identify patients who may benefit from novel combinations of DNA damage repair (DDR) inhibitors and immune checkpoint blockers (ICB). We developed a novel three-variable biomarker, the DDR-Immune Fitness (DDR-IF) score, by integrating data from a systematic review of six phase II trials (PRISMA-2020) with single-cell transcriptomic data from 82 SCLC tumors. The score, constructed using elastic-net regression, incorporates homologous recombination deficiency (HRD), tumor mutational burden (TMB), and STING pathway activity. Its predictive performance was validated in an independent cohort from the MSK-IMPACT study (n=152 ES-SCLC patients receiving PARP-ICB). DDR-IF-high tumors were characterized by a distinct biological profile, including (i) transcriptional exhaustion of the cGAS-STING innate immune pathway (p < 0.001), (ii) significantly reduced CD8+ T cell infiltration (2.3-fold fewer, p = 0.004), and (iii) a superior pooled objective response rate to PARP-ICB combinations (42% vs 18%; risk ratio 2.3, 95% CI 1.3-4.2; p = 0.003). The DDR-IF score unifies measures of genomic instability and immune contexture to identify a therapeutically vulnerable subset of ES-SCLC patients most likely to benefit from PARP-ICB synergy. It represents a promising, though exploratory, framework for personalizing immunotherapy in ES-SCLC, whose clinical utility requires confirmation in prospective multicenter trials.",
+  "authors": [
+    "Zhang, Yinxu",
+    "Chen, Xiaoyang",
+    "Wang, Dai",
+    "Zhou, Xuan",
+    "Wang, Yuxi",
+    "Zhang, Guangyu",
+    "Liu, Xiaomei"
+  ],
+  "publication_date": "2025-12-19",
+  "journal": "Frontiers in Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-19",
+    "journal": "Frontiers in Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "DNA damage repair pathway (DDR)",
+      "immune checkpoint blockade",
+      "small cell lung cancer (SCLC)",
+      "synthetic lethality",
+      "targeted therapy",
+      "tumor microenvironment"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.612148",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

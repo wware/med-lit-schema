@@ -1,0 +1,52 @@
+{
+  "paper_id": "PMC10759991",
+  "pmid": "37137498",
+  "doi": "10.1101/cshperspect.a041320",
+  "title": "Gene-Expression Profiling to Decipher Breast Cancer Inter- and Intratumor Heterogeneity",
+  "abstract": "Breast cancer is heterogeneous and differs substantially across different tumors (intertumor heterogeneity) and even within an individual tumor (intratumor heterogeneity). Gene-expression profiling has considerably impacted our understanding of breast cancer biology. Four main “intrinsic subtypes” of breast cancer (i.e., luminal A, luminal B, HER2-enriched, and basal-like) have been consistently identified by gene expression, showing significant prognostic and predictive value in multiple clinical scenarios. Thanks to the molecular profiling of breast tumors, breast cancer is a paradigm of treatment personalization. Several standardized prognostic gene-expression assays are presently being used in the clinic to guide treatment decisions. Moreover, the development of single-cell-level resolution molecular profiling has allowed us to appreciate that breast cancer is also heterogeneous within a single tumor. There is an evident functional heterogeneity within the neoplastic and tumor microenvironment cells. Finally, emerging insights from these studies suggest a substantial cellular organization of neoplastic and tumor microenvironment cells, thus defining breast cancer ecosystems and highlighting the importance of spatial localizations.",
+  "authors": [
+    "Swarbrick, Alexander",
+    "Fernandez-Martinez, Aranzazu",
+    "Perou, Charles M."
+  ],
+  "publication_date": "2024-01-01",
+  "journal": "Cold Spring Harbor Perspectives in Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2024-01-01",
+    "journal": "Cold Spring Harbor Perspectives in Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.559692",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

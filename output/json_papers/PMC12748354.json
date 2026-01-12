@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12748354",
+  "pmid": "41310299",
+  "doi": "10.1007/s12672-025-03898-x",
+  "title": "Hyperthermia-induced BRCA2 reduction potentiates PARPi sensitivity in BRCA2-proficient ovarian carcinoma",
+  "abstract": "BRCA2-proficient ovarian cancer (OVCA) exhibits resistance to poly (ADP-ribose) polymerase-1 (PARP) inhibitors (PARPi). This study aims to exploit hyperthermia (HT)-induced BRCA2 reduction as a strategy to enhance OVCA sensitivity to PARPi. Whole-exome sequencing (WES) was used to analyze mutations of BRCA2 and RAD51 in A2780, OVCAR3, and ID8 OVCA cells; Western blot and RT-qPCR were used to assess protein/mRNA expression of BRCA2 and RAD51. Cell viability was measured via crystal violet assay, apoptosis by flow cytometry, and RAD51 foci via nuclear immunofluorescence. Subcutaneous ID8 ovarian tumors in female C57BL/6 mice were treated with hyperthermia-niraparib combination to evaluate tumor suppression and survival outcomes. WES analysis revealed no HT-induced mutations in BRCA/RAD51 genes in ovarian cancer (OVCA) cells. However, HT treatment enhanced niraparib-induced growth inhibition and apoptosis, reduced clonogenic capacity, and decreased BRCA2 protein levels without affecting RAD51 expression. In vivo, HT impaired BRCA2-mediated RAD51 foci formation in OVCA tumor cells and HT/niraparib combination suppressed tumor progression and significantly prolonged survival in OVCA-bearing mice compared with niraparib monotherapy. HT reduces BRCA2 protein in BRCA2-proficient OVCA cells, inducing PARPi sensitivity and supporting the development of HT-PARPi combination therapy. The online version contains supplementary material available at 10.1007/s12672-025-03898-x.",
+  "authors": [
+    "Mei, Bingjie",
+    "Li, Junyang",
+    "Hou, Xiaoyu",
+    "Zhang, Jie",
+    "Wang, Dengfeng",
+    "Huang, Jianming",
+    "Zhang, Guonan"
+  ],
+  "publication_date": "2025-11-27",
+  "journal": "Discover Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-27",
+    "journal": "Discover Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "BRCA2",
+      "Hyperthermia",
+      "PARP inhibition",
+      "Homologous recombination",
+      "Ovarian cancer"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:00.937733",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

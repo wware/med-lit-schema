@@ -1,0 +1,54 @@
+{
+  "paper_id": "PMC12764932",
+  "pmid": "41484057",
+  "doi": "10.1038/s41392-025-02499-y",
+  "title": "Pancreatic cancer: molecular pathogenesis and emerging therapeutic strategies",
+  "abstract": "Pancreatic ductal adenocarcinoma (PDAC) is an aggressive disease for which there is no effective treatment. A deep understanding of the mechanisms underlying the molecular pathogenesis, signaling pathways and risk factors leading to PDAC is of paramount importance for identifying novel targets, prognostic markers, preventive strategies, and signature markers for use in specific and personalized therapeutic procedures. Activating somatic mutations in the KRAS oncogene play a critical role in PDAC initiation and maintenance. Here, we highlight the complex interplay between KRAS signaling, the transcriptional coactivator YES1-associated protein (YAP) and Src family kinases (SFKs) in the pathogenesis of PDAC and drug sensitivity. We subsequently focused on diet-induced obesity, which has been correlated with an increased risk for developing PDAC in humans and mice and more severe clinical outcomes. Accumulating evidence also indicates that neural signals regulate critical functions of cancer cells, including their proliferation and dissemination, and that chronic stress promotes PDAC through the sympathetic nervous system via β-adrenergic receptors expressed by PDAC cells and other cells in the tumor microenvironment. Obesogenic mediators and stress neurotransmitters stimulate protein kinases, including PKA and PKD, which converge on CREB/ATF1 phosphorylation in PDAC cells. Since stress and obesity cooperate to promote the progression of PDAC, novel combinatorial strategies to prevent this devastating disease could be developed, repositioning FDA-approved drugs that are extensively used to treat cardiovascular and metabolic disorders and diseases. Finally, we review new advances in the treatment of PDAC, focusing on the discovery of novel drugs that directly inhibit KRAS and YAP function.",
+  "authors": [
+    "Rozengurt, Enrique",
+    "Eibl, Guido"
+  ],
+  "publication_date": "2026-01-03",
+  "journal": "Signal Transduction and Targeted Therapy",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-03",
+    "journal": "Signal Transduction and Targeted Therapy",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Gastrointestinal cancer",
+      "Cell biology"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.011512",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

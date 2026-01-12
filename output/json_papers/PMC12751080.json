@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12751080",
+  "pmid": "41283469",
+  "doi": "10.1042/EBC20253039",
+  "title": "Non-covalent SUMO interactions with ligases and effectors: SUMO-interacting motifs and beyond",
+  "abstract": "SUMOylation, a protein post-translational modification (PTM) involving the covalent attachment of small ubiquitin-like modifier (SUMO), regulates a wide range of cellular processes. The key hallmark of SUMO that distinguishes it from ubiquitin is the hydrophobic groove that binds short linear motifs known as SUMO-interacting motifs (SIMs), which are found across a broad spectrum of partners, including SUMO E3 ligases and downstream effector proteins such as transcription factors, DNA-repair proteins, ubiquitin E3 ligases and cell-signalling components. In addition, various effectors interacting in a SIM-independent manner have been reported. In this review, we summarise the current understanding of non-covalent SUMO interactions mediated by SIMs and other, alternative SUMO-binding elements. Focusing on the evolution and structural basis of these interactions, we discuss the methodological approaches used in the field, outline emerging mechanisms and concepts and highlight key open questions.",
+  "authors": [
+    "Mishra, Aanchal",
+    "Cisse, El Hadji",
+    "Suskiewicz, Marcin J."
+  ],
+  "publication_date": "2025-11-17",
+  "journal": "Essays in Biochemistry",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-17",
+    "journal": "Essays in Biochemistry",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "post-translational modifications (PTMs)",
+      "small ubiquitin-like modifier (SUMO)",
+      "SUMO-interacting motifs (SIMs)",
+      "SUMOylation",
+      "WD40 repeat domains",
+      "ZZ domains"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.747769",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

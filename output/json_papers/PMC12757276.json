@@ -1,0 +1,61 @@
+{
+  "paper_id": "PMC12757276",
+  "pmid": "41487560",
+  "doi": "10.3389/fonc.2025.1679554",
+  "title": "Case Report: Navigating novel therapies and systemic barriers in ovarian clear cell carcinoma through a complete response to lenvatinib, pembrolizumab, and SFRT",
+  "abstract": "Ovarian clear cell carcinoma (OCCC) is a rare and chemoresistant histology known for having a poor prognosis and limited treatment options. Novel therapies offer hope, but come at a significant cost, with patients facing financial toxicity, inequitable access, and systemic barriers inherent to our current cancer care infrastructure. Utilizing a case of complete pathologic response to Lenvatinib, pembrolizumab, and spatially fractionated radiotherapy (SFRT) in metastatic OCCC after overcoming numerous individual and systemic barriers, we address the challenges surrounding access and innovation in cancer treatment, while simultaneously adding evidence to support these novel therapies in OCCC treatment. While acknowledging the role of expanded access programs and right-to-try pathways, we address broader issues surrounding restrictive trial criteria, inequitable resource distribution, and cancer as a chronic disease state, asking the question: how do we develop and disseminate novel therapies while addressing toxicities in today’s healthcare system?",
+  "authors": [
+    "Hobson, Jared",
+    "Garda, Allison E.",
+    "Ticku, Jonathan",
+    "Stockham, Abigail"
+  ],
+  "publication_date": "2025-12-19",
+  "journal": "Frontiers in Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-19",
+    "journal": "Frontiers in Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "case report",
+      "immunotherapy",
+      "ovarian cancer",
+      "radiation",
+      "SFRT",
+      "GRID",
+      "financial toxicity"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.062320",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12771675",
+  "pmid": "40875860",
+  "doi": "10.1126/science.adm7066",
+  "title": "Machine learning-based penetrance of genetic variants",
+  "abstract": "Accurate variant penetrance estimation is crucial for precision medicine. We constructed machine learning (ML) models for 10 diseases using 1,347,298 participants with electronic health records (EHRs), then applied them to an independent cohort with linked exome data. Resulting probabilities were used to evaluate ML penetrance of 1,648 rare variants in 31 autosomal dominant disease-predisposition genes. ML penetrance was variable across variant classes but highest for pathogenic and loss-of-function variants, and was associated with clinical outcomes and functional data. Compared to conventional case-versus-control approaches, ML penetrance provided refined quantitative estimates and aided the interpretation of variants of uncertain significance and loss-of-function variants by delineating clinical trajectories over time. Leveraging ML and deep phenotyping, we present a scalable approach to accurately quantify disease risk of variants.",
+  "authors": [
+    "Forrest, Iain S.",
+    "Vy, Ha My T.",
+    "Rocheleau, Ghislain",
+    "Jordan, Daniel M.",
+    "Petrazzini, Ben O.",
+    "Nadkarni, Girish N.",
+    "Cho, Judy H.",
+    "Ganapathi, Mythily",
+    "Huang, Kuan-Lin",
+    "Chung, Wendy K.",
+    "Do, Ron"
+  ],
+  "publication_date": "2025-08-28",
+  "journal": "Science (New York, N.Y.)",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-08-28",
+    "journal": "Science (New York, N.Y.)",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": []
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.959655",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

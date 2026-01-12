@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12750060",
+  "pmid": "41253392",
+  "doi": "10.3724/zdxbyxb-2025-0138",
+  "title": "乳腺癌患者生育管理现状和研究前沿",
+  "abstract": "中国乳腺癌患者发病年龄较小，年轻患者的生育问题已成为临床和社会共同面临的现实挑战。目前，乳腺癌患者的生育率明显低于同龄普通人群。乳腺癌本身及其抗肿瘤治疗（如化疗、放疗、内分泌治疗、靶向治疗和免疫治疗等）均对女性生育能力造成影响。因此，应将生育管理纳入乳腺癌全程管理中，并在疾病诊断早期积极介入。当前，针对乳腺癌患者生育管理已形成部分指南和共识，生育力保护在临床实践中也取得一定成效，通过药物、手术及辅助生殖技术等生育力保存措施，避免或减轻治疗对乳腺癌患者生育能力造成的损害，但需依靠多学科协作持续推进，尤其在生育力保存涉及的伦理和法律层面仍有诸多问题有待完善。近年来，遗传性乳腺癌生育问题、乳腺癌风险评估以及胚胎植入前多基因遗传病检测等研究日益深入，为乳腺癌患者的生育管理提供了新的思路及发展方向。本文系统综述乳腺癌患者的生育现状、现有生育管理策略及健康生育研究前沿，以期为推动乳腺癌患者生育管理的规范化提供参考。",
+  "authors": [
+    "周, 娇娇",
+    "金, 敏",
+    "黄, 荷凤"
+  ],
+  "publication_date": "2025-12-29",
+  "journal": "Journal of Zhejiang University (Medical Sciences)",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-29",
+    "journal": "Journal of Zhejiang University (Medical Sciences)",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "乳腺癌",
+      "生育管理",
+      "生育力保存",
+      "生殖伦理学",
+      "植入前遗传学检测",
+      "综述"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.555334",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "paper_id": "PMC12784773",
+  "pmid": null,
+  "doi": "10.3390/biology15010067",
+  "title": "Ferroptosis—The “Double-Edged Sword” in Cancer: Mechanisms of Tumor Suppression/Resistance and Therapeutic Manipulation",
+  "abstract": "Cell death is a process that can occur in cancerous cells in a variety of forms. Ferroptosis is a type of cell death that occurs when there is an overload of iron within the cell, leading to a disruption in vital components of the cellular membrane. In cancer, ferroptosis can play a “double-edged sword” role, where it can be either beneficial or detrimental. There are several factors of ferroptosis that can either promote or prevent cancer from occurring. These factors contribute to pathways that allow it to be studied and manipulated therapeutically for the benefit of treating cancer.",
+  "authors": [
+    "Quaranto, Danielle",
+    "DeSouza, Nicole R.",
+    "Carnazza, Michelle",
+    "Moscatello, Augustine",
+    "Islam, Humayun K.",
+    "Li, Xiu-Min",
+    "Tiwari, Raj K.",
+    "Geliebter, Jan"
+  ],
+  "publication_date": "2025-12-30",
+  "journal": "Biology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-30",
+    "journal": "Biology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ferroptosis",
+      "cancer",
+      "iron homeostasis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.888833",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

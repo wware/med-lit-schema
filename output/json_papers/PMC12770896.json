@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12770896",
+  "pmid": "41502464",
+  "doi": "10.12688/openreseurope.19751.2",
+  "title": "Sharing behavior and health care utilization following direct-to-consumer genetic testing: a systematic review",
+  "abstract": "Direct-to-consumer genetic testing (DTC-GT) which provides genetic information directly to the public, has become widely available at a moderate cost. Since DTC-GT companies frequently recommend that consumers consult healthcare professionals for assistance in interpreting and using genetic health risk information, this could potentially have an impact on healthcare systems. We performed a systematic review to assess: (1) the sharing behavior of actual DTC-GT consumers, (2) experiences of healthcare professionals regarding DTC-GT consumers sharing their test results and (3) healthcare utilization following DTC-GT, with a particular focus on validation of DTC-GT results and subsequent clinical actions. Our systematic review was registered in PROSPERO under the registration number CRD42024517079. Our search identified 40 unique articles eligible for inclusion that were published between 2009 en 2022. The proportion of participants who shared their DTC-GT test results with a health care professional ranged from 1% to 57%. DTC-GT consumers most commonly reported sharing their results with a primary healthcare professional. The proportion of health care professionals that had experiences with DTC-consumers sharing their test results ranged from 19% to 76%. The percentage of participants sharing their DTC-GT test with family members ranged from 18% to 98%. More detailed analysis indicated that this was frequently the case with partners, parents, and siblings. Sharing of test results with extended family members occurred less frequently. Several studies reported on instances of DTC-GT result validation and clinical actions performed based on the DTC-GT findings Conclusion While initial concerns about the impact of DTC-GT on health care systems have not fully materialized, the increasing number of consumers consulting with healthcare professionals underscores the need for preparedness and appropriate policy responses. Future research should prioritize standardizing study methodologies and expanding investigations beyond the U.S. context to better capture the global impact of DTC-GT.",
+  "authors": [
+    "Van Steijvoort, Eva",
+    "Goossens, Kaatje",
+    "Demesure, Kenji",
+    "Stanczak, Alexandra",
+    "Siermann, Maria",
+    "Borry, Pascal"
+  ],
+  "publication_date": "2025-09-19",
+  "journal": "Open Research Europe",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-09-19",
+    "journal": "Open Research Europe",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Genetic testing",
+      "Direct to consumer",
+      "Public Health",
+      "Prevention",
+      "Genomics",
+      "Screening",
+      "Predictive Testing"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.778601",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

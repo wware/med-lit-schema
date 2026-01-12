@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12770113",
+  "pmid": "41489768",
+  "doi": "10.1186/s11671-025-04411-7",
+  "title": "Harnessing albumin’s natural tumor-targeting properties: nanoplatform strategies for triple-negative breast cancer therapy",
+  "abstract": "Triple-negative breast cancer (TNBC) represents the most aggressive breast cancer subtype and is characterized by the absence of estrogen receptor, progesterone receptor, and HER2 expression; this subtype affects approximately 12–20% of all breast cancer cases, with a disproportionately poor prognosis and limited therapeutic options. The lack of targetable receptors excludes TNBC patients from hormone therapy and HER2-targeted treatments, resulting in the use of chemotherapy as the primary intervention, which is often associated with severe systemic toxicity and drug resistance. Albumin-based nanoplatforms have emerged as promising solutions to address these therapeutic challenges by exploiting the inherent biocompatibility, biodegradability, extended circulation half-life, and natural tumor-targeting properties of albumin through interactions with gp60 and SPARC receptors that are overexpressed in TNBC tissues. This comprehensive review examines the molecular design principles, fabrication strategies, and targeting mechanisms of albumin nanocarriers, including passive targeting via the enhanced permeability and retention (EPR) effect and active targeting through receptor‒ligand interactions with uPAR, EGFR, CD44, CXCR4, and folate receptors. We analyze diverse therapeutic payloads, including conventional chemotherapeutics (paclitaxel, doxorubicin, and docetaxel), natural products (curcumin and resveratrol), and molecular therapeutics (siRNAs and CRISPR/Cas9) delivered via albumin nanoplatforms. The clinical evidence supporting nab-paclitaxel in combination with immune checkpoint inhibitors has demonstrated significant improvements in progression-free survival and objective response rates in PD-L1-positive mTNBC patients, whereas real-world studies have confirmed manageable safety profiles. However, several challenges remain, including drug loading limitations, nanocarrier stability under physiological conditions, interpatient variability in EPR effectiveness, potential immunogenicity of modified albumin, and the inherent molecular heterogeneity of TNBC subtypes, which may require personalized approaches. Future directions emphasize the development of multistimuli-responsive albumin nanocarriers, integration with gene editing and immunotherapy, artificial intelligence-guided design optimization, and precision medicine strategies tailored to individual tumor profiles. The convergence of the natural tumor affinity of albumin with advanced nanotechnology holds substantial promise for overcoming drug resistance, enhancing therapeutic specificity, and improving clinical outcomes in TNBC patients, positioning albumin-based nanomedicine as a transformative approach in precision oncology.",
+  "authors": [
+    "Sheikh, Mujibullah",
+    "Khobragade, Deepak",
+    "Sakore, Aashita",
+    "Telrandhe, Umesh"
+  ],
+  "publication_date": "2026-01-05",
+  "journal": "Discover Nano",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-05",
+    "journal": "Discover Nano",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Albumin nanoparticles",
+      "TNBC",
+      "Targeted therapy",
+      "Nanomedicine",
+      "Drug delivery"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.376909",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12758042",
+  "pmid": "41488281",
+  "doi": "10.14740/wjon2692",
+  "title": "Screening, Risk Reduction Strategies, and Clinical Management of Unaffected Carriers of BRCA1 or BRCA2 Pathogenic Variants",
+  "abstract": "Breast cancer remains the most common cancer globally, with approximately 5-15% of cases linked to pathogenic variants primarily in BRCA1 or BRCA2. These mutations greatly increase cancer risks, highlighting the critical need for more effective screening and prevention strategies. This review aimed to summarize existing evidence and propose a comprehensive approach to reducing cancer risk in unaffected mutation carriers. A narrative review of published literature was conducted to evaluate risk-reduction strategies, including surveillance, enhanced imaging, risk-reducing surgeries, and chemoprevention. Barriers to the uptake of these strategies and the psychological impact on carriers were also examined. Annual magnetic resonance imaging (MRI) remains the most sensitive screening tool for early breast cancer detection in high-risk individuals. Selective estrogen receptor modulators (SERMs) and aromatase inhibitors have shown potential as chemopreventive agents, but uptake remains limited due to concerns about efficacy and side effects. Risk-reducing surgeries, such as bilateral salpingo-oophorectomy (BSO) and mastectomy, significantly lower the risk of breast and ovarian cancer; however, their uptake is often hindered by emotional, cultural, and financial factors. Family communication of genetic results and support by healthcare professionals are critical to encouraging preventive actions. Effective screening and risk-reduction strategies are available for BRCA1 and BRCA2 carriers, yet barriers to implementation persist. Personalized counseling, enhanced accessibility, and culturally sensitive education are essential to improving the adoption of these preventive measures. Further studies are needed to explore novel chemoprevention options and interventions to address the unmet needs of carriers worldwide.",
+  "authors": [
+    "Abdel-Razeq, Hikmat",
+    "Mansour, Razan"
+  ],
+  "publication_date": "2026-02-01",
+  "journal": "World Journal of Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-02-01",
+    "journal": "World Journal of Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "BRCA1",
+      "BRCA2",
+      "Germline genetic testing",
+      "Carrier",
+      "Risk-reducing surgery",
+      "Prophylactic mastectomy",
+      "Oophorectomy",
+      "BSO"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.863519",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

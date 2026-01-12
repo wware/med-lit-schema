@@ -1,0 +1,57 @@
+{
+  "paper_id": "PMC12767394",
+  "pmid": "41498011",
+  "doi": "10.1155/omcl/1811206",
+  "title": "Detecting Glutathione and Related Antioxidants as Biomarkers in Patient Breast Tumor Tissues: An Update in the Age of Metabolomics",
+  "abstract": "Increased levels of glutathione (GSH) and related antioxidant processes are thought to predict breast tumor aggressiveness and therapy response. In our 2012 review of 21 studies, we found that most patient breast tumors exhibited increased GSH levels compared to peritumoral tissue. However, there was no clear relationship between GSH levels and histological grade, clinical stage, or patient outcome. For this update, database searches found 59 studies that reported the levels of any of 10 metabolites, including GSH, cysteine (Cys), ascorbate (Asc), and taurine (Tau), in breast tumor tissues. The increase in the number of studies profiling tumor metabolites is mainly due to the use of an array of relatively new metabolomics technologies. However, many of these metabolomics methods are not designed to prevent sample oxidation during tissue procurement and processing. Despite this, these recent studies confirm that the levels of most of the antioxidants or related metabolites are increased in patient breast tumor tissues compared to normal tissues. In addition, poor patient outcomes are often associated with tumor tissues with higher GSH and lower Tau levels. GSH levels also increase with histological grade. There are no clear trends in the relationship between any of the antioxidant levels and tumor stage or genetically defined subtypes. Clearer trends may emerge with more uniform tissue sampling, preparation, and assay procedures. In addition, the increased use of spatial metabolomics methods may help to clarify the relationship between antioxidant levels and clinical markers.",
+  "authors": [
+    "Gamcsik, Michael P."
+  ],
+  "publication_date": "2025-12-10",
+  "journal": "Oxidative Medicine and Cellular Longevity",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-10",
+    "journal": "Oxidative Medicine and Cellular Longevity",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "ascorbate",
+      "biomarker",
+      "breast cancer",
+      "glutathione",
+      "patients",
+      "taurine"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.711768",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

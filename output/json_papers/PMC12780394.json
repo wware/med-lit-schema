@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12780394",
+  "pmid": null,
+  "doi": "10.21037/jtd-2025-1171",
+  "title": "Global bibliometric analysis of pleural mesothelioma biomarkers (2002–2024): trends and emerging frontiers",
+  "abstract": "Pleural mesothelioma (PM) is an aggressive malignancy that originates on the mesothelial surface of the pleura, peritoneum, pericardium, and tunica vaginalis. Due to the absence of specific clinical symptoms, early-stage diagnosis occurs in fewer than 5% of cases. Comprehensive assessments of the research landscape on PM biomarkers remain scarce. Therefore, this study employs bibliometric methods to systematically analyze research trends and developments in PM biomarkers, delineate the historical and current research landscape, and identify emerging research frontiers. We conducted a literature search for studies on PM biomarkers published between January 1, 2002, and December 31, 2024. Bibliometric analysis and data visualization were performed using VOSviewer and CiteSpace based on literature retrieved from the Web of Science Core Collection (WoSCC). A total of 662 publications on PM biomarkers, spanning from 2002 to 2024, were included in this study. Our findings reveal a substantial increase in global research on PM biomarkers over the past two decades, with annual publications peaking in 2021. The United States leads in publication volume, while the University of Western Australia ranks as the most prolific institution in this domain. Jenette Creaney, Glen Reid, and Harvey I. Pass are among the most influential authors in this field, while Journal of Thoracic Oncology, PLoS One, and Lung Cancer are the leading journals publishing research on this topic. Biomarkers associated with the diagnosis, treatment, and prognosis of PM remain central research foci in the field. This study represents the first bibliometric visualization of the research landscape on PM biomarkers, delineating key trends and research boundaries while serving as a valuable reference for scholars.",
+  "authors": [
+    "Huang, Shaoyang",
+    "Duan, Qinghua",
+    "Gu, Dandan",
+    "Yang, Wenzhong",
+    "Li, Zhengliang",
+    "Wang, Yangdan",
+    "Xiong, Wei"
+  ],
+  "publication_date": "2025-12-31",
+  "journal": "Journal of Thoracic Disease",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-31",
+    "journal": "Journal of Thoracic Disease",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Pleural mesothelioma (PM)",
+      "Vosviewer",
+      "Citespace",
+      "biomarkers",
+      "visual analysis"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.822988",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

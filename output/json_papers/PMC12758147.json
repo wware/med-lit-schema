@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12758147",
+  "pmid": "41397879",
+  "doi": "10.1101/gad.353408.125",
+  "title": "Mutant p53: evolving perspectives",
+  "abstract": "In this review, Efe et al. discuss the diversity and functional consequences of p53 mutations, focusing on missense mutations in its DNA binding domain. While loss-of-function and dominant-negative p53 mutations are commonly associated with oncogenesis, p53 gain-of-function mutations are also pro-oncogenic, highlighting that a spectrum of mutant p53 function underlies tumor-intrinsic and tumor-extrinsic mechanisms that support cancer development and progression.",
+  "authors": [
+    "Efe, Gizem",
+    "Cunningham, Katherine",
+    "Rustgi, Anil K.",
+    "Prives, Carol",
+    "Manfredi, James J.",
+    "Sánchez-Rivera, Francisco J."
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Genes & Development",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Genes & Development",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "p53 mutation",
+      "gain of function",
+      "loss of function",
+      "dominant-negative effect"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.135162",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

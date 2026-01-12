@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12788883",
+  "pmid": "40907939",
+  "doi": "10.1016/j.jmb.2025.169414",
+  "title": "The tRNA Editing Complex ADAT2/3 Promotes Cancer Cell Growth and Codon-biased mRNA Translation☆",
+  "abstract": "Transfer RNAs (tRNAs) are subject to various chemical modifications that influence their stability or function. Adenosine to Inosine (A-to-I) editing in the tRNA anticodon at position A34 is an important modification that expands anticodon-codon recognition at the wobble position and is required for normal mRNA translation. The relevance of tRNA editing in cancer remains unexplored. Here we show that the genes encoding the ADAT2/3 deaminase complex, responsible for A-to-I tRNA editing in humans, are commonly amplified and/or overexpressed in several tumor types including liposarcoma (LPS). We find that LPS cell growth and tumorigenicity is dependent on ADAT2/3 tRNA editing activity. Mechanistically, we find decreased tRNA editing upon ADAT2 depletion, defective translation of a subset of mRNAs, and altered protein homeostasis. Thus, ADAT2 promotes oncogenesis and the translation of growth promoting mRNAs that are enriched in NNC codons that lack cognate tRNAs and therefore depend on A-I tRNA editing for decoding and mRNA translation. Our results identify ADAT2/3 as a potential new cancer therapeutic target.",
+  "authors": [
+    "Ramirez-Moya, Julia",
+    "Antika, Titi Rindi",
+    "Liu, Qi",
+    "Xiong, Xushen",
+    "Ali, Raja",
+    "Gutierrez, Alejandro",
+    "Gregory, Richard I."
+  ],
+  "publication_date": "2025-11-01",
+  "journal": "Journal of molecular biology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-01",
+    "journal": "Journal of molecular biology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Editing",
+      "Inosine",
+      "ADAT2",
+      "ADAT3",
+      "tRNA"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.813343",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

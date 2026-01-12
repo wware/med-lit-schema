@@ -1,0 +1,67 @@
+{
+  "paper_id": "PMC12779267",
+  "pmid": "41498327",
+  "doi": "10.7554/eLife.89573",
+  "title": "Replication stress-inducing ELF3 upregulation promotes BRCA1-deficient breast tumorigenesis in luminal progenitors",
+  "abstract": "BRCA1 is a critical tumor suppressor, mutations in which greatly increase risks for many tumors in carriers, most notably breast cancer. Luminal progenitor cells (LPs) are the currently recognized cells of origin of BRCA1-deficient breast cancers. However, the reason why LPs are prone to transform with BRCA1 deficiency has not been elucidated. Here, using single-cell sequencing of human BRCA1 mutant breast cancers and RNA sequencing (RNA-seq) of BRCA1-deficient normal mammary cells, we reveal that replication stress is a feature of LPs and a driving factor during BRCA1-associated tumorigenesis. Mechanistically, replication stress and BRCA1 deficiency lead to significant upregulation of ELF3 expression. ELF3 can help suppress excessive genomic instability and promote LP transformation with BRCA1 deficiency. Moreover, ELF3 emerged as a core transcription factor regulating LP genes, leading to LP expansion. Our findings suggest that replication stress is a driving factor during BRCA1-associated tumorigenesis in luminal progenitor cells and elucidates the key role of ELF3 during this process.",
+  "authors": [
+    "Zhou, Jiadong",
+    "Zhou, Xiao Albert",
+    "Hu, Li",
+    "Ma, Yujie",
+    "Zhan, Jun",
+    "Xu, Zhanzhan",
+    "Zhou, Mei",
+    "Shen, Qinjian",
+    "Liu, Zhaofei",
+    "Ma, Shaohua",
+    "Xie, Yuntao",
+    "Wang, Jiadong"
+  ],
+  "publication_date": "2026-01-07",
+  "journal": "eLife",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-07",
+    "journal": "eLife",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "BRCA1",
+      "breast cancer",
+      "ELF3",
+      "Replication stress",
+      "luminal progenitors"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.513429",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

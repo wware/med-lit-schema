@@ -1,0 +1,64 @@
+{
+  "paper_id": "PMC12785006",
+  "pmid": null,
+  "doi": "10.3390/cancers18010073",
+  "title": "Nutritional Impact on Breast Cancer in Menopausal and Post-Menopausal Patients Treated with Aromatase Inhibitors",
+  "abstract": "Aromatase inhibitors (AIs) are frequently used to treat menopausal or postmenopausal patients with estrogen-positive breast cancer. However, some cases exhibit primary resistance or develop secondary resistance to AI therapy. Nutrition appears to play a pivotal role in the patient’s journey from diagnosis onward, significantly influencing the clinical response to AI therapy. This review presents the interactions of various nutrients found in foods or dietary supplements, elucidating the molecular mechanisms by which Ais’ efficacy may be either attenuated or enhanced. In this context, alongside precisely targeted pharmacological therapy, the nutritional status of the oncological patient is of paramount importance. These considerations underscore the need for further research into expanding therapeutical options and developing personalized approaches that adapt to the changes occurring in the life of patient diagnosed with breast cancer.",
+  "authors": [
+    "Popescu, Roxana",
+    "Flangea, Corina",
+    "Vlad, Daliborca Cristina",
+    "Cobec, Ionut Marcel",
+    "Seropian, Peter",
+    "Marina, Cristina Doriana",
+    "Vlad, Tania",
+    "Dumitrascu, Andrei Luca",
+    "Puscasiu, Daniela"
+  ],
+  "publication_date": "2025-12-25",
+  "journal": "Cancers",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-25",
+    "journal": "Cancers",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "aromatase inhibitors",
+      "breast cancer",
+      "biologically active compounds",
+      "nutrients",
+      "drug interference"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.428778",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

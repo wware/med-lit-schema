@@ -1,0 +1,65 @@
+{
+  "paper_id": "PMC12751341",
+  "pmid": "41476672",
+  "doi": "10.2147/BCTT.S553421",
+  "title": "The Landscape of Potential Targeted Treatments and Chemotherapy Efficacy Biomarkers for TNBC",
+  "abstract": "Triple negative breast cancer (TNBC) is characterized as an estrogen receptor (ER) negative, progesterone receptor (PR) negative, and human epidermal growth factor receptor (HER-2) negative disease with an enhanced systemic metastatic incidence, chemotherapeutic insensitivity, and drug resistance. The internal characteristics of TNBC are extraordinary complex and are accompanied by numerous gene mutations and constitutively activated signaling networks, which, in turn, augment TNBC malignancy. There is an urgency to uncover new and potent therapeutic targets for TNBC. Herein, we discussed the historical as well as newly discovered subtypes and properties of TNBC. We also presented a systematic outline of the aberrant gene expression and abnormal activated signaling networks in TNBC. Subsequently, we summarized the corresponding targeted therapeutic drugs, and reviewed the current targeted TNBC therapies launched in clinical trials, thereby providing a direction for future TNBC therapy. We also provided a detailed list of coding genes involved in chemo-sensitive and chemo-resistance of TNBC, which can potentially serve as indicators of chemotherapeutic efficacy. Finally, we discussed the novel and future potential treatments of TNBC. This review highlighted the new era of TNBC treatment in the coming years and provided the gene expression profile of TNBC patients who may benefit from chemotherapy.",
+  "authors": [
+    "Kang, Yujuan",
+    "Liu, Yanqing",
+    "Liang, Zhi",
+    "Zhang, Song",
+    "Qiao, Guangdong"
+  ],
+  "publication_date": "2025-12-26",
+  "journal": "Breast Cancer : Targets and Therapy",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-26",
+    "journal": "Breast Cancer : Targets and Therapy",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "TNBC",
+      "immunotherapy",
+      "PI3K-AKT-mTOR",
+      "BRCA",
+      "EGFR",
+      "FGFR",
+      "PD-L1",
+      "CDK",
+      "chemo-sensitive",
+      "chemo-resistance"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.043785",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "paper_id": "PMC12787047",
+  "pmid": null,
+  "doi": "10.3390/jcm15010042",
+  "title": "The Accuracy of Video-Assisted Thoracic Surgery Pleural Biopsy in Patients with Suspected Diffuse Pleural Mesothelioma: A Real-Life Study",
+  "abstract": "Background: The heritage of occupational and environmental asbestos exposure in Piedmont, Italy, has resulted in an enduring diffuse pleural mesothelioma (DPM) epidemic. Our study aimed to investigate the accuracy of Pleural biopsy (PB) via thoracoscopy (or video-assisted thoracic surgery—VATS) and analyze the diagnostic path of patients who experienced an initial DPM misdiagnosis. Methods: Patients who underwent PB by VATS for suspected DPM from 2004 to 2013 were analyzed. The Registry of Malignant Mesothelioma (RMM) records were examined to cross-check incident cases and identify misdiagnosed DPM. The sensitivity and specificity of the initial PB assessment versus the final classification of cases by RMM were evaluated. Results: Data from 552 patients were analyzed, and DPM was diagnosed in 178 cases (32%). Sensitivity and specificity were 93% and 100%, respectively. The number of false-negative PBs was 14 (2%). Of those, 10 (71%) had an initial diagnosis of chronic pleuritis, 3 (28.5%) were initially classified as mesothelial proliferation, and 1 had reactive mesothelial proliferation. All of them reported a history of asbestos exposure, and the correct diagnosis was reached after a median of 160 days. One- and four-year survival rates were 52% and 10% in DPM PB-positive cases and 50% and 19% in false-negative cases. Conclusions: When a strong clinical suspicion after a negative PB remains, iterative biopsy attempts should be considered, especially if a history of asbestos exposure is reported. In high-volume centers, the DPM misdiagnosis rate remains low, and future advancements in diagnostic technologies could further increase the accuracy and efficacy of histologic diagnosis.",
+  "authors": [
+    "Balsamo, Ludovica",
+    "Migliore, Enrica",
+    "Della Beffa, Eleonora",
+    "Delsedime, Luisa",
+    "Lausi, Paolo Olivo",
+    "Di Cuonzo, Daniela",
+    "Lococo, Filippo",
+    "Lyberis, Paraskevas",
+    "Mirabelli, Dario",
+    "Papotti, Mauro Giulio",
+    "Ruffini, Enrico",
+    "Guerrera, Francesco"
+  ],
+  "publication_date": "2025-12-20",
+  "journal": "Journal of Clinical Medicine",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-20",
+    "journal": "Journal of Clinical Medicine",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "malignant pleural mesothelioma",
+      "diffuse mesothelioma",
+      "diagnosis",
+      "thoracoscopy",
+      "pleural effusion",
+      "asbestos"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.663558",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

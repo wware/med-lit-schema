@@ -1,0 +1,58 @@
+{
+  "paper_id": "PMC12753947",
+  "pmid": "41479925",
+  "doi": "10.3389/fimmu.2025.1732358",
+  "title": "Human papillomavirus infection and vaccination with thyroid diseases: mechanistic links and immunological insights",
+  "abstract": "Human papillomavirus (HPV) is one of the most prevalent DNA viruses worldwide. Beyond its well-established oncogenic roles in cervical and head and neck squamous cell carcinomas, accumulating evidence suggests that HPV may also contribute to the pathogenesis and progression of thyroid diseases. This review systematically integrates recent advances from histological, molecular, and epidemiological studies to comprehensively evaluate the potential associations between HPV infection and different types of thyroid disorders. The findings indicate that HPV infection may promote thyroid dysfunction and tumor development by inducing chronic inflammation and disrupting immune homeostasis, whereas HPV vaccination appears to exert a protective effect by restoring immune homeostasis. This study establishes an integrative framework linking HPV infection, immune modulation, and thyroid diseases, providing new insights into the pathophysiological mechanisms of virus-related thyroid disorders and a theoretical foundation for future immunotherapy and precision prevention research.",
+  "authors": [
+    "Wang, Zhengda",
+    "Chang, Xiwen",
+    "Cheng, Xianbin"
+  ],
+  "publication_date": "2025-12-17",
+  "journal": "Frontiers in Immunology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-17",
+    "journal": "Frontiers in Immunology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "human papillomavirus",
+      "immunological insights",
+      "mechanistic",
+      "thyroid diseases",
+      "vaccination"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.482864",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

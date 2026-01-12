@@ -1,0 +1,54 @@
+{
+  "paper_id": "PMC12775167",
+  "pmid": "41510417",
+  "doi": "10.7759/cureus.98665",
+  "title": "Encapsulated Papillary Carcinoma of the Male Breast With a Mixed Invasive Component: A Report of a Rare Case",
+  "abstract": "Male breast carcinoma (MBC) is an uncommon disease, representing only a very small fraction of breast cancer diagnoses. Encapsulated papillary carcinoma (EPC), a distinct subtype, is even more uncommon in men. EPC may coexist with invasive components, requiring careful evaluation to differentiate it from benign papillary proliferations and metastatic malignancies. A 69-year-old man presented with a painless breast mass. Mammography revealed a well-circumscribed, partially cystic lesion. Left mastectomy with axillary sampling was performed. Histology showed EPC with a mixed invasive component composed of invasive carcinoma of no special type (NST) and invasive papillary carcinoma, measuring 23 mm. The tumor was estrogen receptor (ER)-positive, progesterone receptor (PR)-positive, human epidermal growth factor receptor 2 (HER2)-low, with a Ki-67 proliferation index of 25%. All six lymph nodes were negative for metastasis (pT2N0). The differential diagnosis of EPC in men includes gynecomastia, benign papillary lesions, solid papillary carcinoma, invasive papillary carcinoma, and metastases from prostate, thyroid, or gastrointestinal carcinomas. Accurate diagnosis requires integration of histology, myoepithelial markers, and site-specific immunohistochemistry. Treatment principles for MBC mirror those of female breast cancer and include mastectomy, endocrine therapy (tamoxifen), radiotherapy, and systemic therapy as indicated. Genetic counseling is recommended due to the high prevalence of germline mutations. This case highlights the rarity of EPC with a mixed invasive component in men and underscores the importance of comprehensive morphologic and immunophenotypic evaluation. Increased reporting of such cases will improve understanding and management of male breast malignancies.",
+  "authors": [],
+  "publication_date": "2025-12-07",
+  "journal": "Cureus",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-07",
+    "journal": "Cureus",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "breast cancer pathology",
+      "breast papillary lesions",
+      "encapsulated papillary carcinoma with invasion",
+      "male breast carcinoma",
+      "primary breast malignancy"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.287545",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "extraction_pipeline": {
+    "name": "pmc_ner_ingest",
+    "version": "1.0.0",
+    "git_commit": "16e347a339144746c247f4938fc2dbcc22027e1d",
+    "git_commit_short": "16e347a",
+    "git_branch": "download",
+    "git_dirty": true,
+    "repo_url": "https://github.com/wware/med-lit-graph"
+  },
+  "models": {
+    "ner": {
+      "name": "ugaray96/biobert_ncbi_disease_ner",
+      "provider": "huggingface",
+      "temperature": null,
+      "version": null
+    }
+  },
+  "prompt": {
+    "version": "v1",
+    "template": "ner_biobert_ncbi_disease",
+    "checksum": null
+  },
+  "execution": {
+    "timestamp": "2026-01-12T16:59:57.412980",
+    "hostname": "wware-Inspiron-5570",
+    "python_version": "3.13.3",
+    "duration_seconds": 63.574385
+  },
+  "entity_resolution": {
+    "canonical_entities_matched": 396,
+    "new_entities_created": 0,
+    "similarity_threshold": 0.0,
+    "embedding_model": "none"
+  }
+}

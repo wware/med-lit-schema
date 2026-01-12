@@ -1,0 +1,65 @@
+{
+  "paper_id": "PMC12765603",
+  "pmid": "41492357",
+  "doi": "10.2147/BCTT.S551004",
+  "title": "Introducing a New Hypothesis in the Genesis of Breast Cancer: An Integrative Review",
+  "abstract": "Breast cancer is the second most common cancer among women worldwide. Estrogen is currently identified as one of the main agents involved in the initiation of breast tumors; however, evidence indicates a greater risk when estrogen replacement is combined with progesterone, whereas its isolated use does not represent a significant risk. Inconsistencies in existing theories highlight the need for further detailed research on the relationship between hormone exposure and breast tumorigenesis, with particular emphasis on fibrinogen and its components in the context of this review. Introduce a new theory into the medical literature concerning the genesis of breast cancer. This is an integrative literature review based on a selection of relevant articles published between 2000 and 2025, in both Portuguese and English, and sourced from the following databases: Scielo, ScienceDirect, National Library of Medicine, PubMed, Cochrane, Brazilian Journal of Development, and ResearchGate. Fifty-six references were selected to support the development of the discussion components, which are subdivided into the following themes: physiology of estrogen and progesterone in the body, actions of hormonal therapies, both combined and isolated, in breast cancer, and fibrinolytic physiology. After identifying contradictions in current theories about the influence of estrogen on tumor proliferation, which encouraged the search for new interpretations, it was demonstrated that free estrogen and its by-products, such as fibrinogen-related protein (fibrinogen-like protein 1 and 2), play a role in the immune system’s failure to contain malignant cells, opening another field of therapeutic research for breast cancer.",
+  "authors": [
+    "Andrade Pachnicki, Jan Pawel",
+    "Cayet, Clara Marie",
+    "dos Santos, Diego Akyo Hoshina",
+    "Junkes, Giovanna Braz",
+    "Petry, Julia",
+    "Hibarino, Maria Eduarda Mendes",
+    "Lodi Carvalho, Vitória Luisa"
+  ],
+  "publication_date": "2025-12-31",
+  "journal": "Breast Cancer : Targets and Therapy",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-31",
+    "journal": "Breast Cancer : Targets and Therapy",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "hormone replacement therapy",
+      "estrogen",
+      "FGL1",
+      "LAG-3",
+      "breast cancer",
+      "fibrinogen",
+      "oncogenesis",
+      "crosstalk"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.574792",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

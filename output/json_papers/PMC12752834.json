@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12752834",
+  "pmid": "41476996",
+  "doi": "10.1155/ije/4160656",
+  "title": "Mechanism of Jianpixiaoke Recipe in Treating Type 2 Diabetes Based on Network Pharmacology and Molecular Docking",
+  "abstract": "Using network pharmacology and molecular docking technology to analyze the potential mechanism of the Jianpixiaoke recipe (JPXK recipe) in the treatment of type 2 diabetes mellitus (T2DM). This study searched and screened the active ingredients and corresponding T2DM‐related targets of different herbs in JPXK recipe from multiple databases. Venn was used to screen the intersection targets of JPXK recipe targets and T2DM targets, and the intersection targets were imported into the STRING database to construct a PPI network. In addition, clustering and topology analysis were also used to analyze PPI networks. At the same time, a composite target network was constructed using Cytoscape software. Then, we further carried out GO and KEGG enrichment analysis on the targets and carried out molecular docking verification on key chemical ingredients and hub targets. Finally, the effect of this prescription on T2DM was verified through animal experiments. This study screened a total of 366 targets for the JPXK recipe, 1886 T2DM‐related targets, and 214 intersecting targets. The active ingredients of the JPXK recipe were quercetin, isorhamnetin, luteolin, berberine, kaempferol, etc. Potential hub targets were ESR1, JUN, SRC, PIK3R1, FOS, MAPK1, AKT1, RELA, and MAPK3. The main pathways of the JPXK recipe in treating T2DM included the MAPK signaling pathway, cAMP signaling pathway, tumor necrosis factor signaling pathway, Toll‐like receptor signaling pathway, etc. Molecular docking results showed that quercetin and luteolin combined best with the hub gene. JUN, FOS, AKT1, RELA, and MAPK3 interacted well with these critical ingredients. Animal experiments verified that the JPXK recipe had a good hypoglycemic effect. This study revealed the active ingredients and potential molecular mechanism of the JPXK recipe in the treatment of T2DM, which provides valuable experience in future clinical trials.",
+  "authors": [
+    "Li, Huan",
+    "An, Wenrong",
+    "Huang, Chengcheng",
+    "Fang, Guowei",
+    "Huang, Yanqin"
+  ],
+  "publication_date": "2025-12-26",
+  "journal": "International Journal of Endocrinology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-26",
+    "journal": "International Journal of Endocrinology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "animal experiment",
+      "Jianpixiaoke recipe",
+      "molecular docking",
+      "network pharmacology",
+      "type 2 diabetes mellitus"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.026959",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

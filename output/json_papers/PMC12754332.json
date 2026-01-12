@@ -1,0 +1,59 @@
+{
+  "paper_id": "PMC12754332",
+  "pmid": "41480212",
+  "doi": "10.4251/wjgo.v17.i12.113636",
+  "title": "Molecular mechanism of non-coding RNAs-mediated radiosensitivity regulation in colorectal cancer",
+  "abstract": "Colorectal cancer (CRC) remains a formidable global health challenge and is associated with dismal survival outcomes and high mortality among patients diagnosed at advanced stages. Despite advancements in early screening and therapeutic interventions, the outcomes of patients with advanced-stage CRC remain suboptimal, as these patients continue to exhibit a persistently low 5-year survival rate. Palliative radiotherapy (RT) is crucial for advanced CRC patients, but radioresistance remains a significant clinical challenge. This resistance is attributed to multiple mechanisms, such as genetic heterogeneity, dysregulated DNA damage repair and tumor microenvironment metabolic disorders. Recent studies have shown that noncoding RNAs (ncRNAs), mainly microRNAs, long ncRNAs (lncRNAs) and circular RNAs, play pivotal roles in regulating CRC radiosensitivity through diverse mechanisms, such as epithelial-mesenchymal transition, epigenetic reprogramming, posttranscriptional regulation and oncogenic signaling pathway activation. For example, microRNAs such as miR-141-3p and miR-630 enhance CRC radiosensitivity by targeting oncogenic pathways. In addition, lncRNAs, including the lncRNAs HOTAIR and LINC00630, influence the radiosensitivity of CRC through interactions with the DNA damage repair machinery and epigenetic modulators, respectively. In addition, circ_0124554 acts as a competitive endogenous RNA to regulate oncogenic signaling. ncRNAs also serve as potential biomarkers for predicting radiosensitivity and prognosis. This review synthesizes the current evidence on the ncRNA-mediated regulatory networks that influence CRC radiosensitivity, emphasizing their potential as therapeutic targets to overcome RT resistance and improve outcomes in advanced CRC. By bridging mechanistic insights with clinical applications, this work aims to guide future research and the implementation of precision RT strategies.",
+  "authors": [
+    "Li, Xiao",
+    "Hao, Xiu-Xia",
+    "Zhu, Rui-Qing",
+    "Zhou, Hong-Wei"
+  ],
+  "publication_date": "2025-12-15",
+  "journal": "World Journal of Gastrointestinal Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-15",
+    "journal": "World Journal of Gastrointestinal Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Radiosensitivity",
+      "Noncoding RNAs",
+      "Colorectal cancer",
+      "Radiotherapy",
+      "Radioresistance"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.494649",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

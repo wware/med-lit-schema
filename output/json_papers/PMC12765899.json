@@ -1,0 +1,56 @@
+{
+  "paper_id": "PMC12765899",
+  "pmid": "41486294",
+  "doi": "10.1038/s41422-025-01203-7",
+  "title": "Mitophagy in the pathogenesis and management of disease",
+  "abstract": "Mitophagy, an evolutionarily conserved quality-control process, selectively removes damaged mitochondria to maintain cellular homeostasis. Recent advances in our understanding of the molecular machinery underlying mitophagy — from receptors and stress-responsive triggers to lysosomal degradation — illustrate its key role in maintaining mitochondrial integrity and adapting mitochondrial function to ever-changing physiological demands. In this review, we outline the fundamental mechanisms of mitophagy and discuss how dysregulation of this pathway disrupts mitochondrial function and metabolic balance, driving a wide range of disorders, including neurodegenerative, cardiovascular, metabolic, and immune-related diseases, as well as cancer. We explore the dual role of mitophagy as both a disease driver and a therapeutic target, highlighting the efforts and challenges of translating mechanistic insights into precision therapies. Targeting mitophagy to restore mitochondrial homeostasis may be at the center of a large range of translational opportunities for improving human health.",
+  "authors": [
+    "Wang, Qi",
+    "Sun, Yu",
+    "Li, Terytty Yang",
+    "Auwerx, Johan"
+  ],
+  "publication_date": "2026-01-01",
+  "journal": "Cell Research",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-01",
+    "journal": "Cell Research",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Autophagy",
+      "Cell signalling"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.645060",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

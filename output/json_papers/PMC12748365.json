@@ -1,0 +1,67 @@
+{
+  "paper_id": "PMC12748365",
+  "pmid": "41261346",
+  "doi": "10.1007/s12672-025-04100-y",
+  "title": "Multi-omics analysis reveals PIAS family gene dysregulation as a driver of head and neck squamous cell carcinoma (HNSC) progression and therapeutic vulnerability",
+  "abstract": "Head and neck squamous cell carcinoma (HNSC) stand as one of the most fatal malignancies worldwide. The intricate nature of this disease has contributed to a limited understanding of its diagnostic and prognostic indicators. This study comprehensively investigated the dysregulation of PIAS family genes (PIAS1, PIAS2, PIAS3, and PIAS4) in Head and Neck Squamous Cell Carcinoma (HNSC). Cell culturing, RT-qPCR, bisulfite sequencing, UALCAN, GEPIA, Human Protein Atlas (HPA), MEXPRESS, cBioPortal, Prognostic model development, DAVID, TISCH2, cell culture, gene knockdown, cell culture, colony formation, wound healing, DrugBank, and molecular docking analyses. RT-qPCR demonstrated significant up-regulation of PIAS1, PIAS2, PIAS3, and PIAS4 in HNSC cell lines. ROC curve analysis indicated high diagnostic accuracy for these genes. Promoter methylation analysis revealed a negative correlation, suggesting hypomethylation as a potential mechanism for their overexpression. Validation across multiple datasets and immunohistochemistry supported their up-regulation in HNSC. Mutational analysis showed low mutation frequencies in PIAS1, PIAS2, PIAS3, and PIAS4 genes. Survival analysis implicated elevated PIAS expression in poorer overall survival of HNSC patients, and a prognostic model demonstrated predictive robustness. Correlation with immune cells highlighted associations of PIAS gene with various immune cell types. GO and KEGG analyses unveiled functional involvement of PIAS genes in critical cellular processes and signaling pathways. Functional assays demonstrated that PIAS knockdown inhibited HNSC cell proliferation, migration, and invasion. Lastly, the identification of Cyclocreatine and Vorinostat as potential inhibitors through drug acquisition and molecular docking provides insights into therapeutic avenues for HNSC patients. These findings contribute to the understanding of PIAS family genes in HNSC pathogenesis, diagnosis, prognosis, and potential therapeutic targeting. The online version contains supplementary material available at 10.1007/s12672-025-04100-y.",
+  "authors": [
+    "Hussain, Mumtaz",
+    "Ishfaq, Mehreen",
+    "Hameed, Syeda Amber",
+    "Abbas, Afshan Syed",
+    "Bhanbhro, Mujeeb ur Rehman",
+    "Ain, Qurat ul",
+    "Abdel-Maksoud, Mostafa A.",
+    "Alamri, Abdulaziz",
+    "Almutairi, Saeedah",
+    "Almanaa, Taghreed N.",
+    "Ayaz, Muhammad Mazhar",
+    "Hameed, Yasir"
+  ],
+  "publication_date": "2025-11-20",
+  "journal": "Discover Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-11-20",
+    "journal": "Discover Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "HNSC",
+      "PIAS family genes",
+      "Diagnosis",
+      "Prognosis",
+      "Treatment"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.531446",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

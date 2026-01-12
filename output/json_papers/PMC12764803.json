@@ -1,0 +1,62 @@
+{
+  "paper_id": "PMC12764803",
+  "pmid": "41087529",
+  "doi": "10.1038/s41416-025-03179-y",
+  "title": "Integrating homologous recombination deficiency subtyping with TCGA molecular classification for enhanced prognostic stratification and personalised therapy in endometrial cancer",
+  "abstract": "Homologous recombination deficiency (HRD) has emerged as a functional biomarker reflecting genome-wide DNA repair defects and genomic instability. While the Cancer Genome Atlas (TCGA) molecular classification provides valuable prognostic guidance in endometrial cancer (EC), it lacks resolution for DNA repair competency and therapeutic responsiveness. This study aimed to investigate whether HRD subtyping could complement TCGA classification for improved prognostic stratification and therapeutic decision-making. A total of 142 EC patients were analysed using a next-generation sequencing panel and genomic scar-based HRD scoring (loss of heterozygosity, telomeric allelic imbalance, large-scale state transitions). Unsupervised clustering stratified patients into HRD-High, -Middle, and -Low groups. Maximally selected rank statistics were used to identify prognostic thresholds for HRD scores; the tumour-immune microenvironment was characterised by RNA-based immune gene expression profiling and multiplex immunohistochemistry. A support vector machine (SVM) model was developed for recurrence prediction. HRD subtyping identified distinct genomic, pathological, and immunological features. HRD-High tumours were associated with advanced FIGO stages, TP53 mutations, higher chromosomal instability, and elevated CD8⁺PD-1⁺ T-cell infiltration. HRD subtyping independently predicted disease-free survival and showed superior prognostic accuracy (C-index = 0.857) compared to TCGA subtyping (C-index = 0.751). Integrating HRD and TCGA classifiers further improved predictive performance (C-index = 0.903). An SVM model incorporating HRD score and immune features achieved an AUC of 0.733 for recurrence prediction. HRD subtyping refines risk stratification beyond traditional TCGA classification and identifies patients potentially responsive to immune checkpoint or DNA damage-targeted therapies. Integrating HRD-based genomic instability metrics with molecular and immune profiling supports precision oncology in endometrial cancer.",
+  "authors": [
+    "Wang, Wei",
+    "Gao, Min",
+    "Gao, Yunong",
+    "Zheng, Hong",
+    "Song, Nan",
+    "Zhang, Naiyi",
+    "Shu, Tong",
+    "Gao, Weijiao",
+    "Zhang, Nan",
+    "Wang, Hongguo"
+  ],
+  "publication_date": "2026-01-31",
+  "journal": "British Journal of Cancer",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2026-01-31",
+    "journal": "British Journal of Cancer",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Homologous recombination",
+      "Endometrial cancer"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.437076",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

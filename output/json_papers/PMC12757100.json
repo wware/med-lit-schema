@@ -1,0 +1,55 @@
+{
+  "paper_id": "PMC12757100",
+  "pmid": "41487836",
+  "doi": "10.7759/cureus.98330",
+  "title": "Evaluation of the Clinical Impact of Immune Checkpoint Inhibitors (Atezolizumab and Pembrolizumab) in the Treatment of Triple-Negative Breast Cancer: A Meta-Analysis and Review of Literature",
+  "abstract": "Triple-negative breast cancer (TNBC) refers to a distinct subclass of breast cancer with the absence of estrogen receptor (ER), progesterone receptor (PR), and human epidermal growth factor receptor 2 (HER2) expression, making it a clinically challenging subtype with fewer therapeutic pathways. Not only are these tumors unresponsive to receptor-targeted treatments, but also they typically manifest increased metastatic potential and invasiveness, high relapse rate, and poor outcomes. As such, there is a compelling clinical need for novel TNBC treatment regimens. A range of different therapeutic approaches are being investigated, including the use of immunotherapeutic agents. In this meta-analysis, we set out to evaluate the potential for using immune checkpoint inhibitors (ICIs), targeting either programmed cell death protein 1 (PD-1) or programmed cell death ligand 1 (PD-L1), in TNBC. A keyword search was performed using three databases, Cochrane Central Register of Controlled Trials (CENTRAL), Scopus, and PubMed, to identify potential studies to be included in a meta-analysis. Studies comparing the use of immune checkpoint inhibitors in combination with standard-of-care chemotherapy for the treatment of patients with TNBC were identified. The data from all the eligible studies were extracted, and statistical analysis was performed using Review Manager (RevMan) software (The Cochrane Collaboration, London, United Kingdom). Odds ratio (OR) and 95% confidence interval (CI) were calculated. After filtering, six studies were included, containing a total of 4,824 patients. Four trials aimed to investigate the objective response rate (ORR), and three trials looked at the duration of response (DOR), all-cause adverse effects (AEs), and treatment-related adverse effects. The ORR was significantly higher in the PD-L1 inhibitor group (OR, 2.68; 95% CI, 2.09-3.44; p < 0.00001). Similarly, treatment with anti-PD-L1 therapy significantly increased the mean DOR (mean difference {MD}, 2.96; 95% CI, 2.74-3.18; p < 0.00001). All-cause adverse events and treatment-related adverse events were both higher in the anti-PD-L1 groups (OR: 1.93, 95% CI: 0.85-3.87, and p = 0.12 and OR: 1.66, 95% CI: 1.00-2.75, and p = 0.05, respectively). However, only treatment-related adverse events were significantly higher. This meta-analysis confirmed that regimens containing PD-1- or PD-L1-targeting agents have clinical utility and acceptable side-effect profiles when used in the treatment of triple-negative breast cancer. Future research should explore combination therapies to enhance efficacy and combat resistance.",
+  "authors": [],
+  "publication_date": "2025-12-02",
+  "journal": "Cureus",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-02",
+    "journal": "Cureus",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "atezolizumab",
+      "clinical outcomes",
+      "immune checkpoint inhibitors (icis)",
+      "meta-analysis",
+      "pembrolizumab",
+      "triple-negative breast cancer (tnbc)"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.211574",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

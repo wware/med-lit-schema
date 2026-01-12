@@ -1,0 +1,66 @@
+{
+  "paper_id": "PMC12754045",
+  "pmid": "41467336",
+  "doi": "10.1177/19160216251407670",
+  "title": "Shared Decision-Making During Surgical Consultations for Indeterminate Thyroid Nodules",
+  "abstract": "Several feasible management options exist for indeterminate thyroid nodules (ITNs), which can lead to decisional conflict (DC) and uncertainty in patients. To investigate patient and physician participation in shared decision-making (SDM) during the management of ITNs and the association of SDM with patient-perceived DC. Multi-institutional, cross-sectional, multiple methods study. The Queen Elizabeth II Health Science Centre (Halifax, Nova Scotia) from October 2020 to June 2023 and The Ottawa Hospital (Ottawa, Ontario) from November 2022 to June 2023. Patients with ITNs scheduled for an initial surgical consultation with an Otolaryngologist were included. Consultations were video-recorded using discreet cameras within clinic rooms at both sites. Management options discussed at both sites included repeat fine needle aspiration biopsy, ultrasound surveillance, surgery, and molecular testing. Patient-perceived SDM was measured by the SDM Questionnaire-9 (SDM-Q-9) and perceived DC by the DC Scale (DCS). Surgeons’ perceptions of SDM were measured by the SDM-Q-Doc. Observer-determined SDM was reported using the multifocal approach to sharing in SDM (MAPPIN’SDM) instrument. Seventy-seven patients and 6 surgeons were included. Patient-perceived SDM was high [mean = 94.38, standard deviation (SD) = 7.61], while physician-perceived SDM was lower in comparison (mean = 83.21, SD = 9.14). Observer-determined SDM involvement of the patient (mean = 0.73, SD = 1.08), physician (mean = 1.71, SD = 1.33), and patient-physician dyad (mean = 1.75, SD = 1.27) was low. Clinically significant DC (DCS score ≥25) was reported by 13.2% of patients. There was a medium negative correlation between patient-perceived SDM involvement and DC (Pearson r = −0.311, P = 0.008). Patient-perceived SDM did not differ by clinicodemographic factors. While patients and physicians perceived high levels of SDM, patients with ITNs are faced with difficult management decisions leading to DC. These findings highlight the need for developing decision-aids to support SDM and reduce DC in the management of ITNs.",
+  "authors": [
+    "Taylor, Victoria",
+    "Pickett, Travis",
+    "Turner, Brooke",
+    "Hermiston, Claire",
+    "Azad, Tara",
+    "Goldstein, David P.",
+    "Rigby, Matthew H.",
+    "Johnson-Obaseki, Stephanie",
+    "Corsten, Martin",
+    "Forner, David"
+  ],
+  "publication_date": "2025-12-30",
+  "journal": "Journal of Otolaryngology - Head & Neck Surgery",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-30",
+    "journal": "Journal of Otolaryngology - Head & Neck Surgery",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "thyroid nodule",
+      "thyroid",
+      "Bethesda",
+      "cytology",
+      "FNA",
+      "shared decision-making"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.242016",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

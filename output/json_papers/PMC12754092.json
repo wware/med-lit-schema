@@ -1,0 +1,63 @@
+{
+  "paper_id": "PMC12754092",
+  "pmid": "41480166",
+  "doi": "10.5306/wjco.v16.i12.112626",
+  "title": "Yin Yang 1 activates JAK-STAT3-mediated epithelial-mesenchymal transition in Helicobacter pylori-induced gastric cancer progression",
+  "abstract": "Helicobacter pylori (H. pylori) infection is widely considered to be a major risk factor for gastric cancer, contributing to its development through the Correa cascade. Yin Yang 1 (YY1) is a transcription factor that acts as a promoter or suppressor of cancer progression. However, the role of YY1 in the inflammatory transformation associated with H. pylori-induced gastric cancer remains unclear. To explore the expression of YY1 in gastric cancer and its impact on cancer progression with H. pylori infection. H. pylori bacteria were cocultured with GSE1 cells, AGS cells, and SGC7901 cells, as well as in infected and xenograft mouse models. Expression of YY1, members of the Janus kinase 2 (JAK2)/signal transducer and activator of transcription 3 (STAT3) signaling pathway, and epithelial-mesenchymal transition (EMT)-related proteins in gastric cancer was examined using Western blotting, quantitative real-time polymerase chain reaction, and immunohistochemistry. Survival analysis was performed using the Kaplan-Meier method with the log-rank test. The role of YY1 in gastric cancer cell proliferation was further evaluated through in vitro and in vivo assays. YY1 was highly expressed in gastric cancer tissues and cells. Kaplan-Meier survival curves indicated that high YY1 expression correlated with a poor prognosis. YY1 expression showed a gradually increasing trend in H. pylori-induced gastritis and gastric tumors. In vivo and in vitro experiments demonstrated that H. pylori infection promoted phosphorylation of JAK2 and STAT3, thereby activating the EMT pathway, in which YY1 played a key role. YY1 and JAK2 interaction was validated by chromatin immunoprecipitation. YY1 knockdown or pharmacological inhibition reversed EMT and suppressed gastric cancer cell proliferation and metastasis. These results suggest that YY1 plays an important role in progression of H. pylori-induced gastric cancer by activating EMT.",
+  "authors": [
+    "Chen, Jing-Wan",
+    "Ouyang, Jie-Ji",
+    "Wang, Zhen-Hui",
+    "Ma, Di-Meng",
+    "Zhang, Zhi",
+    "Teng, Qiong",
+    "Yu, Gang",
+    "Li, Xiang-Yong"
+  ],
+  "publication_date": "2025-12-24",
+  "journal": "World Journal of Clinical Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-24",
+    "journal": "World Journal of Clinical Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Helicobacter pylori",
+      "Gastric cancer",
+      "Yin Yang 1",
+      "Janus kinase 2/signal transducer and activator of transcription 3",
+      "Epithelial-mesenchymal transition"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.393637",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}

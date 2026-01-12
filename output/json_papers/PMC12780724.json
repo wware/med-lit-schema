@@ -1,0 +1,60 @@
+{
+  "paper_id": "PMC12780724",
+  "pmid": null,
+  "doi": "10.21037/jgo-2025-452",
+  "title": "Landscape targeted of therapy in advanced pancreatic adenocarcinoma: a network meta-analysis of randomized controlled trials [2010–2024]",
+  "abstract": "Advanced pancreatic adenocarcinoma (PA) remains a formidable challenge with limited therapeutic options. Gemcitabine-based regimens, often combined with novel targeted therapies, are widely employed, yet their comparative efficacy is poorly understood. This network meta-analysis (NMA) aimed to systematically evaluate the efficacy of various targeted drug combinations in previously treated patients with advanced or metastatic PA. A systematic search of PubMed, EMBASE, Cochrane Library, and ClinicalTrials.gov was conducted to retrieve relevant randomized controlled trials (RCTs) published between 2010 and 2024. Studies comparing targeted drug combinations with chemotherapy or chemotherapy alone in advanced/metastatic PA were included in the NMA. The primary outcomes of the study were overall survival (OS) and progression-free survival (PFS), which were assessed using hazard ratios (HRs) with 95% confidence intervals (CIs) and presented in a Forest plot. Surface under the cumulative ranking (SUCRA) scores were calculated to rank treatment efficacy. In total, 13 RCTs, comprising 4,665 patients and evaluating 13 targeted drug combinations, were included in the NMA. While no statistically significant improvements in OS or PFS were observed for most targeted drug combinations compared with gemcitabine monotherapy, epidermal growth factor receptor (EGFR)-targeted agents, particularly nimotuzumab, demonstrated a significant survival benefit in specific subgroups. Similarly, indirect comparisons among targeted therapies revealed no significant differences. The SUCRA rankings identified gemcitabine plus nimotuzumab (Gem-Nimot; 98%) as having the highest probability of ranking first for OS, followed by gemcitabine plus masitinib (Gem-Masit; 80%), gemcitabine plus erlotinib (Gem-Erlot; 70%), and gemcitabine plus sorafenib (Gem-Soraf; 23%). For PFS, Gem-Nimot (98%) ranked highest, followed by Gem-Erlot (73%), gemcitabine plus rigosertib (Gem-Rigos; 57%), and gemcitabine plus sunitinib (Gem-Sunit; 8%). This NMA combining network and forest plot results showed that Gem-Nimot provided significant survival benefits in advanced PA. EGFR-targeted combinations demonstrated a significant advantage in both OS and PFS compared with gemcitabine alone, indicating that EGFR inhibition may provide real clinical benefits.",
+  "authors": [
+    "Ma, Huixin",
+    "Wang, Sheng",
+    "Ya, Yunjin",
+    "Jin, Yun",
+    "Deng, Shikang"
+  ],
+  "publication_date": "2025-12-31",
+  "journal": "Journal of Gastrointestinal Oncology",
+  "entities": [],
+  "relationships": [],
+  "metadata": {
+    "study_type": null,
+    "sample_size": null,
+    "study_population": null,
+    "primary_outcome": null,
+    "clinical_phase": null,
+    "publication_date": "2025-12-31",
+    "journal": "Journal of Gastrointestinal Oncology",
+    "doi": null,
+    "pmid": null,
+    "mesh_terms": [
+      "Chemotherapy",
+      "advanced pancreatic adenocarcinoma (advanced PA)",
+      "targeted drugs combinations",
+      "network meta-analysis (NMA)",
+      "randomized controlled trial (RCT)"
+    ]
+  },
+  "extraction_provenance": {
+    "extraction_pipeline": {
+      "name": "pmc_xml_parser",
+      "version": "1.0.0",
+      "git_commit": "unknown",
+      "git_commit_short": "unknown",
+      "git_branch": "unknown",
+      "git_dirty": false,
+      "repo_url": "https://github.com/wware/med-lit-graph"
+    },
+    "models": {},
+    "prompt": {
+      "version": "n/a",
+      "template": "n/a",
+      "checksum": null
+    },
+    "execution": {
+      "timestamp": "2026-01-12T14:51:01.102191",
+      "hostname": "wware-Inspiron-5570",
+      "python_version": "3.13.3",
+      "duration_seconds": null
+    },
+    "entity_resolution": null
+  }
+}
