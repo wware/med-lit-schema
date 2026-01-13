@@ -446,7 +446,7 @@ class GraphQuery:
         """Build SQL for multi-hop traversal."""
         # Multi-hop traversal requires recursive CTEs which is a complex feature
         # This is intentionally not implemented in this version
-        raise NotImplementedError("Multi-hop traversal queries require recursive CTEs. " "This feature is planned but not yet implemented. " "Contributions welcome!")
+        raise NotImplementedError("Multi-hop traversal queries require recursive CTEs. This feature is planned but not yet implemented. Contributions welcome!")
 
     def _build_semantic_query(self) -> str:
         """Build SQL for semantic search."""
@@ -649,5 +649,5 @@ def search_by_symptoms(symptoms: List[str], min_match: int = 2, connection_strin
     # This requires complex query logic to find diseases
     # that have at least min_match of the given symptoms
     raise NotImplementedError(
-        "Symptom-based differential diagnosis is not yet implemented. " "This requires joining entities and relationships to find diseases " "that match multiple symptoms. Contributions welcome!"
+        "Symptom-based differential diagnosis is not yet implemented. This requires joining entities and relationships to find diseases that match multiple symptoms. Contributions welcome!"
     )

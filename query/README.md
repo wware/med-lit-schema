@@ -4,24 +4,170 @@ This directory contains tools for querying the medical knowledge graph in a stor
 
 ## Overview
 
-The knowledge graph is stored in **PostgreSQL** with **pgvector** for semantic search capabilities. This query interface provides a fluent Python API for exploring the medical knowledge graph.
+This query system provides multiple ways to access the medical knowledge graph:
 
-The system uses:
-- **PostgreSQL** - Primary storage for entities, relationships, and evidence
-- **pgvector** - Semantic search via embeddings
-- **SQLite** (temporary) - Used only during ingestion for provenance data and entity canonicalization
+1. **FastAPI Server** - RESTful, GraphQL, and MCP (Model Context Protocol) endpoints for remote access
+2. **Python Client Library** - Fluent API for direct database queries
+3. **Jupyter Notebook** - Interactive exploration interface
 
-### Database Setup
+Our storage system is agnostic across:
 
-Before querying, you need to run the ingestion pipeline to populate the PostgreSQL database. See `../ingest/NEXT_STEPS.md` for complete instructions on running the 5-stage ingestion pipeline that:
+* SQLite with sqlite-vec
+* PostgreSQL with pgvector
+* Neo4j
 
-1. Parses PMC XML papers
-2. Generates embeddings
-3. Extracts biomedical entities (NER)
-4. Extracts relationships/claims
-5. Extracts supporting evidence
+The FastAPI server and Python client provide unified interfaces that work across all backends, with current support for PostgreSQL and planned support for Neo4j.
 
-After ingestion, your PostgreSQL database will contain the complete queryable knowledge graph.
+## API Server
+
+A production-ready FastAPI server provides three ways to query the knowledge graph:
+
+### Starting the Server
+
+#### With Docker Compose (Recommended)
+
+```bash
+docker-compose up api
+```
+
+The server will be available at `http://localhost:8000`.
+
+#### Direct with uvicorn
+
+```bash
+uv run uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+### API Endpoints
+
+#### 1. REST API
+
+Self-documenting REST endpoints at `/docs`:
+
+**Entities:**
+- `GET /api/v1/entities/{entity_id}` - Get entity by ID
+- `GET /api/v1/entities?entity_type=drug&limit=100` - List/search entities
+
+**Relationships:**
+- `GET /api/v1/relationships?predicate=TREATS&limit=100` - Query relationships
+- `GET /api/v1/relationships?subject_id={id}` - Get relationships for entity
+
+**Papers:**
+- `GET /api/v1/papers/{paper_id}` - Get research paper by ID
+
+**Semantic Search:**
+- `POST /api/v1/search/semantic` - Semantic similarity search
+  ```json
+  {
+    "query_text": "PARP inhibitors for cancer",
+    "top_k": 10,
+    "threshold": 0.7
+  }
+  ```
+
+**Examples:**
+
+```bash
+# Get all drugs
+curl "http://localhost:8000/api/v1/entities?entity_type=drug&limit=10"
+
+# Find treatments
+curl "http://localhost:8000/api/v1/relationships?predicate=TREATS&limit=20"
+
+# Semantic search
+curl -X POST "http://localhost:8000/api/v1/search/semantic" \
+  -H "Content-Type: application/json" \
+  -d '{"query_text": "breast cancer treatments", "top_k": 10}'
+```
+
+#### 2. GraphQL API
+
+Interactive GraphiQL interface at `/graphiql` with example queries dropdown menu.
+
+The interface includes pre-built example queries:
+- Get Entity by ID
+- Search Entities
+- Find Treatments
+- Get Paper
+- Filter by Subject
+- Multiple Queries
+
+Simply select an example from the dropdown menu to populate the query editor.
+
+**Note:** The GraphQL schema uses JSON scalar types, so queries return entire objects as JSON rather than allowing field selection. This is a simplified implementation - for full type safety, structured GraphQL types can be added.
+
+**Available Queries:**
+
+```graphql
+# Returns entire paper as JSON
+query GetPaper {
+  paper(id: "pmid_12345678")
+}
+
+# Returns entire entity as JSON
+query GetEntity {
+  entity(id: "drug_aspirin")
+}
+
+# Returns array of entities as JSON
+query SearchEntities {
+  entities(limit: 10, offset: 0)
+}
+
+# Returns array of relationships as JSON
+query GetRelationships {
+  relationships(
+    predicate: "TREATS"
+    limit: 20
+  )
+}
+```
+
+**Example with cURL:**
+
+```bash
+curl -X POST "http://localhost:8000/graphql" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ entity(id: \"drug_aspirin\") }"}'
+```
+
+#### 3. MCP (Model Context Protocol)
+
+AI agent integration endpoints at `/mcp` and `/mcp/sse`.
+
+**Available Tools:**
+
+- `find_treatments(disease_name, limit)` - Find drugs that treat a disease
+- `find_related_genes(disease_name, limit)` - Find genes associated with a disease
+- `get_entity(entity_id)` - Retrieve entity by canonical ID
+- `search_entities(query, entity_type, limit)` - Search entities by name
+- `get_paper(paper_id)` - Retrieve research paper by ID
+
+These tools are designed for AI agents (like Claude) to query the knowledge graph naturally.
+
+**Example MCP Configuration:**
+
+```json
+{
+  "mcpServers": {
+    "medical-knowledge": {
+      "url": "http://localhost:8000/mcp/sse"
+    }
+  }
+}
+```
+
+### Health Check
+
+```bash
+curl http://localhost:8000/health
+```
+
+Returns: `{"status": "healthy"}`
+
+### API Documentation
+
+Visit `http://localhost:8000/docs` for interactive Swagger UI documentation of all REST endpoints.
 
 ## Getting Started
 
@@ -34,13 +180,8 @@ Use the Jupyter notebook to explore queries interactively:
 pip install jupyter matplotlib pandas psycopg2-binary
 
 # Start Jupyter
-uv run --with jupyter jupyter notebook query/explore_queries.ipynb
-
-# Or maybe
-uv run --with jupyter jupyter lab
+jupyter notebook query/explore_queries.ipynb
 ```
-
-By default, jupyter lab will start the server at http://localhost:8888/lab.
 
 The notebook includes comprehensive examples of:
 - Entity and relationship queries
@@ -250,6 +391,7 @@ GraphQuery(connection_string: Optional[str] = None)
 - `with_evidence(study_types)` - Include evidence
 - `execute()` - Execute query and return results
 - `to_sql()` - Generate SQL (for debugging)
+- `to_cypher()` - Generate Cypher for Neo4j (future)
 
 ### QueryResults Class
 
@@ -296,23 +438,41 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ### Current Implementation
 
-- ✅ PostgreSQL backend with pgvector
+**API Server (Complete):**
+- ✅ FastAPI server with REST, GraphQL, and MCP endpoints
+- ✅ PostgreSQL backend with singleton storage factory
+- ✅ Semantic search with sentence-transformers embeddings
+- ✅ Docker containerization with docker-compose
+- ✅ Self-documenting via Swagger UI and GraphiQL
+- ✅ Health checks and connection lifecycle management
+
+**Python Client Library:**
+- ✅ PostgreSQL backend with SQLModel
 - ✅ Entity and relationship queries
 - ✅ Confidence filtering
 - ✅ Property-based filtering
 - ✅ Result conversion to pandas DataFrame
-- ✅ Evidence table support
 
 ### Planned Features
 
+**Python Client Library:**
 - ⚠️ Recursive CTEs for multi-hop traversals
-- ⚠️ Semantic search with pgvector embeddings
+- ⚠️ Evidence table joins
+- ⚠️ Semantic search with pgvector
+- ⚠️ Neo4j Cypher generation
 - ⚠️ Query optimization and caching
-- ⚠️ Advanced graph analytics
+
+**API Server Enhancements:**
+- ⚠️ Full GraphQL type safety (currently uses JSON scalars)
+- ⚠️ Entity semantic search (currently only relationship search)
+- ⚠️ Full-text search endpoints
+- ⚠️ Response caching (Redis)
+- ⚠️ Rate limiting
+- ⚠️ Comprehensive test coverage
 
 ### Design Principles
 
-1. **PostgreSQL-native** - Leverage PostgreSQL features (pgvector, JSONB, CTEs)
+1. **Storage-agnostic** - Abstract interface works across backends
 2. **Fluent API** - Method chaining for readable queries
 3. **Type-safe** - Full type hints for IDE support
 4. **Well-documented** - Clear examples and docstrings
@@ -320,7 +480,19 @@ query = GraphQuery(connection_string="postgresql://...")
 
 ## Resources
 
+**API Server:**
+- **Server**: `server.py` - FastAPI application
+- **REST API**: `routers/rest_api.py` - RESTful endpoints
+- **GraphQL**: `graphql_schema.py` - GraphQL schema and resolvers
+- **MCP**: `routers/mcp_api.py` - Model Context Protocol tools
+- **Storage**: `storage_factory.py` - Database connection management
+- **Docs**: `IMPLEMENTATION_PLAN.md` - Complete implementation details
+- **Architecture**: `API_ARCHITECTURE.md` - System design
+
+**Python Client Library:**
 - **Notebook**: `explore_queries.ipynb` - Interactive examples
 - **Client**: `client.py` - Python query library
 - **Notes**: `NOTES.md` - Design discussions
-- **Schema**: `../storage/models/` - Database schema
+
+**Database Schema:**
+- **Models**: `../storage/models/` - Pydantic data models
