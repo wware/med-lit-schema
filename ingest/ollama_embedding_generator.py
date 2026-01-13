@@ -30,8 +30,7 @@ class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
             dummy_embedding = self._client.embed(model=self._model_name, input="dummy text")
             self._embedding_dim = len(dummy_embedding["embeddings"][0])
         except Exception as e:
-            raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. "
-                               f"Ensure the model is pulled and Ollama is running. Error: {e}")
+            raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. Ensure the model is pulled and Ollama is running. Error: {e}")
 
     def generate_embedding(self, text: str) -> List[float]:
         """Generate a single embedding for text."""

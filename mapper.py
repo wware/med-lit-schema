@@ -203,6 +203,19 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
         >>> isinstance(disease, Disease)
         True
     """
+    # Handle both Entity model instances and Row objects from queries
+    if not hasattr(persistence, "model_dump"):
+        try:
+            # Try to access the 'Entity' attribute for Row objects
+            persistence = persistence.Entity
+        except AttributeError:
+            # Fallback for older data or different query structures
+            if hasattr(persistence, "_mapping"):
+                persistence = persistence._mapping["Entity"]
+            else:
+                # If it's a tuple/list, assume the first element is the entity
+                persistence = persistence[0]
+
     # Parse common JSON fields
     synonyms = json.loads(persistence.synonyms) if persistence.synonyms else []
     abbreviations = json.loads(persistence.abbreviations) if persistence.abbreviations else []
@@ -352,13 +365,14 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
     domain_data = {}
 
     # Handle both Relationship model instances and Row objects from queries
-    if hasattr(persistence, 'model_dump'):
+    if hasattr(persistence, "model_dump"):
         # It's a Pydantic model instance
         persistence_data = persistence.model_dump()
         predicate_value = persistence.predicate
     else:
         # It's a Row object - access via bracket notation
         from med_lit_schema.storage.models.relationship import Relationship as RelationshipModel
+
         persistence_data = {}
         for col in RelationshipModel.__table__.columns:
             # Try bracket notation first (for Row objects), then getattr

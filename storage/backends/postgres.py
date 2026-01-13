@@ -56,7 +56,6 @@ class PostgresPaperStorage(PaperStorageInterface):
 
     def add_paper(self, paper: Paper) -> None:
         """Add or update a paper in storage."""
-        import json
 
         # Serialize extraction_provenance and metadata to JSON
         extraction_prov_json = None
@@ -108,10 +107,22 @@ class PostgresPaperStorage(PaperStorageInterface):
 
     def _persistence_to_domain(self, persistence: PaperPersistence) -> Paper:
         """Convert persistence model to domain model."""
-        import json
         from med_lit_schema.entity import PaperMetadata, ExtractionProvenance
 
-        data = persistence.Paper
+        # Handle both PaperPersistence model instances and Row objects from queries
+        if not hasattr(persistence, "model_dump"):
+            try:
+                # Try to access the 'Paper' attribute for Row objects
+                data = persistence.Paper
+            except AttributeError:
+                # Fallback for older data or different query structures
+                if hasattr(persistence, "_mapping"):
+                    data = persistence._mapping["Paper"]
+                else:
+                    # If it's a tuple/list, assume the first element is the entity
+                    data = persistence[0]
+        else:
+            data = persistence
 
         # Deserialize metadata from JSON
         metadata = PaperMetadata()
@@ -158,18 +169,15 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         persistence = relationship_to_persistence(relationship)
 
         # Convert to dict for insert
-        data = {
-            c.name: getattr(persistence, c.name)
-            for c in persistence.__table__.columns
-        }
+        data = {c.name: getattr(persistence, c.name) for c in persistence.__table__.columns}
 
         # Use PostgreSQL INSERT ... ON CONFLICT DO UPDATE
         stmt = pg_insert(Relationship).values(**data)
 
         # On conflict (subject_id, object_id, predicate), update all fields
         stmt = stmt.on_conflict_do_update(
-            constraint='uq_relationship',
-            set_={k: v for k, v in data.items() if k != 'id'}  # Update all except id
+            constraint="uq_relationship",
+            set_={k: v for k, v in data.items() if k != "id"},  # Update all except id
         )
 
         self.session.execute(stmt)
@@ -195,7 +203,6 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         limit: Optional[int] = None,
     ) -> list[BaseRelationship]:
         """Find relationships matching criteria."""
-        from sqlalchemy import and_
 
         statement = select(Relationship)
 
@@ -219,8 +226,8 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         for p in persistences:
             # Extract Relationship model from Row if needed
             # session.exec() returns Row objects that wrap the model
-            if hasattr(p, '_mapping') and 'Relationship' in p._mapping:
-                persistence_model = p._mapping['Relationship']
+            if hasattr(p, "_mapping") and "Relationship" in p._mapping:
+                persistence_model = p._mapping["Relationship"]
             else:
                 persistence_model = p
 

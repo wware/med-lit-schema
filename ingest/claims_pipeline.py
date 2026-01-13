@@ -12,7 +12,6 @@ Usage:
 
 import argparse
 import re
-import sqlite3
 from pathlib import Path
 
 # Import new schema
@@ -83,9 +82,6 @@ PREDICATE_PATTERNS = [
 # ============================================================================
 # Helper Functions
 # ============================================================================
-
-
-
 
 
 def extract_relationships_from_paragraph(
@@ -239,9 +235,7 @@ def main():
     for paper in papers:
         # We'll use the paper's abstract as the text to process.
         # We pass paper.paper_id as a stand-in for paragraph_id and section_id.
-        relationships = extract_relationships_from_paragraph(
-            paper.paper_id, paper.paper_id, paper.paper_id, paper.abstract, "abstract", storage
-        )
+        relationships = extract_relationships_from_paragraph(paper.paper_id, paper.paper_id, paper.paper_id, paper.abstract, "abstract", storage)
 
         for relationship in relationships:
             storage.relationships.add_relationship(relationship)

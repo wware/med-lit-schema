@@ -8,13 +8,13 @@ Supports downloading by PMC ID list, PubMed search queries, or DOI resolution.
 Usage:
     # Download specific PMC IDs
     python download_pipeline.py --pmc-ids PMC123456 PMC234567 --output-dir pmc_xmls
-    
+
     # Download from a file containing PMC IDs (one per line)
     python download_pipeline.py --pmc-id-file ids.txt --output-dir pmc_xmls
-    
+
     # Search PubMed and download results
     python download_pipeline.py --search "BRCA1 breast cancer" --max-results 100 --output-dir pmc_xmls
-    
+
     # Resume interrupted download
     python download_pipeline.py --pmc-id-file ids.txt --output-dir pmc_xmls --skip-existing
 
@@ -25,7 +25,7 @@ NCBI E-utilities Documentation:
 import argparse
 import time
 from pathlib import Path
-from typing import Optional, Iterator
+from typing import Optional
 import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
@@ -287,7 +287,7 @@ def download_pmc_ids(
 
     print(f"\nDownloading {total} PMC XML files...")
     print(f"Output directory: {output_dir}")
-    print(f"Rate limit: {1/rate_limit:.1f} requests/second")
+    print(f"Rate limit: {1 / rate_limit:.1f} requests/second")
     if api_key:
         print("Using NCBI API key for increased rate limit")
     print("-" * 60)
@@ -361,16 +361,16 @@ def main():
 Examples:
   # Download specific PMC IDs
   python download_pipeline.py --pmc-ids PMC123456 PMC234567
-  
+
   # Download from a file
   python download_pipeline.py --pmc-id-file my_ids.txt
-  
+
   # Search PubMed and download results
   python download_pipeline.py --search "BRCA1 AND breast cancer"
-  
+
   # Use NCBI API key for higher rate limit
   python download_pipeline.py --pmc-id-file ids.txt --api-key YOUR_KEY
-  
+
   # Resume interrupted download
   python download_pipeline.py --pmc-id-file ids.txt --skip-existing
         """,

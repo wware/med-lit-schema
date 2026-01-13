@@ -164,8 +164,7 @@ class PMCXMLParser(PaperParserInterface):
         except Exception:
             return False
 
-    def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> \
-            tuple[Path, Optional[Paper]]:
+    def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> tuple[Path, Optional[Paper]]:
         """
         Parse all files in a directory matching a given pattern.
 

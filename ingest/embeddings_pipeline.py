@@ -462,7 +462,7 @@ def main():
         return 1
 
     entities_db_path = output_dir / "ingest.db"
-    provenance_db_path = output_dir / "ingest.db"
+    # provenance_db_path = output_dir / "ingest.db"
 
     print("=" * 60)
     print("Stage 3: Embeddings Generation Pipeline")
