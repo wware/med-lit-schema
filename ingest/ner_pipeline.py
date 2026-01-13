@@ -221,97 +221,132 @@ def process_paper(
     model_info: ModelInfo,
 ) -> tuple[int, int, list]:
     """
-    Process a single PMC XML file and extract entities.
+    Process a single PMC XML file and extract entities at paragraph level.
 
-    Args:
-        xml_path: Path to PMC XML file
-        storage: Pipeline storage interface
-        ner_pipeline: HuggingFace NER pipeline
-        ingest_info: Ingest metadata
-        model_info: Model metadata
-
-    Returns:
-        tuple: (entities_found, entities_created, extraction_edges)
+    - Runs NER per paragraph (avoids truncation)
+    - Builds co-occurrence edges within paragraphs only
+    - Emits warning if only abstracts are ingested
     """
     pmc_id = xml_path.stem
     tree = etree.parse(str(xml_path))
     root = tree.getroot()
 
-    # Extract text - prefer abstract, fall back to body
-    text_chunks = [p.text for p in root.findall(".//abstract//p") if p.text]
-    if not text_chunks:
-        text_chunks = [p.text for p in root.findall(".//body//p") if p.text]
-    if not text_chunks:
+    # -----------------------------
+    # Paragraph extraction
+    # -----------------------------
+
+    abstract_paragraphs = [
+        p.text.strip()
+        for p in root.findall(".//abstract//p")
+        if p.text and p.text.strip()
+    ]
+
+    body_paragraphs = []
+    for sec in root.findall(".//body//sec"):
+        sec_type = (sec.get("sec-type") or "").lower()
+        if sec_type in {"ref", "references", "ack", "acknowledgements"}:
+            continue
+
+        for p in sec.findall(".//p"):
+            if p.text and p.text.strip():
+                body_paragraphs.append(p.text.strip())
+
+    if not abstract_paragraphs and not body_paragraphs:
         return 0, 0, []
 
-    full_text = " ".join(text_chunks)
+    if abstract_paragraphs and not body_paragraphs:
+        print(f"⚠️  WARNING: {pmc_id} contains abstract only (no body text found)")
 
-    # Run NER
-    entities = ner_pipeline(full_text)
-    entity_refs_in_text = []
-    entities_created = 0
+    paragraphs = abstract_paragraphs + body_paragraphs
+
+    # -----------------------------
+    # Entity extraction
+    # -----------------------------
+
     entities_found = 0
-
-    STOPWORDS = {"acquired", "human", "chronic", "enter", "lymph", "the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"}
-
-    for ent in entities:
-        # Filter by entity label
-        label = ent.get("entity_group", ent.get("entity", "O"))
-        if label != "Disease":
-            continue
-
-        name = ent["word"].strip()
-
-        # Skip obvious garbage
-        if len(name) < 3:
-            continue
-        if name in ["(", ")", ",", ".", "-"]:
-            continue
-        if name.startswith("##"):
-            continue
-        if name.lower() in STOPWORDS:
-            continue
-
-        confidence = ent.get("score", None)
-        if confidence and confidence < 0.85:
-            continue
-
-        # Get or create canonical entity
-        canonical_entity_id, was_created = get_or_create_entity(storage=storage, name=name, entity_type=label, source=pmc_id, confidence=confidence)
-
-        if was_created:
-            entities_created += 1
-        entities_found += 1
-
-        # Create EntityReference for this mention
-        entity_ref = EntityReference(id=canonical_entity_id, name=name, type=EntityType.DISEASE)
-        entity_refs_in_text.append(entity_ref)
-
-    # Build ExtractionEdge objects for co-occurrences
+    entities_created = 0
     extraction_edges = []
-    for i in range(len(entity_refs_in_text)):
-        for j in range(i + 1, len(entity_refs_in_text)):
-            subject_ref = entity_refs_in_text[i]
-            object_ref = entity_refs_in_text[j]
 
-            # Create provenance for this edge
-            edge_provenance = Provenance(
-                source_type="paper",
-                source_id=pmc_id,
-                source_version=None,
-                notes=json.dumps({"extraction_pipeline": ingest_info.name, "git_commit": ingest_info.git_commit_short, "model": model_info.name}),
+    STOPWORDS = {
+        "the", "and", "or", "but", "with", "from", "that", "this",
+        "these", "those", "their", "there"
+    }
+
+    for paragraph_text in paragraphs:
+        ner_results = ner_pipeline(paragraph_text)
+
+        # Track entities found in this paragraph only
+        paragraph_entities: list[tuple[EntityReference, float]] = []
+
+        for ent in ner_results:
+            label = ent.get("entity_group", ent.get("entity", "O"))
+            if label != "Disease":
+                continue
+
+            name = ent["word"].strip()
+            confidence = float(ent.get("score", 0.0))
+
+            # Basic hygiene filters
+            if len(name) < 3:
+                continue
+            if name.startswith("##"):
+                continue
+            if name.lower() in STOPWORDS:
+                continue
+            if confidence < 0.85:
+                continue
+
+            canonical_entity_id, was_created = get_or_create_entity(
+                storage=storage,
+                name=name,
+                entity_type=label,
+                source=pmc_id,
+                confidence=confidence,
             )
 
-            # Create ExtractionEdge with full provenance
-            edge = ExtractionEdge(
-                id=uuid.uuid4(),
-                subject=subject_ref,
-                object=object_ref,
-                provenance=edge_provenance,
-                extractor=model_info,
-                confidence=min(float(entities[i].get("score", 0.5)), float(entities[j].get("score", 0.5))),
+            if was_created:
+                entities_created += 1
+            entities_found += 1
+
+            entity_ref = EntityReference(
+                id=canonical_entity_id,
+                name=name,
+                type=EntityType.DISEASE,
             )
-            extraction_edges.append(edge)
+
+            paragraph_entities.append((entity_ref, confidence))
+
+        # -----------------------------
+        # Build co-occurrence edges (paragraph-local)
+        # -----------------------------
+
+        for i in range(len(paragraph_entities)):
+            subj_ref, conf_i = paragraph_entities[i]
+            for j in range(i + 1, len(paragraph_entities)):
+                obj_ref, conf_j = paragraph_entities[j]
+
+                provenance = Provenance(
+                    source_type="paper",
+                    source_id=pmc_id,
+                    source_version=None,
+                    notes=json.dumps({
+                        "extraction_pipeline": ingest_info.name,
+                        "git_commit": ingest_info.git_commit_short,
+                        "model": model_info.name,
+                        "scope": "paragraph",
+                    }),
+                )
+
+                edge = ExtractionEdge(
+                    id=uuid.uuid4(),
+                    subject=subj_ref,
+                    object=obj_ref,
+                    provenance=provenance,
+                    extractor=model_info,
+                    confidence=min(conf_i, conf_j),
+                )
+
+                extraction_edges.append(edge)
 
     return entities_found, entities_created, extraction_edges
 
