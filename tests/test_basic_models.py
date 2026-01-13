@@ -1,9 +1,30 @@
 """
-Basic smoke tests for core models.
+Basic smoke tests for the core Pydantic models.
 
-Tests basic model creation and serialization without requiring full ingest setup.
+This suite of tests verifies that the fundamental data models (`Paper`,
+`Disease`, `EvidenceItem`, `Relationship`, etc.) can be instantiated
+correctly and that their basic serialization and validation logic works
+as expected.
 
-Run with: uv run pytest tests/test_basic_models.py -v
+These tests are designed to be "smoke tests" – they provide a quick
+check that the models are not fundamentally broken, without requiring a
+full database connection or a complex ingestion setup.
+
+Key aspects tested:
+- **Model Creation**: Can instances of each core model be created with valid data?
+- **Field Validation**: Do models correctly handle required and optional fields?
+  For example, does `Relationship` validate its `confidence` score?
+- **Serialization/Deserialization**: Can models be successfully serialized to
+  JSON and then deserialized back into identical objects?
+- **Enum Integrity**: Are the `EntityType` and `PredicateType` enums defined
+  with the correct string values?
+
+Fixtures like `ingest_info` and `execution_info` are used to provide
+realistic, reusable data for creating complex models like `Paper` with
+full provenance information.
+
+Run with:
+    uv run pytest tests/test_basic_models.py -v
 """
 
 import pytest

@@ -1,19 +1,32 @@
 """
-Test suite for SQLModel entity schema (Single Class).
+Tests for the SQLModel `Entity` persistence model.
 
-Tests:
-1. Entity creation (using Entity type directly)
-2. Queries by type
-3. Field access
-4. Database persistence
+This test suite validates the functionality of the single `Entity` class,
+which uses a discriminator (`entity_type`) to represent various kinds of
+domain entities in a single database table.
 
-NOTE: These tests require PostgreSQL with JSONB support.
-SQLite is not supported due to JSONB field requirements.
-These tests use the PostgreSQL database from docker-compose.
+Key areas tested:
+- **Creation**: Ensures that entities of different types (Disease, Gene, Drug)
+  can be successfully created and persisted.
+- **Field Integrity**: Verifies that all fields, including standard attributes
+  and JSON-serialized ones (like `synonyms`), are stored and retrieved correctly.
+- **Polymorphic Queries**: Confirms that queries can retrieve all entities
+  regardless of their type.
+- **Type-Specific Queries**: Tests the ability to filter and query for entities
+  of a specific type (e.g., only `DISEASE`).
+- **Database Setup**: Includes fixtures to manage a temporary PostgreSQL
+  database connection and session, ensuring tests run in a clean, isolated
+  environment.
+
+These tests are designed to run against a PostgreSQL database, as they rely
+on features like the `JSONB` data type, which is not available in SQLite.
+
+Prerequisites:
+- A running PostgreSQL instance (can be started with `docker-compose up -d postgres`).
+- `DATABASE_URL` environment variable set to the PostgreSQL connection string.
 
 To run these tests:
-1. Start PostgreSQL: docker-compose up -d postgres
-2. Run: pytest tests/storage/models/test_entity.py -v
+    pytest tests/storage/models/test_entity.py -v
 """
 
 import json

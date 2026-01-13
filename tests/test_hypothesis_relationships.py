@@ -1,7 +1,31 @@
 """
-Tests for hypothesis and evidence relationships (PREDICTS, REFUTES, TESTED_BY, GENERATES).
+Tests for the new hypothesis- and evidence-centric relationship types.
 
-These relationships enable tracking scientific hypotheses and their validation through evidence.
+This test suite validates the Pydantic models for relationships that
+capture the scientific process, such as a hypothesis predicting an outcome,
+evidence refuting a hypothesis, or a study testing a hypothesis.
+
+These relationships are crucial for building a knowledge graph that not only
+stores facts but also represents the process of scientific inquiry.
+
+Key relationships and aspects tested:
+- `Predicts`: Ensures a hypothesis can be linked to a predicted outcome,
+  including metadata about the prediction.
+- `Refutes`: Validates that evidence can be linked to a hypothesis it
+  refutes, with attributes like `refutation_strength`.
+- `TestedBy`: Checks that a hypothesis can be linked to a study (e.g., a paper)
+  that tests it, capturing the outcome.
+- `Generates`: Confirms that a study can be linked to the evidence it produces.
+- **Factory Function**: Verifies that `create_relationship` correctly
+  instantiates the appropriate model class based on the `PredicateType`.
+- **Workflow Simulation**: A test demonstrates how these relationships can be
+  chained together to model a complete hypothesis-testing workflow.
+- **Field Validation**: Confirms that fields with specific allowed values
+  (e.g., `test_outcome`, `refutation_strength`) are correctly validated.
+- **Evidence Integration**: Tests that these relationships can embed detailed
+  `EvidenceItem` objects, linking the claim directly to its supporting data.
+
+Run with: pytest tests/test_hypothesis_relationships.py -v
 """
 
 import pytest

@@ -1,4 +1,27 @@
-"""Tests for Pydantic models in base.py."""
+"""
+Tests for the Pydantic models defined in `base.py`.
+
+This test suite validates the core data structures used throughout the schema,
+ensuring they enforce the expected constraints and behaviors.
+
+Key models and aspects tested:
+- `ClaimPredicate`: Verifies that the `predicate_type` field only accepts
+  valid members of the `PredicateType` enum, rejecting arbitrary strings.
+- `Provenance`: Checks that the model correctly handles both minimal
+  (required fields only) and fully populated instances. It also ensures that
+  `ValidationError` is raised if required fields like `source_type` or
+  `source_id` are missing.
+- `EvidenceType`: Validates the creation and field requirements for the
+  `EvidenceType` model, which links to external ontologies like ECO.
+- `ModelInfo`: Ensures that the model for capturing information about
+  machine learning models correctly validates required fields (`name`, `provider`)
+  and handles optional ones (`temperature`, `version`).
+
+These tests are crucial for maintaining the integrity and reliability of the
+foundational data models of the schema.
+
+Run with: pytest tests/test_base.py -v
+"""
 
 import pytest
 from pydantic import ValidationError

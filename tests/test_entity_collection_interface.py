@@ -1,4 +1,30 @@
-"""Tests for EntityCollectionInterface and InMemoryEntityCollection."""
+"""
+Tests for the `EntityCollectionInterface` and its implementation.
+
+This test suite ensures that the `EntityCollectionInterface` correctly defines
+the abstract contract for entity collections and that the primary
+`InMemoryEntityCollection` implementation adheres to this contract.
+
+Key aspects tested:
+- **Interface Definition**: Verifies that `EntityCollectionInterface` exists,
+  is an abstract base class, and defines all the required methods
+  (e.g., `add_disease`, `get_by_id`) and properties (`entity_count`).
+- **Implementation Adherence**: Confirms that `InMemoryEntityCollection` is a
+  subclass of the interface and implements all its abstract methods.
+- **Instantiation and Basic Use**: Checks that `InMemoryEntityCollection` can
+  be instantiated and used to add and retrieve entities, verifying its core
+  functionality.
+- **Type Hinting Compatibility**: Ensures that an `InMemoryEntityCollection`
+  instance can be passed to functions that expect the `EntityCollectionInterface`
+  type, promoting clean, decoupled code.
+- **Backward Compatibility**: Tests that the `EntityCollection` alias still
+  points to `InMemoryEntityCollection`, ensuring that older code relying on this
+  alias does not break.
+- **Comprehensive Type Support**: Validates that the collection can store and
+  retrieve all defined entity types, from `Disease` to `EvidenceLine`.
+
+Run with: pytest tests/test_entity_collection_interface.py -v
+"""
 
 from med_lit_schema.entity import (
     EntityCollectionInterface,

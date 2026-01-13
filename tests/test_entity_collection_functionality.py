@@ -1,7 +1,32 @@
 """
-Comprehensive tests for EntityCollection functionality.
+Comprehensive tests for the `InMemoryEntityCollection`'s functionality.
 
-Tests entity resolution, ontology lookups, synonyms, and edge cases.
+This test suite focuses on the core logic of the `InMemoryEntityCollection`,
+which serves as the primary in-memory storage and retrieval mechanism for
+all entity types.
+
+Key features tested:
+- **Canonical ID Lookup**: Verifies that entities can be retrieved using
+  their primary, type-specific identifiers (e.g., `get_by_umls` for diseases,
+  `get_by_hgnc` for genes).
+- **Generic ID Lookup**: Ensures `get_by_id` works correctly across all
+  entity types.
+- **Synonym and Abbreviation Handling**: Confirms that while these are stored,
+  the primary lookup methods operate on canonical IDs.
+- **Duplicate Handling**: Tests that adding an entity with a pre-existing
+  ID correctly overwrites the old entry, maintaining a consistent state.
+- **Embedding Search**: Validates the `find_by_embedding` method, including
+  its ability to rank by similarity and filter results with a `threshold`.
+- **Edge Cases**: Covers scenarios like searching in a collection where no
+  entities have embeddings, querying for non-existent IDs, and ensuring
+  `entity_count` is accurate.
+- **Backward Compatibility**: Confirms that the `EntityCollection` alias
+  works interchangeably with `InMemoryEntityCollection`.
+
+These tests are critical for ensuring the entity collection is a reliable
+and predictable component for both data ingestion and querying.
+
+Run with: pytest tests/test_entity_collection_functionality.py -v
 """
 
 from med_lit_schema.entity import (

@@ -1,7 +1,31 @@
 """
-Pytest fixtures for schema tests.
+Global fixtures for the test suite.
 
-This conftest provides fixtures used by schema-specific tests.
+This `conftest.py` file provides fixtures that are available to all tests
+in the `tests/` directory and its subdirectories. Fixtures defined here
+are used to set up common test data, mock objects, or services that are
+required by multiple test modules.
+
+Fixtures:
+- `small_entities`: Provides a dictionary of minimal, representative data
+  for `Disease`, `Gene`, and `Drug` entities. This is useful for quickly
+  instantiating Pydantic models in tests without needing to specify all
+  required fields each time.
+
+To use a fixture in a test, simply include its name as an argument in the
+test function signature. Pytest will automatically inject the fixture's
+return value.
+
+Example:
+    def test_something(small_entities):
+        disease_data = small_entities["disease"]
+        # ... use disease_data to build a Disease model ...
+
+Run all tests with:
+    pytest -v
+
+For more information on Pytest fixtures, see:
+https://docs.pytest.org/en/stable/how-to/fixtures.html
 """
 
 import pytest

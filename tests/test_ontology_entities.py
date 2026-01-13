@@ -1,8 +1,33 @@
 """
-Tests for ontology-based entities (Hypothesis, StudyDesign, StatisticalMethod, EvidenceLine).
+Tests for the new ontology-centric entity types.
 
-These entities use standardized ontology IDs (ECO, OBI, STATO, IAO, SEPIO) to enable
-structured representation of scientific methodology and evidence.
+This test suite validates the Pydantic models for `Hypothesis`, `StudyDesign`,
+`StatisticalMethod`, and `EvidenceLine`. These models are designed to
+capture the methodologies and claims of scientific research by linking to
+standardized terms from biomedical ontologies.
+
+Key aspects tested:
+- **`Hypothesis` Model**: Verifies creation and validation, ensuring that it
+  correctly stores IDs from IAO (Information Artifact Ontology) and SEPIO
+  (Scientific Evidence and Provenance Information Ontology), and tracks its
+  status (e.g., "proposed", "supported").
+- **`StudyDesign` Model**: Checks that study designs can be represented with
+  IDs from OBI (Ontology for Biomedical Investigations) and STATO, and that
+  fields like `evidence_level` are validated.
+- **`StatisticalMethod` Model**: Ensures statistical methods can be defined
+  with STATO IDs and include details like `assumptions`.
+- **`EvidenceLine` Model**: Validates the creation of evidence lines, which
+  aggregate individual `EvidenceItem`s and use SEPIO and ECO IDs to classify
+  the nature of the evidence assertion.
+- **`EntityCollection` Integration**: Confirms that all new ontology-based
+  entities can be correctly added to, stored in, and retrieved from an
+
+`EntityCollection`, including a save/load roundtrip test.
+- **Field Constraints**: Tests that fields with enumerated or ranged values
+  (e.g., `Hypothesis.status`, `StudyDesign.evidence_level`,
+  `EvidenceLine.strength`) correctly enforce their constraints.
+
+Run with: pytest tests/test_ontology_entities.py -v
 """
 
 import pytest

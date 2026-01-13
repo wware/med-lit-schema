@@ -1,5 +1,19 @@
 """
-Tests for mapper functions converting between domain and persistence models.
+Tests for mapper functions that convert between domain and persistence models.
+
+The mapper is responsible for translating the rich, Pydantic-based domain
+models (e.g., `Disease`, `Gene`) into the flat, database-friendly `Entity`
+persistence model, and vice-versa.
+
+These tests ensure that for each entity type:
+- A domain model can be converted to a persistence model (`to_persistence`).
+- A persistence model can be converted back to the correct domain model (`to_domain`).
+- The round-trip conversion (domain → persistence → domain) results in an
+  identical object, preserving all data.
+- Special handling for fields like JSON-serialized arrays is correct.
+- Edge cases, such as empty arrays and unknown entity types, are handled gracefully.
+
+Run with: pytest tests/test_mapper.py -v
 """
 
 import json

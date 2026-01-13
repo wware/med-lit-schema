@@ -1,8 +1,31 @@
 """
-Tests for enhanced Evidence class with ontology references (ECO, OBI, STATO).
+Tests for the enhanced `EvidenceItem` class, focusing on its integration
+with standard biomedical ontologies (ECO, OBI, STATO).
 
-The Evidence class now supports standardized classification of evidence types,
-study designs, and statistical methods using biomedical ontology IDs.
+The `EvidenceItem` model was updated to include optional fields that link
+evidence to formal classifications from established ontologies. This allows
+for more precise and queryable representation of the evidence's nature.
+
+This test suite validates:
+- **ECO Integration**: That `eco_type` can store an Evidence & Conclusion
+  Ontology (ECO) ID to classify the type of evidence (e.g., experimental,
+  computational).
+- **OBI Integration**: That `obi_study_design` can store an Ontology for
+  Biomedical Investigations (OBI) ID to classify the study design (e.g.,
+  randomized controlled trial).
+- **STATO Integration**: That `stato_methods` can store a list of STATO
+  (Statistics Ontology) IDs to detail the statistical methods used.
+- **Completeness**: That an `EvidenceItem` can be created with all ontology
+  references populated simultaneously.
+- **Optionality**: That all new ontology fields are optional, ensuring
+  backward compatibility with older data that lacks this information.
+- **Serialization**: That `EvidenceItem` instances with ontology fields can
+  be successfully serialized to and deserialized from JSON or Python dicts.
+- **Hierarchy and Mapping**: How internal fields like `study_type` can be
+  mapped to formal ontology IDs, and how different ECO types can represent
+  an evidence hierarchy.
+
+Run with: pytest tests/test_evidence_ontology.py -v
 """
 
 from med_lit_schema.entity import EvidenceItem
