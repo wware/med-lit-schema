@@ -21,9 +21,9 @@ class Paper(SQLModel, table=True):
     relationship_count: int = Field(default=0)  # Changed to int, default 0
 
     # Store extraction provenance as JSONB
-    extraction_provenance_json: Optional[str] = Field(default=None, sa_column=Column(JSONB, nullable=True))
+    extraction_provenance_json: Optional[dict] = Field(default=None, sa_column=Column(JSONB, nullable=True))
     # Store paper metadata as JSONB
-    metadata_json: Optional[str] = Field(default=None, sa_column=Column(JSONB, nullable=True))
+    metadata_json: Optional[dict] = Field(default=None, sa_column=Column(JSONB, nullable=True))
 
     created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")))
     updated_at: datetime = Field(

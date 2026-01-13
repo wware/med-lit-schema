@@ -193,6 +193,23 @@ class SQLiteRelationshipStorage(RelationshipStorageInterface):
             results.append(create_relationship(predicate_enum, subject_id, object_id, **data))
         return results
 
+    def list_relationships(self, limit: Optional[int] = None, offset: int = 0) -> list[BaseRelationship]:
+        """List relationships, optionally with pagination."""
+        cursor = self.conn.cursor()
+        query = "SELECT relationship_json FROM relationships ORDER BY created_at DESC"
+        if limit:
+            query += f" LIMIT {limit} OFFSET {offset}"
+        cursor.execute(query)
+        results = []
+        for row in cursor.fetchall():
+            data = json.loads(row[0])
+            predicate_enum = PredicateType(data["predicate"])
+            subject_id = data.pop("subject_id")
+            object_id = data.pop("object_id")
+            data.pop("predicate", None)  # Remove predicate since we pass it explicitly
+            results.append(create_relationship(predicate_enum, subject_id, object_id, **data))
+        return results
+
     @property
     def relationship_count(self) -> int:
         """Total number of relationships in storage."""
@@ -431,6 +448,15 @@ class SQLitePipelineStorage(PipelineStorageInterface):
     def relationship_embeddings(self) -> RelationshipEmbeddingStorageInterface:
         """Access to relationship embedding storage."""
         return self._relationship_embeddings
+
+    def __enter__(self):
+        """Enter context manager."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager and close connection."""
+        self.close()
+        return False
 
     def close(self) -> None:
         """Close connections and clean up resources."""

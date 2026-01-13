@@ -68,6 +68,11 @@ class RelationshipStorageInterface(ABC):
         """Find relationships matching criteria."""
         pass
 
+    @abstractmethod
+    def list_relationships(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseRelationship"]:
+        """List relationships, optionally with pagination."""
+        pass
+
     @property
     @abstractmethod
     def relationship_count(self) -> int:

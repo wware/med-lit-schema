@@ -35,6 +35,7 @@ from med_lit_schema.ingest.ollama_embedding_generator import OllamaEmbeddingGene
 
 DEFAULT_MODEL = "nomic-embed-text"
 # EMBEDDING_DIM will be dynamically determined by the Ollama model
+EMBEDDING_DIM = 768  # Default, will be updated dynamically
 
 
 # ============================================================================

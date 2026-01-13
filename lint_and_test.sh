@@ -52,22 +52,22 @@ echo "=========================================="
 # Stop and remove any existing containers to avoid conflicts
 docker compose down 2>/dev/null || true
 # Also try to stop containers by name in case they're from a different compose file
-docker stop med-lit-postgres med-lit-redis 2>/dev/null || true
-docker rm med-lit-postgres med-lit-redis 2>/dev/null || true
+docker stop med-lit-postgres med-lit-redis med-lit-ollama 2>/dev/null || true
+docker rm med-lit-postgres med-lit-redis med-lit-ollama 2>/dev/null || true
 
 echo ""
 echo "=========================================="
-echo "Starting Docker services (PostgreSQL & Redis)..."
+echo "Starting Docker services (PostgreSQL, Redis & Ollama)..."
 echo "=========================================="
-docker compose up -d postgres redis
+docker compose up -d postgres redis ollama
 
 # Wait for services to be healthy
 echo "Waiting for services to be ready..."
 timeout=60
 elapsed=0
 while [ $elapsed -lt $timeout ]; do
-    if docker compose ps postgres redis | grep -q "healthy"; then
-        echo "Services are ready!"
+    if docker compose ps postgres redis ollama | grep -q "healthy"; then
+        echo "PostgreSQL and Redis are ready!"
         break
     fi
     sleep 2
@@ -76,9 +76,14 @@ while [ $elapsed -lt $timeout ]; do
 done
 
 # Check if services are actually ready
-if ! docker compose ps postgres redis | grep -q "healthy"; then
+if ! docker compose ps postgres redis ollama | grep -q "healthy"; then
     echo "Warning: Services may not be fully ready, but continuing..."
 fi
+
+# Pull nomic-embed-text model if not already available
+echo ""
+echo "Ensuring Ollama model is available..."
+docker exec med-lit-ollama ollama pull nomic-embed-text || echo "Note: Failed to pull model, it may already be available"
 
 # Setup database schema if needed
 echo ""

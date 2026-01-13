@@ -28,6 +28,7 @@ from .entity import (
 from .relationship import (
     BaseRelationship,
     create_relationship,
+    BaseMedicalRelationship,
 )
 from .base import PredicateType
 from med_lit_schema.storage.models.entity import Entity
@@ -207,7 +208,10 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
     if not hasattr(persistence, "model_dump"):
         try:
             # Try to access the 'Entity' attribute for Row objects
-            persistence = persistence.Entity
+            if hasattr(persistence, "Entity"):
+                persistence = persistence.Entity
+            else:
+                persistence = persistence._mapping["Entity"]
         except AttributeError:
             # Fallback for older data or different query structures
             if hasattr(persistence, "_mapping"):
@@ -217,6 +221,8 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
                 persistence = persistence[0]
 
     # Parse common JSON fields
+    if not hasattr(persistence, "synonyms"):
+        persistence.synonyms = None
     synonyms = json.loads(persistence.synonyms) if persistence.synonyms else []
     abbreviations = json.loads(persistence.abbreviations) if persistence.abbreviations else []
     embedding = json.loads(persistence.embedding) if persistence.embedding else None
@@ -229,8 +235,8 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
         "synonyms": synonyms,
         "abbreviations": abbreviations,
         "embedding": embedding,
-        "created_at": persistence.created_at,
-        "source": persistence.source,
+        "created_at": getattr(persistence, "created_at", None),
+        "source": getattr(persistence, "source", None),
     }
 
     # Polymorphic conversion based on entity_type
@@ -238,18 +244,18 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
     if entity_type_str == EntityType.DISEASE.value:
         return Disease(
             **base_data,
-            umls_id=persistence.umls_id,
-            mesh_id=persistence.mesh_id,
-            icd10_codes=(json.loads(persistence.icd10_codes) if persistence.icd10_codes else []),
-            category=persistence.disease_category,
+            umls_id=getattr(persistence, "umls_id", None),
+            mesh_id=getattr(persistence, "mesh_id", None),
+            icd10_codes=(json.loads(persistence.icd10_codes) if getattr(persistence, "icd10_codes", None) else []),
+            category=getattr(persistence, "disease_category", None),
         )
     elif entity_type_str == EntityType.GENE.value:
         return Gene(
             **base_data,
-            symbol=persistence.symbol,
-            hgnc_id=persistence.hgnc_id,
-            chromosome=persistence.chromosome,
-            entrez_id=persistence.entrez_id,
+            symbol=getattr(persistence, "symbol", None),
+            hgnc_id=getattr(persistence, "hgnc_id", None),
+            chromosome=getattr(persistence, "chromosome", None),
+            entrez_id=getattr(persistence, "entrez_id", None),
         )
     elif entity_type_str == EntityType.DRUG.value:
         return Drug(
@@ -398,10 +404,6 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
     cls = create_relationship(predicate, "", "").__class__
 
     for key, field in cls.model_fields.items():
-        # Skip predicate - we've already converted it to enum
-        if key == "predicate":
-            continue
-
         if key in persistence_data:
             value = persistence_data[key]
             if field.annotation == list[str] and value and isinstance(value, str):
@@ -409,4 +411,9 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
             else:
                 domain_data[key] = value
 
-    return create_relationship(**domain_data)
+    if issubclass(cls, BaseMedicalRelationship):
+        if domain_data.get("evidence_count") is None:
+            domain_data["evidence_count"] = 0
+
+    domain_data["predicate"] = predicate
+    return cls(**domain_data)

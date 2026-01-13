@@ -22,7 +22,7 @@ class BaseRelationship(BaseModel):
         directed: Whether this relationship is directional
     """
 
-    model_config = ConfigDict(use_enum_values=True, table_name="relationships")
+    model_config = ConfigDict(use_enum_values=False, table_name="relationships")
 
     subject_id: str
     predicate: PredicateType

@@ -17,6 +17,10 @@ if TYPE_CHECKING:
         StudyDesign,
         StatisticalMethod,
         EvidenceLine,
+        Symptom,
+        Procedure,
+        Biomarker,
+        Pathway,
         BaseMedicalEntity,
     )
 
@@ -60,11 +64,11 @@ class PostgresPaperStorage(PaperStorageInterface):
         # Serialize extraction_provenance and metadata to JSON
         extraction_prov_json = None
         if paper.extraction_provenance:
-            extraction_prov_json = paper.extraction_provenance.model_dump_json()
+            extraction_prov_json = paper.extraction_provenance.model_dump()
 
         metadata_json = None
         if paper.metadata:
-            metadata_json = paper.metadata.model_dump_json()
+            metadata_json = paper.metadata.model_dump()
 
         # Convert domain model to persistence model
         persistence = PaperPersistence(
@@ -126,12 +130,12 @@ class PostgresPaperStorage(PaperStorageInterface):
         # Deserialize metadata from JSON
         metadata = PaperMetadata()
         if data.metadata_json:
-            metadata = PaperMetadata.model_validate_json(data.metadata_json)
+            metadata = PaperMetadata.model_validate(data.metadata_json)
 
         # Deserialize extraction_provenance from JSON
         extraction_provenance = None
         if data.extraction_provenance_json:
-            extraction_provenance = ExtractionProvenance.model_validate_json(data.extraction_provenance_json)
+            extraction_provenance = ExtractionProvenance.model_validate(data.extraction_provenance_json)
 
         return Paper(
             paper_id=data.id,
@@ -224,6 +228,33 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         for p in persistences:
             # Extract Relationship model from Row if needed
             # session.exec() returns Row objects that wrap the model
+            if hasattr(p, "_mapping") and "Relationship" in p._mapping:
+                persistence_model = p._mapping["Relationship"]
+            else:
+                persistence_model = p
+
+            try:
+                relationships.append(relationship_to_domain(persistence_model))
+            except ValueError as e:
+                # Skip relationships with NULL predicates or other invalid data
+                if "NULL predicate" in str(e):
+                    continue
+                raise
+        return relationships
+
+    def list_relationships(self, limit: Optional[int] = None, offset: int = 0) -> list[BaseRelationship]:
+        """List relationships, optionally with pagination."""
+        statement = select(Relationship).where(Relationship.predicate.isnot(None))
+
+        if limit:
+            statement = statement.limit(limit).offset(offset)
+
+        persistences = self.session.exec(statement).all()
+
+        # Convert to domain models, skipping any with NULL predicates
+        relationships = []
+        for p in persistences:
+            # Extract Relationship model from Row if needed
             if hasattr(p, "_mapping") and "Relationship" in p._mapping:
                 persistence_model = p._mapping["Relationship"]
             else:
@@ -336,6 +367,26 @@ class PostgresEntityCollection(EntityCollectionInterface):
 
     def add_evidence_line(self, entity: "EvidenceLine") -> None:
         """Add an evidence line entity to the collection."""
+        persistence = entity_to_persistence(entity)
+        self.session.merge(persistence)
+
+    def add_symptom(self, entity: "Symptom") -> None:
+        """Add a symptom entity to the collection."""
+        persistence = entity_to_persistence(entity)
+        self.session.merge(persistence)
+
+    def add_procedure(self, entity: "Procedure") -> None:
+        """Add a procedure entity to the collection."""
+        persistence = entity_to_persistence(entity)
+        self.session.merge(persistence)
+
+    def add_biomarker(self, entity: "Biomarker") -> None:
+        """Add a biomarker entity to the collection."""
+        persistence = entity_to_persistence(entity)
+        self.session.merge(persistence)
+
+    def add_pathway(self, entity: "Pathway") -> None:
+        """Add a pathway entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
 
@@ -455,6 +506,11 @@ class PostgresPipelineStorage(PipelineStorageInterface):
         self._entities = PostgresEntityCollection(self._session)
 
     @property
+    def session(self) -> Session:
+        """Access to the underlying session."""
+        return self._session
+
+    @property
     def entities(self) -> EntityCollectionInterface:
         """Access to entity storage."""
         return self._entities
@@ -483,11 +539,13 @@ class PostgresPipelineStorage(PipelineStorageInterface):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None:
-            self._session.rollback()
-        else:
-            self._session.commit()
-        self._session.close()
+        try:
+            if exc_type is not None:
+                self._session.rollback()
+            else:
+                self._session.commit()
+        finally:
+            self._session.close()
 
     def close(self) -> None:
         """Close connections and clean up resources."""

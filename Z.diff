@@ -1,250 +1,4953 @@
-diff --git a/query/explore_queries.ipynb b/query/explore_queries.ipynb
-index 26a0322..668eb90 100644
---- a/query/explore_queries.ipynb
-+++ b/query/explore_queries.ipynb
-@@ -187,7 +186,9 @@
-    "source": [
-     "# Find FDA-approved drugs\n",
-     "# Note: This assumes the properties JSONB field has an 'fda_approved' key\n",
--    "query = GraphQuery(DATABASE_URL).entities(entity_type=\"drug\").filter(fda_approved=\"true\").limit(20)\n",
+diff --git a/entity.py b/entity.py
+index 223de74..f7a244d 100644
+--- a/entity.py
++++ b/entity.py
+@@ -581,7 +581,7 @@ class Paper(BaseModel):
+ 
+     # ========== EXTRACTION PROVENANCE ==========
+ 
+-    extraction_provenance: ExtractionProvenance = Field(..., description="Complete provenance of how extraction was performed")
++    extraction_provenance: Optional[ExtractionProvenance] = Field(None, description="Complete provenance of how extraction was performed")
+ 
+     # ========== CONVENIENCE PROPERTIES ==========
+ 
+@@ -1342,6 +1342,11 @@ class EntityCollectionInterface(ABC):
+         """
+         pass
+ 
++    @abstractmethod
++    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
++        """List entities, optionally with pagination."""
++        pass
++
+     @property
+     @abstractmethod
+     def entity_count(self) -> int:
+@@ -1489,6 +1494,33 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
+                 return entity
+         return None
+ 
++    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
++        """List entities, optionally with pagination."""
++        all_entities = []
++        collections_to_search: list[dict[str, BaseMedicalEntity]] = [
++            cast(dict[str, BaseMedicalEntity], self.diseases),
++            cast(dict[str, BaseMedicalEntity], self.genes),
++            cast(dict[str, BaseMedicalEntity], self.drugs),
++            cast(dict[str, BaseMedicalEntity], self.proteins),
++            cast(dict[str, BaseMedicalEntity], self.symptoms),
++            cast(dict[str, BaseMedicalEntity], self.procedures),
++            cast(dict[str, BaseMedicalEntity], self.biomarkers),
++            cast(dict[str, BaseMedicalEntity], self.pathways),
++            cast(dict[str, BaseMedicalEntity], self.hypotheses),
++            cast(dict[str, BaseMedicalEntity], self.study_designs),
++            cast(dict[str, BaseMedicalEntity], self.statistical_methods),
++            cast(dict[str, BaseMedicalEntity], self.evidence_lines),
++        ]
++        for collection in collections_to_search:
++            all_entities.extend(collection.values())
++
++        # Apply pagination
++        paginated_entities = all_entities[offset:]
++        if limit is not None:
++            paginated_entities = paginated_entities[:limit]
++
++        return paginated_entities
++
+     def save(self, path: str):
+         """Save to JSONL with type information"""
+         with open(path, "w") as f:
+diff --git a/extract_docs.py b/extract_docs.py
+index fcf0040..da6ed75 100755
+--- a/extract_docs.py
++++ b/extract_docs.py
+@@ -196,8 +196,12 @@ def extract_docs(source_path: Path) -> str:
+     extractor = DocExtractor()
+     extractor.visit(tree)
+ 
+-    # Build markdown
+-    lines = [f"# {source_path.name}\n"]
++    # Build markdown with file boundary markers
++    path_str = str(source_path.absolute())
++    boundary_width = max(len(path_str) + 8, 50)
++    boundary = "*" * boundary_width
++
++    lines = [boundary, boundary, f"**  {path_str}  **", boundary, boundary, f"# {source_path.name}\n"]
+ 
+     for section in extractor.sections:
+         doc_type, signature, content, fields = section
+@@ -257,9 +261,12 @@ def main():
+ 
+         try:
+             markdown = extract_docs(source_path)
+-            output_path = source_path.with_suffix(".md")
+-            output_path.write_text(markdown)
+-            print(f"Documentation written to {output_path}")
++            if False:
++                output_path = source_path.with_suffix(".md")
++                output_path.write_text(markdown)
++                print(f"Documentation written to {output_path}")
++            else:
++                print(markdown)
+         except Exception as e:
+             print(f"Error processing {source_path}: {e}")
+             continue
+diff --git a/ingest/claims_pipeline.py b/ingest/claims_pipeline.py
+index f51ce5e..5ba0447 100644
+--- a/ingest/claims_pipeline.py
++++ b/ingest/claims_pipeline.py
+@@ -12,7 +12,6 @@ Usage:
+ 
+ import argparse
+ import re
+-import sqlite3
+ from pathlib import Path
+ 
+ # Import new schema
+@@ -36,6 +35,8 @@ except ImportError:
+     from med_lit_schema.ingest.embedding_interfaces import EmbeddingGeneratorInterface
+     from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
+ 
++from sqlalchemy import create_engine
++from sqlmodel import Session
+ 
+ # ============================================================================
+ # Configuration
+@@ -85,36 +86,6 @@ PREDICATE_PATTERNS = [
+ # ============================================================================
+ 
+ 
+-def get_paragraphs_from_provenance_db(provenance_db_path: Path) -> list[tuple[str, str, str, str, str]]:
+-    """
+-    Retrieve paragraphs with their section and paper information from provenance.db.
+-
+-    Note: This reads from the old SQLite format. In the future, this should
+-    read from provenance storage interface when paragraph storage is added.
+-
+-    Args:
+-        provenance_db_path: Path to provenance.db
+-
+-    Returns:
+-        List of (paragraph_id, section_id, paper_id, text, section_type) tuples
+-    """
+-    conn = sqlite3.connect(provenance_db_path)
+-    cursor = conn.cursor()
+-
+-    cursor.execute(
+-        """
+-        SELECT p.paragraph_id, p.section_id, s.paper_id, p.text, s.section_type
+-        FROM paragraphs p
+-        JOIN sections s ON p.section_id = s.section_id
+-        ORDER BY s.paper_id, p.paragraph_id
+-    """
+-    )
+-
+-    result = cursor.fetchall()
+-    conn.close()
+-    return result
+-
+-
+ def extract_relationships_from_paragraph(
+     paragraph_id: str,
+     section_id: str,
+@@ -156,6 +127,7 @@ def extract_relationships_from_paragraph(
+                     # Map predicate string to enum
+                     predicate = PREDICATE_MAP.get(predicate_str)
+                     if not predicate:
++                        print(f"WARNING: Unknown predicate '{predicate_str}' in pattern - skipping")
+                         continue
+ 
+                     # Base confidence on section type and pattern match
+@@ -233,55 +205,67 @@ def main():
+     output_dir = Path(args.output_dir)
+     output_dir.mkdir(exist_ok=True)
+ 
+-    # Determine provenance DB path
+-    if args.provenance_db:
+-        provenance_db_path = Path(args.provenance_db)
+-    else:
+-        provenance_db_path = output_dir / "provenance.db"
+-
+-    if not provenance_db_path.exists():
+-        print(f"Error: provenance.db not found at {provenance_db_path}")
+-        print("Please run Stage 2 (provenance extraction) first")
+-        return 1
+-
+-    # Initialize storage
++    # Process papers
+     if args.storage == "sqlite":
+         db_path = output_dir / "ingest.db"
+-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
++        with SQLitePipelineStorage(db_path) as storage:
++            total_relationships = process_papers(storage, args)
+     elif args.storage == "postgres":
+         if not args.database_url:
+             print("Error: --database-url required for PostgreSQL storage")
+             return 1
+-        storage = PostgresPipelineStorage(args.database_url)
++        engine = create_engine(args.database_url)
++        session = Session(engine)
++        with PostgresPipelineStorage(session) as storage:
++            total_relationships = process_papers(storage, args)
+     else:
+         print(f"Error: Unknown storage backend: {args.storage}")
+         return 1
+ 
++    # Print summary
++    print("=" * 60)
++    print("Claims extraction complete!")
++    print(f"Total relationships: {total_relationships}")
++    print(f"Storage: {args.storage}")
++    print("=" * 60)
++
++    if total_relationships > 0:
++        print("\nNote: Relationships created with placeholder entity IDs.")
++        print("Entity resolution is needed to replace placeholder IDs with canonical entity IDs.")
++        print("Run entity resolution ingest to complete the relationships.")
++
++    return 0
++
++
++def process_papers(storage, args):
++    """Processes all papers and extracts relationships."""
+     print("=" * 60)
+     print("Stage 4: Claims Extraction Pipeline")
+     print("=" * 60)
+     print()
+ 
+-    # Get paragraphs from provenance database
+-    print(f"Loading paragraphs from {provenance_db_path}...")
+-    paragraphs = get_paragraphs_from_provenance_db(provenance_db_path)
+-    print(f"Found {len(paragraphs)} paragraphs")
++    # Get papers from storage
++    print("Loading papers from storage...")
++    papers = storage.papers.list_papers(limit=None)
++    print(f"Found {len(papers)} papers")
+     print()
+ 
+     # Extract relationships
+-    print("Extracting relationships...")
++    print("Extracting relationships from abstracts...")
+     print("-" * 60)
+ 
+     total_relationships = 0
+-    for para_id, sec_id, paper_id, text, sec_type in paragraphs:
+-        relationships = extract_relationships_from_paragraph(para_id, sec_id, paper_id, text, sec_type, storage)
++    for paper in papers:
++        # We'll use the paper's abstract as the text to process.
++        # We pass paper.paper_id as a stand-in for paragraph_id and section_id.
++        relationships = extract_relationships_from_paragraph(paper.paper_id, paper.paper_id, paper.paper_id, paper.abstract, "abstract", storage)
+ 
+         for relationship in relationships:
+             storage.relationships.add_relationship(relationship)
+             total_relationships += 1
+ 
+         if relationships:
+-            print(f"{paper_id}: Found {len(relationships)} relationships in {para_id}")
++            print(f"{paper.paper_id}: Found {len(relationships)} relationships in abstract")
+ 
+     print()
+     print(f"Extracted {total_relationships} relationships")
+@@ -311,10 +295,11 @@ def main():
+                 text = rel.evidence[0].text_span
+             else:
+                 # Fallback: construct text from relationship components
+-                text = f"{rel.subject_id} {rel.predicate.value} {rel.object_id}"
++                # Note: predicate is already a string due to use_enum_values=True
++                text = f"{rel.subject_id} {rel.predicate} {rel.object_id}"
+ 
+             texts_to_embed.append(text)
+-            relationship_triples.append((rel.subject_id, rel.predicate.value, rel.object_id))
++            relationship_triples.append((rel.subject_id, rel.predicate, rel.object_id))
+ 
+         if texts_to_embed:
+             # Generate embeddings in batches
+@@ -336,23 +321,7 @@ def main():
+ 
+             print(f"Stored {stored_count} relationship embeddings")
+             print()
+-
+-    # Clean up
+-    storage.close()
+-
+-    # Print summary
+-    print("=" * 60)
+-    print("Claims extraction complete!")
+-    print(f"Total relationships: {total_relationships}")
+-    print(f"Storage: {args.storage}")
+-    print("=" * 60)
+-
+-    if total_relationships > 0:
+-        print("\nNote: Relationships created with placeholder entity IDs.")
+-        print("Entity resolution is needed to replace placeholder IDs with canonical entity IDs.")
+-        print("Run entity resolution ingest to complete the relationships.")
+-
+-    return 0
++    return total_relationships
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/ingest/download/download_pipeline.py b/ingest/download/download_pipeline.py
+new file mode 100644
+index 0000000..5946fb7
+--- /dev/null
++++ b/ingest/download/download_pipeline.py
+@@ -0,0 +1,469 @@
++#!/usr/bin/env python3
++"""
++Stage 0: PMC XML Download Pipeline
++
++Downloads PubMed Central (PMC) XML files from NCBI E-utilities API and stores them locally.
++Supports downloading by PMC ID list, PubMed search queries, or DOI resolution.
++
++Usage:
++    # Download specific PMC IDs
++    python download_pipeline.py --pmc-ids PMC123456 PMC234567 --output-dir pmc_xmls
++
++    # Download from a file containing PMC IDs (one per line)
++    python download_pipeline.py --pmc-id-file ids.txt --output-dir pmc_xmls
++
++    # Search PubMed and download results
++    python download_pipeline.py --search "BRCA1 breast cancer" --max-results 100 --output-dir pmc_xmls
++
++    # Resume interrupted download
++    python download_pipeline.py --pmc-id-file ids.txt --output-dir pmc_xmls --skip-existing
++
++NCBI E-utilities Documentation:
++    https://www.ncbi.nlm.nih.gov/books/NBK25501/
++"""
++
++import argparse
++import time
++from pathlib import Path
++from typing import Optional
++import xml.etree.ElementTree as ET
++from urllib.request import urlopen
++from urllib.error import HTTPError, URLError
++from urllib.parse import urlencode
++import json
++
++# ============================================================================
++# Configuration
++# ============================================================================
++
++NCBI_EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
++EFETCH_ENDPOINT = f"{NCBI_EUTILS_BASE}/efetch.fcgi"
++ESEARCH_ENDPOINT = f"{NCBI_EUTILS_BASE}/esearch.fcgi"
++ELINK_ENDPOINT = f"{NCBI_EUTILS_BASE}/elink.fcgi"
++
++# NCBI requires rate limiting: max 3 requests/second without API key, 10/second with key
++DEFAULT_RATE_LIMIT = 0.34  # seconds between requests (slightly under 3 req/sec)
++API_KEY_RATE_LIMIT = 0.11  # seconds between requests with API key (slightly under 10 req/sec)
++
++# Retry configuration
++MAX_RETRIES = 3
++RETRY_DELAY = 2.0  # seconds
++
++
++# ============================================================================
++# PMC ID Utilities
++# ============================================================================
++
++
++def normalize_pmc_id(pmc_id: str) -> str:
++    """
++    Normalize PMC ID to standard format.
++
++    Args:
++        pmc_id: PMC ID in any format (e.g., "123456", "PMC123456")
++
++    Returns:
++        Normalized PMC ID with "PMC" prefix
++
++    Examples:
++        >>> normalize_pmc_id("123456")
++        'PMC123456'
++        >>> normalize_pmc_id("PMC123456")
++        'PMC123456'
++    """
++    pmc_id = pmc_id.strip()
++    if not pmc_id.startswith("PMC"):
++        pmc_id = f"PMC{pmc_id}"
++    return pmc_id
++
++
++def validate_pmc_id(pmc_id: str) -> bool:
++    """
++    Validate that a string is a valid PMC ID format.
++
++    Args:
++        pmc_id: String to validate
++
++    Returns:
++        True if valid PMC ID format
++    """
++    normalized = normalize_pmc_id(pmc_id)
++    # PMC ID should be "PMC" followed by digits
++    return normalized.startswith("PMC") and normalized[3:].isdigit()
++
++
++# ============================================================================
++# NCBI E-utilities Functions
++# ============================================================================
++
++
++def search_pubmed(
++    query: str,
++    max_results: int = 100,
++    api_key: Optional[str] = None,
++    rate_limit: float = DEFAULT_RATE_LIMIT,
++) -> list[str]:
++    """
++    Search PubMed and return PMC IDs.
++
++    Args:
++        query: PubMed search query
++        max_results: Maximum number of results to return
++        api_key: NCBI API key (optional, increases rate limit)
++        rate_limit: Seconds to wait between requests
++
++    Returns:
++        List of PMC IDs
++    """
++    print(f"Searching PubMed for: {query}")
++
++    params = {
++        "db": "pmc",  # Search PMC database
++        "term": query,
++        "retmax": max_results,
++        "retmode": "json",
++    }
++
++    if api_key:
++        params["api_key"] = api_key
++
++    url = f"{ESEARCH_ENDPOINT}?{urlencode(params)}"
++
++    try:
++        with urlopen(url) as response:
++            data = json.loads(response.read().decode())
++            id_list = data.get("esearchresult", {}).get("idlist", [])
++
++            # Convert PMCID numbers to PMC format
++            pmc_ids = [f"PMC{id}" for id in id_list]
++
++            print(f"  Found {len(pmc_ids)} results")
++            time.sleep(rate_limit)
++            return pmc_ids
++
++    except HTTPError as e:
++        print(f"  Error searching PubMed: {e}")
++        return []
++    except Exception as e:
++        print(f"  Unexpected error: {e}")
++        return []
++
++
++def fetch_pmc_xml(
++    pmc_id: str,
++    api_key: Optional[str] = None,
++    rate_limit: float = DEFAULT_RATE_LIMIT,
++    retry_count: int = 0,
++) -> Optional[str]:
++    """
++    Fetch PMC XML from NCBI E-utilities.
++
++    Args:
++        pmc_id: PMC ID (e.g., "PMC123456")
++        api_key: NCBI API key (optional)
++        rate_limit: Seconds to wait between requests
++        retry_count: Current retry attempt (for internal use)
++
++    Returns:
++        XML content as string, or None if fetch failed
++    """
++    normalized_id = normalize_pmc_id(pmc_id)
++
++    # Strip "PMC" prefix for NCBI API
++    numeric_id = normalized_id[3:]
++
++    params = {
++        "db": "pmc",
++        "id": numeric_id,
++        "retmode": "xml",
++    }
++
++    if api_key:
++        params["api_key"] = api_key
++
++    url = f"{EFETCH_ENDPOINT}?{urlencode(params)}"
++
++    try:
++        with urlopen(url) as response:
++            xml_content = response.read().decode("utf-8")
++            time.sleep(rate_limit)
++            return xml_content
++
++    except HTTPError as e:
++        if e.code == 429:  # Too Many Requests
++            if retry_count < MAX_RETRIES:
++                print(f"  Rate limited, retrying in {RETRY_DELAY}s...")
++                time.sleep(RETRY_DELAY)
++                return fetch_pmc_xml(pmc_id, api_key, rate_limit, retry_count + 1)
++            else:
++                print(f"  Max retries exceeded for {normalized_id}")
++                return None
++        elif e.code == 404:
++            print(f"  Not found: {normalized_id}")
++            return None
++        else:
++            print(f"  HTTP error {e.code}: {normalized_id}")
++            return None
++
++    except URLError as e:
++        if retry_count < MAX_RETRIES:
++            print(f"  Network error, retrying in {RETRY_DELAY}s...")
++            time.sleep(RETRY_DELAY)
++            return fetch_pmc_xml(pmc_id, api_key, rate_limit, retry_count + 1)
++        else:
++            print(f"  Network error for {normalized_id}: {e}")
++            return None
++
++    except Exception as e:
++        print(f"  Unexpected error for {normalized_id}: {e}")
++        return None
++
++
++def save_pmc_xml(pmc_id: str, xml_content: str, output_dir: Path) -> bool:
++    """
++    Save PMC XML to file.
++
++    Args:
++        pmc_id: PMC ID (will be normalized)
++        xml_content: XML content to save
++        output_dir: Directory to save XML files
++
++    Returns:
++        True if saved successfully, False otherwise
++    """
++    normalized_id = normalize_pmc_id(pmc_id)
++    output_path = output_dir / f"{normalized_id}.xml"
++
++    try:
++        # Validate XML before saving
++        ET.fromstring(xml_content)
++
++        with open(output_path, "w", encoding="utf-8") as f:
++            f.write(xml_content)
++
++        return True
++
++    except ET.ParseError as e:
++        print(f"  Invalid XML for {normalized_id}: {e}")
++        return False
++
++    except Exception as e:
++        print(f"  Error saving {normalized_id}: {e}")
++        return False
++
++
++# ============================================================================
++# Batch Download Functions
++# ============================================================================
++
++
++def download_pmc_ids(
++    pmc_ids: list[str],
++    output_dir: Path,
++    api_key: Optional[str] = None,
++    skip_existing: bool = False,
++) -> tuple[int, int, int]:
++    """
++    Download multiple PMC XML files.
++
++    Args:
++        pmc_ids: List of PMC IDs to download
++        output_dir: Directory to save XML files
++        api_key: NCBI API key (optional)
++        skip_existing: Skip PMC IDs that already have XML files
++
++    Returns:
++        Tuple of (successful, failed, skipped) counts
++    """
++    output_dir.mkdir(parents=True, exist_ok=True)
++
++    rate_limit = API_KEY_RATE_LIMIT if api_key else DEFAULT_RATE_LIMIT
++
++    successful = 0
++    failed = 0
++    skipped = 0
++
++    total = len(pmc_ids)
++
++    print(f"\nDownloading {total} PMC XML files...")
++    print(f"Output directory: {output_dir}")
++    print(f"Rate limit: {1 / rate_limit:.1f} requests/second")
++    if api_key:
++        print("Using NCBI API key for increased rate limit")
++    print("-" * 60)
++
++    for i, pmc_id in enumerate(pmc_ids, 1):
++        normalized_id = normalize_pmc_id(pmc_id)
++        output_path = output_dir / f"{normalized_id}.xml"
++
++        # Skip existing files if requested
++        if skip_existing and output_path.exists():
++            print(f"[{i}/{total}] Skipping {normalized_id} (already exists)")
++            skipped += 1
++            continue
++
++        print(f"[{i}/{total}] Downloading {normalized_id}...", end=" ")
++
++        # Fetch XML
++        xml_content = fetch_pmc_xml(normalized_id, api_key, rate_limit)
++
++        if xml_content:
++            # Save to file
++            if save_pmc_xml(normalized_id, xml_content, output_dir):
++                print("✓")
++                successful += 1
++            else:
++                print("✗ (save failed)")
++                failed += 1
++        else:
++            print("✗ (fetch failed)")
++            failed += 1
++
++    return successful, failed, skipped
++
++
++def load_pmc_ids_from_file(file_path: Path) -> list[str]:
++    """
++    Load PMC IDs from a text file (one per line).
++
++    Args:
++        file_path: Path to file containing PMC IDs
++
++    Returns:
++        List of PMC IDs
++    """
++    pmc_ids = []
++
++    with open(file_path, "r") as f:
++        for line in f:
++            line = line.strip()
++            # Skip empty lines and comments
++            if line and not line.startswith("#"):
++                if validate_pmc_id(line):
++                    pmc_ids.append(normalize_pmc_id(line))
++                else:
++                    print(f"Warning: Invalid PMC ID format: {line}")
++
++    return pmc_ids
++
++
++# ============================================================================
++# Main Pipeline
++# ============================================================================
++
++
++def main():
++    """Main download execution."""
++    parser = argparse.ArgumentParser(
++        description="Stage 0: PMC XML Download Pipeline",
++        formatter_class=argparse.RawDescriptionHelpFormatter,
++        epilog="""
++Examples:
++  # Download specific PMC IDs
++  python download_pipeline.py --pmc-ids PMC123456 PMC234567
++
++  # Download from a file
++  python download_pipeline.py --pmc-id-file my_ids.txt
++
++  # Search PubMed and download results
++  python download_pipeline.py --search "BRCA1 AND breast cancer"
++
++  # Use NCBI API key for higher rate limit
++  python download_pipeline.py --pmc-id-file ids.txt --api-key YOUR_KEY
++
++  # Resume interrupted download
++  python download_pipeline.py --pmc-id-file ids.txt --skip-existing
++        """,
++    )
++
++    # Input sources (mutually exclusive)
++    input_group = parser.add_mutually_exclusive_group(required=True)
++    input_group.add_argument("--pmc-ids", nargs="+", help="PMC IDs to download (e.g., PMC123456 PMC234567)")
++    input_group.add_argument("--pmc-id-file", type=str, help="File containing PMC IDs (one per line)")
++    input_group.add_argument("--search", type=str, help="PubMed search query (downloads matching PMC articles)")
++
++    # Output options
++    parser.add_argument("--output-dir", type=str, default="pmc_xmls", help="Output directory for XML files (default: pmc_xmls)")
++
++    # Search options
++    parser.add_argument("--max-results", type=int, default=100, help="Maximum search results to download (default: 100)")
++
++    # Download options
++    parser.add_argument("--api-key", type=str, default=None, help="NCBI API key (increases rate limit from 3 to 10 req/sec)")
++    parser.add_argument("--skip-existing", action="store_true", help="Skip PMC IDs that already have XML files")
++
++    args = parser.parse_args()
++
++    output_dir = Path(args.output_dir)
++
++    # Collect PMC IDs from appropriate source
++    pmc_ids = []
++
++    if args.pmc_ids:
++        # Direct PMC ID list
++        pmc_ids = [normalize_pmc_id(id) for id in args.pmc_ids]
++
++    elif args.pmc_id_file:
++        # Load from file
++        file_path = Path(args.pmc_id_file)
++        if not file_path.exists():
++            print(f"Error: File not found: {file_path}")
++            return 1
++        pmc_ids = load_pmc_ids_from_file(file_path)
++        print(f"Loaded {len(pmc_ids)} PMC IDs from {file_path}")
++
++    elif args.search:
++        # Search PubMed
++        rate_limit = API_KEY_RATE_LIMIT if args.api_key else DEFAULT_RATE_LIMIT
++        pmc_ids = search_pubmed(
++            args.search,
++            max_results=args.max_results,
++            api_key=args.api_key,
++            rate_limit=rate_limit,
++        )
++
++        if not pmc_ids:
++            print("No results found for search query")
++            return 0
++
++    # Validate PMC IDs
++    valid_ids = [id for id in pmc_ids if validate_pmc_id(id)]
++    invalid_count = len(pmc_ids) - len(valid_ids)
++
++    if invalid_count > 0:
++        print(f"Warning: Skipped {invalid_count} invalid PMC IDs")
++
++    if not valid_ids:
++        print("Error: No valid PMC IDs to download")
++        return 1
++
++    # Download PMC XML files
++    print("=" * 60)
++    print("Stage 0: PMC XML Download Pipeline")
++    print("=" * 60)
++
++    successful, failed, skipped = download_pmc_ids(
++        valid_ids,
++        output_dir,
++        api_key=args.api_key,
++        skip_existing=args.skip_existing,
++    )
++
++    # Print summary
++    print()
++    print("=" * 60)
++    print("Download complete!")
++    print("=" * 60)
++    print(f"Successful: {successful}")
++    print(f"Failed: {failed}")
++    if skipped > 0:
++        print(f"Skipped: {skipped}")
++    print(f"Total: {len(valid_ids)}")
++    print(f"\nXML files saved to: {output_dir}")
++    print("=" * 60)
++
++    return 0 if failed == 0 else 1
++
++
++if __name__ == "__main__":
++    exit(main())
+diff --git a/ingest/download/test_download.py b/ingest/download/test_download.py
+new file mode 100755
+index 0000000..30f433a
+--- /dev/null
++++ b/ingest/download/test_download.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++"""
++Quick test of the PMC download pipeline.
++
++Tests downloading a single PMC article to verify the pipeline works.
++"""
++
++import sys
++from pathlib import Path
++
++# Add parent directory to path for imports
++sys.path.insert(0, str(Path(__file__).parent))
++
++from download_pipeline import (  # noqa: E402
++    fetch_pmc_xml,
++    save_pmc_xml,
++    normalize_pmc_id,
++    validate_pmc_id,
++)
++
++
++def test_single_download():
++    """Test downloading a single PMC article."""
++
++    # Use a well-known paper about BRCA1
++    test_pmc_id = "PMC6462820"
++    output_dir = Path("test_output")
++    output_dir.mkdir(exist_ok=True)
++
++    print("=" * 60)
++    print("Testing PMC Download Pipeline")
++    print("=" * 60)
++    print()
++
++    # Test 1: ID validation
++    print("Test 1: PMC ID validation")
++    assert validate_pmc_id("123456"), "Should accept numeric ID"
++    assert validate_pmc_id("PMC123456"), "Should accept PMC prefix"
++    assert normalize_pmc_id("123456") == "PMC123456", "Should normalize to PMC format"
++    print("  ✓ ID validation working")
++    print()
++
++    # Test 2: Fetch XML
++    print(f"Test 2: Fetching {test_pmc_id}")
++    xml_content = fetch_pmc_xml(test_pmc_id)
++
++    if not xml_content:
++        print("  ✗ Failed to fetch XML")
++        return False
++
++    print(f"  ✓ Fetched {len(xml_content)} bytes")
++    print()
++
++    # Test 3: Save XML
++    print("Test 3: Saving XML to file")
++    success = save_pmc_xml(test_pmc_id, xml_content, output_dir)
++
++    if not success:
++        print("  ✗ Failed to save XML")
++        return False
++
++    output_file = output_dir / f"{test_pmc_id}.xml"
++    if not output_file.exists():
++        print("  ✗ Output file not created")
++        return False
++
++    print(f"  ✓ Saved to {output_file}")
++    print(f"  ✓ File size: {output_file.stat().st_size} bytes")
++    print()
++
++    # Test 4: Verify XML structure
++    print("Test 4: Verifying XML structure")
++    import xml.etree.ElementTree as ET
++
++    try:
++        tree = ET.parse(output_file)
++        root = tree.getroot()
++
++        # Check for article element
++        article = root.find(".//article")
++        if article is None:
++            print("  ✗ No <article> element found")
++            return False
++
++        # Check for title
++        title = root.find(".//article-title")
++        if title is not None:
++            title_text = "".join(title.itertext()).strip()
++            print(f"  ✓ Title: {title_text[:60]}...")
++
++        print("  ✓ XML structure valid")
++        print()
++
++    except ET.ParseError as e:
++        print(f"  ✗ XML parsing failed: {e}")
++        return False
++
++    print("=" * 60)
++    print("All tests passed! ✓")
++    print("=" * 60)
++    print(f"\nTest output saved to: {output_dir}")
++    print("You can now run the full download pipeline:")
++    print(f"  python download_pipeline.py --pmc-ids {test_pmc_id} --output-dir pmc_xmls")
++
++    return True
++
++
++if __name__ == "__main__":
++    success = test_single_download()
++    sys.exit(0 if success else 1)
+diff --git a/ingest/embeddings_pipeline.py b/ingest/embeddings_pipeline.py
+index 1af6f1b..4beb123 100644
+--- a/ingest/embeddings_pipeline.py
++++ b/ingest/embeddings_pipeline.py
+@@ -26,15 +26,15 @@ from pathlib import Path
+ import numpy as np
+ 
+ from pydantic import BaseModel, Field
+-from sentence_transformers import SentenceTransformer
++from med_lit_schema.ingest.ollama_embedding_generator import OllamaEmbeddingGenerator
+ 
+ 
+ # ============================================================================
+ # Configuration
+ # ============================================================================
+ 
+-DEFAULT_MODEL = "sentence-transformers/all-mpnet-base-v2"
+-EMBEDDING_DIM = 768  # all-mpnet-base-v2 produces 768-dimensional vectors
++DEFAULT_MODEL = "nomic-embed-text"
++# EMBEDDING_DIM will be dynamically determined by the Ollama model
+ 
+ 
+ # ============================================================================
+@@ -77,7 +77,7 @@ def create_entity_embeddings_table(conn: sqlite3.Connection) -> None:
+     cursor.execute(
+         """
+         CREATE TABLE IF NOT EXISTS entity_embeddings (
+-            entity_id INTEGER PRIMARY KEY,
++            entity_id TEXT PRIMARY KEY,
+             embedding BLOB,
+             model_name TEXT,
+             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+@@ -91,30 +91,30 @@ def create_entity_embeddings_table(conn: sqlite3.Connection) -> None:
+     conn.commit()
+ 
+ 
+-def create_paragraph_embeddings_table(conn: sqlite3.Connection) -> None:
+-    """
+-    Create paragraph_embeddings table in provenance.db.
++# def create_paragraph_embeddings_table(conn: sqlite3.Connection) -> None:
++#     """
++#     Create paragraph_embeddings table in provenance.db.
+ 
+-    Args:
+-        conn: SQLite connection to provenance.db
+-    """
+-    cursor = conn.cursor()
++#     Args:
++#         conn: SQLite connection to provenance.db
++#     """
++#     cursor = conn.cursor()
+ 
+-    cursor.execute(
+-        """
+-        CREATE TABLE IF NOT EXISTS paragraph_embeddings (
+-            paragraph_id TEXT PRIMARY KEY,
+-            embedding BLOB,
+-            model_name TEXT,
+-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+-            FOREIGN KEY (paragraph_id) REFERENCES paragraphs(paragraph_id) ON DELETE CASCADE
+-        )
+-    """
+-    )
++#     cursor.execute(
++#         """
++#         CREATE TABLE IF NOT EXISTS paragraph_embeddings (
++#             paragraph_id TEXT PRIMARY KEY,
++#             embedding BLOB,
++#             model_name TEXT,
++#             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
++#             FOREIGN KEY (paragraph_id) REFERENCES paragraphs(paragraph_id) ON DELETE CASCADE
++#         )
++#     """
++#     )
+ 
+-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_paragraph_embeddings ON paragraph_embeddings(paragraph_id)")
++#     cursor.execute("CREATE INDEX IF NOT EXISTS idx_paragraph_embeddings ON paragraph_embeddings(paragraph_id)")
+ 
+-    conn.commit()
++#     conn.commit()
+ 
+ 
+ def get_entities(conn: sqlite3.Connection) -> list[tuple[int, str]]:
+@@ -128,23 +128,23 @@ def get_entities(conn: sqlite3.Connection) -> list[tuple[int, str]]:
+         List of (entity_id, entity_name) tuples
+     """
+     cursor = conn.cursor()
+-    cursor.execute("SELECT id, canonical_name FROM entities ORDER BY id")
++    cursor.execute("SELECT id, name FROM entities ORDER BY id")
+     return cursor.fetchall()
+ 
+ 
+-def get_paragraphs(conn: sqlite3.Connection) -> list[tuple[str, str]]:
+-    """
+-    Retrieve all paragraphs from provenance.db.
++# def get_paragraphs(conn: sqlite3.Connection) -> list[tuple[str, str]]:
++#     """
++#     Retrieve all paragraphs from provenance.db.
+ 
+-    Args:
+-        conn: SQLite connection to provenance.db
++#     Args:
++#         conn: SQLite connection to provenance.db
+ 
+-    Returns:
+-        List of (paragraph_id, text) tuples
+-    """
+-    cursor = conn.cursor()
+-    cursor.execute("SELECT paragraph_id, text FROM paragraphs ORDER BY paragraph_id")
+-    return cursor.fetchall()
++#     Returns:
++#         List of (paragraph_id, text) tuples
++#     """
++#     cursor = conn.cursor()
++#     cursor.execute("SELECT paragraph_id, text FROM paragraphs ORDER BY paragraph_id")
++#     return cursor.fetchall()
+ 
+ 
+ def insert_entity_embedding(conn: sqlite3.Connection, entity_id: int, embedding: np.ndarray, model_name: str) -> None:
+@@ -174,45 +174,44 @@ def insert_entity_embedding(conn: sqlite3.Connection, entity_id: int, embedding:
+     conn.commit()
+ 
+ 
+-def insert_paragraph_embedding(conn: sqlite3.Connection, paragraph_id: str, embedding: np.ndarray, model_name: str) -> None:
+-    """
+-    Insert paragraph embedding into database.
++# def insert_paragraph_embedding(conn: sqlite3.Connection, paragraph_id: str, embedding: np.ndarray, model_name: str) -> None:
++#     """
++#     Insert paragraph embedding into database.
+ 
+-    Args:
+-        conn: SQLite connection to provenance.db
+-        paragraph_id: Paragraph ID
+-        embedding: Embedding vector as numpy array
+-        model_name: Name of the embedding model
+-    """
+-    cursor = conn.cursor()
++#     Args:
++#         conn: SQLite connection to provenance.db
++#         paragraph_id: Paragraph ID
++#         embedding: Embedding vector as numpy array
++#         model_name: Name of the embedding model
++#     """
++#     cursor = conn.cursor()
+ 
+-    # Convert numpy array to bytes for storage
+-    embedding_bytes = embedding.astype(np.float32).tobytes()
++#     # Convert numpy array to bytes for storage
++#     embedding_bytes = embedding.astype(np.float32).tobytes()
+ 
+-    cursor.execute(
+-        """
+-        INSERT OR REPLACE INTO paragraph_embeddings
+-        (paragraph_id, embedding, model_name)
+-        VALUES (?, ?, ?)
+-    """,
+-        (paragraph_id, embedding_bytes, model_name),
+-    )
++#     cursor.execute(
++#         """
++#         INSERT OR REPLACE INTO paragraph_embeddings
++#         (paragraph_id, embedding, model_name)
++#         VALUES (?, ?, ?)
++#     """,
++#         (paragraph_id, embedding_bytes, model_name),
++#     )
+ 
+-    conn.commit()
++#     conn.commit()
+ 
+ 
+-def load_embedding(embedding_bytes: bytes, dim: int = EMBEDDING_DIM) -> np.ndarray:
++def load_embedding(embedding_bytes: bytes) -> np.ndarray:
+     """
+     Load embedding from bytes.
+ 
+     Args:
+         embedding_bytes: Embedding stored as bytes
+-        dim: Dimensionality of embedding (default: 768)
+ 
+     Returns:
+         Numpy array of shape (dim,)
+     """
+-    return np.frombuffer(embedding_bytes, dtype=np.float32).reshape(dim)
++    return np.frombuffer(embedding_bytes, dtype=np.float32).reshape(EMBEDDING_DIM)
+ 
+ 
+ # ============================================================================
+@@ -226,14 +225,18 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
+ 
+     Args:
+         entities_db_path: Path to entities.db
+-        model_name: Name of sentence-transformers model to use
++        model_name: Name of Ollama model to use
+         batch_size: Batch size for encoding
+ 
+     Returns:
+         Number of entity embeddings created
+     """
+     print(f"Loading embedding model: {model_name}")
+-    model = SentenceTransformer(model_name)
++    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
++
++    # Use the dynamically determined embedding dimension
++    global EMBEDDING_DIM
++    EMBEDDING_DIM = embedding_generator.embedding_dim
+ 
+     print(f"Connecting to {entities_db_path}")
+     conn = sqlite3.connect(entities_db_path)
+@@ -257,7 +260,8 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
+     print(f"Generating embeddings (batch size: {batch_size})...")
+ 
+     # Generate embeddings in batches
+-    embeddings = model.encode(entity_names, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
++    embeddings_list = embedding_generator.generate_embeddings_batch(entity_names, batch_size=batch_size)
++    embeddings = np.array(embeddings_list)
+ 
+     # Insert embeddings into database
+     print("Storing embeddings in database...")
+@@ -270,54 +274,59 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
+     return len(embeddings)
+ 
+ 
+-def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32) -> int:
+-    """
+-    Generate embeddings for all paragraphs in provenance.db.
++# def generate_paragraph_embeddings(provenance_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32) -> int:
++#     """
++#     Generate embeddings for all paragraphs in provenance.db.
+ 
+-    Args:
+-        provenance_db_path: Path to provenance.db
+-        model_name: Name of sentence-transformers model to use
+-        batch_size: Batch size for encoding
++#     Args:
++#         provenance_db_path: Path to provenance.db
++#         model_name: Name of Ollama model to use
++#         batch_size: Batch size for encoding
+ 
+-    Returns:
+-        Number of paragraph embeddings created
+-    """
+-    print(f"Loading embedding model: {model_name}")
+-    model = SentenceTransformer(model_name)
++#     Returns:
++#         Number of paragraph embeddings created
++#     """
++#     print(f"Loading embedding model: {model_name}")
++#     embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
+ 
+-    print(f"Connecting to {provenance_db_path}")
+-    conn = sqlite3.connect(provenance_db_path)
++#     # Use the dynamically determined embedding dimension
++#     global EMBEDDING_DIM
++#     EMBEDDING_DIM = embedding_generator.embedding_dim
+ 
+-    # Create embeddings table if it doesn't exist
+-    create_paragraph_embeddings_table(conn)
++#     print(f"Connecting to {provenance_db_path}")
++#     conn = sqlite3.connect(provenance_db_path)
+ 
+-    # Get all paragraphs
+-    paragraphs = get_paragraphs(conn)
+-    print(f"Found {len(paragraphs)} paragraphs")
++#     # Create embeddings table if it doesn't exist
++#     create_paragraph_embeddings_table(conn)
+ 
+-    if not paragraphs:
+-        print("No paragraphs found in database")
+-        conn.close()
+-        return 0
++#     # Get all paragraphs
++#     paragraphs = get_paragraphs(conn)
++#     print(f"Found {len(paragraphs)} paragraphs")
+ 
+-    # Extract paragraph IDs and texts
+-    paragraph_ids = [p[0] for p in paragraphs]
+-    paragraph_texts = [p[1] for p in paragraphs]
++#     if not paragraphs:
++#         print("No paragraphs found in database")
++#         conn.close()
++#         return 0
+ 
+-    print(f"Generating embeddings (batch size: {batch_size})...")
++#     # Extract paragraph IDs and texts
++#     paragraph_ids = [p[0] for p in paragraphs]
++#     paragraph_texts = [p[1] for p in paragraphs]
+ 
+-    # Generate embeddings in batches
+-    embeddings = model.encode(paragraph_texts, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
++#     print(f"Generating embeddings (batch size: {batch_size})...")
+ 
+-    # Insert embeddings into database
+-    print("Storing embeddings in database...")
+-    for paragraph_id, embedding in zip(paragraph_ids, embeddings):
+-        insert_paragraph_embedding(conn, paragraph_id, embedding, model_name)
++#     # Generate embeddings in batches
++#     embeddings_list = embedding_generator.generate_embeddings_batch(paragraph_texts, batch_size=batch_size)
++#     embeddings = np.array(embeddings_list)
+ 
+-    conn.close()
++#     # Insert embeddings into database
++#     print("Storing embeddings in database...")
++#     for paragraph_id, embedding in zip(paragraph_ids, embeddings):
++#         insert_paragraph_embedding(conn, paragraph_id, embedding, model_name)
+ 
+-    print(f"Created {len(embeddings)} paragraph embeddings")
+-    return len(embeddings)
++#     conn.close()
++
++#     print(f"Created {len(embeddings)} paragraph embeddings")
++#     return len(embeddings)
+ 
+ 
+ # ============================================================================
+@@ -452,8 +461,8 @@ def main():
+         print(f"Error: Output directory not found: {output_dir}")
+         return 1
+ 
+-    entities_db_path = output_dir / "entities.db"
+-    provenance_db_path = output_dir / "provenance.db"
++    entities_db_path = output_dir / "ingest.db"
++    # provenance_db_path = output_dir / "ingest.db"
+ 
+     print("=" * 60)
+     print("Stage 3: Embeddings Generation Pipeline")
+@@ -476,17 +485,17 @@ def main():
+             total_embeddings += count
+             print()
+ 
+-    # Generate paragraph embeddings
+-    if not args.entities_only:
+-        if not provenance_db_path.exists():
+-            print(f"Warning: provenance.db not found at {provenance_db_path}")
+-            print("Skipping paragraph embeddings")
+-        else:
+-            print("Generating paragraph embeddings...")
+-            print("-" * 60)
+-            count = generate_paragraph_embeddings(provenance_db_path, model_name=args.model, batch_size=args.batch_size)
+-            total_embeddings += count
+-            print()
++    # # Generate paragraph embeddings
++    # if not args.entities_only:
++    #     if not provenance_db_path.exists():
++    #         print(f"Warning: provenance.db not found at {provenance_db_path}")
++    #         print("Skipping paragraph embeddings")
++    #     else:
++    #         print("Generating paragraph embeddings...")
++    #         print("-" * 60)
++    #         count = generate_paragraph_embeddings(provenance_db_path, model_name=args.model, batch_size=args.batch_size)
++    #         total_embeddings += count
++    #         print()
+ 
+     # Print summary
+     print("=" * 60)
+diff --git a/ingest/evidence_pipeline.py b/ingest/evidence_pipeline.py
+index 5a429d1..289ca65 100644
+--- a/ingest/evidence_pipeline.py
++++ b/ingest/evidence_pipeline.py
+@@ -29,6 +29,8 @@ except ImportError:
+     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
+     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
+ 
++from sqlalchemy import create_engine
++from sqlmodel import Session
+ 
+ # ============================================================================
+ # Evidence Extraction Functions
+@@ -196,30 +198,49 @@ def main():
+     output_dir = Path(args.output_dir)
+     output_dir.mkdir(exist_ok=True)
+ 
+-    # Determine provenance DB path
++    # Determine provenance DB path (optional - only needed for SQLite fallback)
+     if args.provenance_db:
+         provenance_db_path = Path(args.provenance_db)
+     else:
+         provenance_db_path = output_dir / "provenance.db"
+ 
++    # Note: provenance.db is optional. Evidence text is extracted from
++    # relationships' existing evidence fields (from claims extraction).
++    # Only warn if missing, don't fail.
+     if not provenance_db_path.exists():
+-        print(f"Error: provenance.db not found at {provenance_db_path}")
+-        print("Please run Stage 2 (provenance extraction) first")
+-        return 1
++        print(f"Note: provenance.db not found at {provenance_db_path}")
++        print("Evidence extraction will use text from existing relationship evidence.")
++        print()
+ 
+     # Initialize storage
+     if args.storage == "sqlite":
+         db_path = output_dir / "ingest.db"
+-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
++        with SQLitePipelineStorage(db_path) as storage:
++            total_evidence = process_relationships(storage, provenance_db_path)
+     elif args.storage == "postgres":
+         if not args.database_url:
+             print("Error: --database-url required for PostgreSQL storage")
+             return 1
+-        storage = PostgresPipelineStorage(args.database_url)
++        engine = create_engine(args.database_url)
++        session = Session(engine)
++        with PostgresPipelineStorage(session) as storage:
++            total_evidence = process_relationships(storage, provenance_db_path)
+     else:
+         print(f"Error: Unknown storage backend: {args.storage}")
+         return 1
+ 
++    # Print summary
++    print("=" * 60)
++    print("Evidence aggregation complete!")
++    print(f"Total evidence items: {total_evidence}")
++    print(f"Storage: {args.storage}")
++    print("=" * 60)
++
++    return 0
++
++
++def process_relationships(storage, provenance_db_path):
++    """Processes all relationships and extracts evidence."""
+     print("=" * 60)
+     print("Stage 5: Evidence Aggregation Pipeline")
+     print("=" * 60)
+@@ -233,7 +254,6 @@ def main():
+ 
+     if len(relationships) == 0:
+         print("No relationships found. Please run Stage 4 (claims extraction) first.")
+-        storage.close()
+         return 0
+ 
+     # Extract evidence
+@@ -283,18 +303,7 @@ def main():
+     print()
+     print(f"Extracted {total_evidence} evidence items")
+     print()
+-
+-    # Clean up
+-    storage.close()
+-
+-    # Print summary
+-    print("=" * 60)
+-    print("Evidence aggregation complete!")
+-    print(f"Total evidence items: {total_evidence}")
+-    print(f"Storage: {args.storage}")
+-    print("=" * 60)
+-
+-    return 0
++    return total_evidence
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/ingest/ner_pipeline.py b/ingest/ner_pipeline.py
+index d2f548d..bae959e 100644
+--- a/ingest/ner_pipeline.py
++++ b/ingest/ner_pipeline.py
+@@ -52,6 +52,9 @@ except ImportError:
+     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
+     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
+ 
++from sqlalchemy import create_engine
++from sqlmodel import Session
++
+ 
+ def get_git_info():
+     """Get git information for provenance tracking."""
+@@ -227,19 +230,6 @@ def main():
+     output_dir = Path(args.output_dir)
+     output_dir.mkdir(exist_ok=True)
+ 
+-    # Initialize storage based on choice
+-    if args.storage == "sqlite":
+-        db_path = output_dir / "ingest.db"
+-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
+-    elif args.storage == "postgres":
+-        if not args.database_url:
+-            print("Error: --database-url required for PostgreSQL storage")
+-            return 1
+-        storage = PostgresPipelineStorage(args.database_url)
+-    else:
+-        print(f"Error: Unknown storage backend: {args.storage}")
+-        return 1
+-
+     # Get git info for provenance
+     git_commit, git_commit_short, git_branch, git_dirty = get_git_info()
+ 
+@@ -272,24 +262,21 @@ def main():
+     ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+ 
+     # Process papers
+-    print(f"\nProcessing XML files from {xml_dir}...")
+-    xml_files = sorted(xml_dir.glob("PMC*.xml"))
+-    print(f"Found {len(xml_files)} XML files\n")
+-
+-    total_entities_found = 0
+-    total_entities_created = 0
+-    all_extraction_edges = []
+-    processed_count = 0
+-
+-    for xml_file in xml_files:
+-        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
+-        total_entities_found += entities_found
+-        total_entities_created += entities_created
+-        all_extraction_edges.extend(edges)
+-        processed_count += 1
+-
+-        if processed_count % 10 == 0:
+-            print(f"  Processed {processed_count}/{len(xml_files)} files...")
++    if args.storage == "sqlite":
++        db_path = output_dir / "ingest.db"
++        with SQLitePipelineStorage(db_path) as storage:
++            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
++    elif args.storage == "postgres":
++        if not args.database_url:
++            print("Error: --database-url required for PostgreSQL storage")
++            return 1
++        engine = create_engine(args.database_url)
++        session = Session(engine)
++        with PostgresPipelineStorage(session) as storage:
++            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
++    else:
++        print(f"Error: Unknown storage backend: {args.storage}")
++        return 1
+ 
+     # Finalize provenance
+     execution_end = datetime.now()
+@@ -326,17 +313,36 @@ def main():
+     print(f"ExtractionEdges: {len(all_extraction_edges)}")
+     print(f"Duration: {execution_duration:.2f} seconds")
+     print(f"\nStorage: {args.storage}")
+-    print(f"Entity count: {storage.entities.entity_count}")
+     print("\nOutputs:")
+-    print(f"  - Storage: {storage}")
+     print(f"  - {edges_path}")
+     print(f"  - {provenance_path}")
+     print(f"{'=' * 60}\n")
+-
+-    # Clean up
+-    storage.close()
+     return 0
+ 
+ 
++def process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info):
++    """Processes all XML files and extracts entities."""
++    print(f"\nProcessing XML files from {xml_dir}...")
++    xml_files = sorted(xml_dir.glob("PMC*.xml"))
++    print(f"Found {len(xml_files)} XML files\n")
++
++    total_entities_found = 0
++    total_entities_created = 0
++    all_extraction_edges = []
++    processed_count = 0
++
++    for xml_file in xml_files:
++        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
++        total_entities_found += entities_found
++        total_entities_created += entities_created
++        all_extraction_edges.extend(edges)
++        processed_count += 1
++
++        if processed_count % 10 == 0:
++            print(f"  Processed {processed_count}/{len(xml_files)} files...")
++
++    return total_entities_found, total_entities_created, all_extraction_edges, processed_count
++
++
+ if __name__ == "__main__":
+     exit(main())
+diff --git a/ingest/ollama_embedding_generator.py b/ingest/ollama_embedding_generator.py
+new file mode 100644
+index 0000000..810de44
+--- /dev/null
++++ b/ingest/ollama_embedding_generator.py
+@@ -0,0 +1,54 @@
++"""
++Ollama-based embedding generator implementation.
++
++Provides an implementation of EmbeddingGeneratorInterface that uses a local Ollama instance.
++"""
++
++from typing import Optional, List
++import ollama
++
++from .embedding_interfaces import EmbeddingGeneratorInterface
++
++
++class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
++    """Ollama-based embedding generator."""
++
++    def __init__(self, model_name: str, host: str = "http://localhost:11434"):
++        """
++        Initialize the Ollama embedding generator.
++
++        Args:
++            model_name: Name of the Ollama model (e.g., "nomic-embed-text")
++            host: URL of the Ollama host (e.g., "http://localhost:11434")
++        """
++        self._model_name = model_name
++        self._client = ollama.Client(host=host)
++
++        # Determine embedding dimension by encoding a dummy string
++        # This requires the model to be downloaded and available
++        try:
++            dummy_embedding = self._client.embed(model=self._model_name, input="dummy text")
++            self._embedding_dim = len(dummy_embedding["embeddings"][0])
++        except Exception as e:
++            raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. Ensure the model is pulled and Ollama is running. Error: {e}")
++
++    def generate_embedding(self, text: str) -> List[float]:
++        """Generate a single embedding for text."""
++        response = self._client.embed(model=self._model_name, input=text)
++        return response["embeddings"][0]
++
++    def generate_embeddings_batch(self, texts: List[str], batch_size: Optional[int] = None) -> List[List[float]]:
++        """Generate embeddings for multiple texts in batch."""
++        # Ollama's embed function can take multiple prompts directly
++        responses = self._client.embed(model=self._model_name, input=texts)
++        return responses["embeddings"]
++
++    @property
++    def model_name(self) -> str:
++        """Name/identifier of the embedding model."""
++        return self._model_name
++
++    @property
++    def embedding_dim(self) -> int:
++        """Dimensionality of embeddings produced by this model."""
++        return self._embedding_dim
+diff --git a/ingest/parser_interfaces.py b/ingest/parser_interfaces.py
+index fe9da38..1976506 100644
+--- a/ingest/parser_interfaces.py
++++ b/ingest/parser_interfaces.py
+@@ -49,15 +49,29 @@ class PaperParserInterface(ABC):
+         """
+         Parse a single file and extract paper metadata.
+ 
+-        Attributes:
+-
+-            file_path: Path to the file to parse
++        Args:
++            file_path: Path to the file
+ 
+         Returns:
+             Paper object with extracted metadata, or None if parsing fails
+         """
+         pass
+ 
++    #   @abstractmethod
++    #   def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> \
++    #           tuple[Path, Optional[Paper]]:
++    #       """
++    #       Parse all files in a directory matching a given pattern.
++
++    #       Args:
++    #           directory: Path to the directory containing files
++    #           file_pattern: Glob pattern to match files (e.g., "*.xml", "*-paper.json")
++
++    #       Yields:
++    #           Tuple of (file_path, Paper object or None if parsing fails)
++    #       """
++    #       pass
++
+     def parse_directory(self, directory: Path, pattern: str = "*") -> Iterator[tuple[Path, Optional[Paper]]]:
+         """
+         Parse all matching files in a directory.
+diff --git a/ingest/pmc_parser.py b/ingest/pmc_parser.py
+index ceac6d3..8a6a007 100644
+--- a/ingest/pmc_parser.py
++++ b/ingest/pmc_parser.py
+@@ -164,6 +164,20 @@ class PMCXMLParser(PaperParserInterface):
+         except Exception:
+             return False
+ 
++    def parse_directory(self, directory: Path, file_pattern: str = "*.xml") -> tuple[Path, Optional[Paper]]:
++        """
++        Parse all files in a directory matching a given pattern.
++
++        Args:
++            directory: Path to the directory containing files
++            file_pattern: Glob pattern to match files (e.g., "*.xml", "*-paper.json")
++
++        Yields:
++            Tuple of (file_path, Paper object or None if parsing fails)
++        """
++        for file_path in directory.glob(file_pattern):
++            yield file_path, self.parse_file(file_path)
++
+     # Private helper methods for extraction
+ 
+     def _extract_pmc_id(self, article_meta, file_path: Path) -> str:
+diff --git a/ingest/provenance_pipeline.py b/ingest/provenance_pipeline.py
+index 5d2c253..c79efa0 100644
+--- a/ingest/provenance_pipeline.py
++++ b/ingest/provenance_pipeline.py
+@@ -41,6 +41,8 @@ except ImportError:
+     from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
+     from med_lit_schema.ingest.pmc_parser import PMCXMLParser
+ 
++from sqlalchemy import create_engine
++from sqlmodel import Session
+ from med_lit_schema.entity import Paper
+ 
+ 
+@@ -77,6 +79,7 @@ def main():
+     arg_parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
+     arg_parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
+     arg_parser.add_argument("--parser", type=str, default="pmc", help="Parser to use: 'pmc' or module.ClassName for custom parser")
++    arg_parser.add_argument("--json-output-dir", type=str, default=None, help="Optional directory to save parsed papers as JSON files")
+ 
+     args = arg_parser.parse_args()
+ 
+@@ -84,6 +87,11 @@ def main():
+     output_dir = Path(args.output_dir)
+     output_dir.mkdir(exist_ok=True)
+ 
++    json_output_dir: Optional[Path] = None
++    if args.json_output_dir:
++        json_output_dir = Path(args.json_output_dir)
++        json_output_dir.mkdir(exist_ok=True)
++
+     # Validate input
+     if not input_dir.exists():
+         print(f"Error: Input directory not found: {input_dir}")
+@@ -117,19 +125,33 @@ def main():
+         if not args.database_url:
+             print("Error: --database-url required for PostgreSQL storage")
+             return 1
+-        storage = PostgresPipelineStorage(args.database_url)
++        engine = create_engine(args.database_url)
++        session = Session(engine)
++        # Use context manager for storage
++        with PostgresPipelineStorage(session) as storage:
++            process_files(input_dir, args.file_pattern, paper_parser, storage, json_output_dir)
++
+     else:
+         print(f"Error: Unknown storage backend: {args.storage}")
+         return 1
+ 
+-    # Process all input files
++    # Print summary
++    print("=" * 60)
++    print("Provenance extraction complete!")
++    print(f"Storage: {args.storage}")
++    print("=" * 60)
++
++    return 0
++
++
++def process_files(input_dir, file_pattern, paper_parser, storage, json_output_dir):
+     print(f"\nUsing parser: {paper_parser.format_name}")
+     print(f"Processing files from: {input_dir}")
+     print()
+ 
+     success_count = 0
+     total_count = 0
+-    for file_path, paper in paper_parser.parse_directory(input_dir, args.file_pattern):
++    for file_path, paper in paper_parser.parse_directory(input_dir, file_pattern):
+         total_count += 1
+         print(f"Processing {file_path.name}...")
+ 
+@@ -143,21 +165,16 @@ def main():
+ 
+         # Store paper using storage interface
+         storage.papers.add_paper(paper)
+-        success_count += 1
+-        print()
+ 
+-    # Clean up
+-    storage.close()
++        # Optionally save as JSON
++        if json_output_dir:
++            json_file_path = json_output_dir / f"{paper.paper_id}.json"
++            with open(json_file_path, "w") as f:
++                f.write(paper.model_dump_json(indent=2))
++            print(f"  Saved JSON to {json_file_path.name}")
+ 
+-    # Print summary
+-    print("=" * 60)
+-    print("Provenance extraction complete!")
+-    print(f"Successfully processed: {success_count}/{total_count} files")
+-    print(f"Storage: {args.storage}")
+-    print(f"Paper count: {storage.papers.paper_count}")
+-    print("=" * 60)
+-
+-    return 0
++        success_count += 1
++        print()
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/main.py b/main.py
+new file mode 100644
+index 0000000..bd530e5
+--- /dev/null
++++ b/main.py
+@@ -0,0 +1,13 @@
++"""
++Entrypoint for the Medical Literature Knowledge Graph API server.
++
++This module imports and exposes the FastAPI application instance for uvicorn.
++Run the server with:
++    uvicorn main:app --reload
++or via docker-compose:
++    docker-compose up api
++"""
++
++from query.server import app
++
++__all__ = ["app"]
+diff --git a/mapper.py b/mapper.py
+index 7605138..3248eb2 100644
+--- a/mapper.py
++++ b/mapper.py
+@@ -203,6 +203,19 @@ def to_domain(persistence: Entity) -> BaseMedicalEntity:
+         >>> isinstance(disease, Disease)
+         True
+     """
++    # Handle both Entity model instances and Row objects from queries
++    if not hasattr(persistence, "model_dump"):
++        try:
++            # Try to access the 'Entity' attribute for Row objects
++            persistence = persistence.Entity
++        except AttributeError:
++            # Fallback for older data or different query structures
++            if hasattr(persistence, "_mapping"):
++                persistence = persistence._mapping["Entity"]
++            else:
++                # If it's a tuple/list, assume the first element is the entity
++                persistence = persistence[0]
++
+     # Parse common JSON fields
+     synonyms = json.loads(persistence.synonyms) if persistence.synonyms else []
+     abbreviations = json.loads(persistence.abbreviations) if persistence.abbreviations else []
+@@ -350,10 +363,30 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
+     Convert a persistence relationship back to a domain model.
+     """
+     domain_data = {}
+-    persistence_data = persistence.model_dump()
++
++    # Handle both Relationship model instances and Row objects from queries
++    if hasattr(persistence, "model_dump"):
++        # It's a Pydantic model instance
++        persistence_data = persistence.model_dump()
++        predicate_value = persistence.predicate
++    else:
++        # It's a Row object - access via bracket notation
++        from med_lit_schema.storage.models.relationship import Relationship as RelationshipModel
++
++        persistence_data = {}
++        for col in RelationshipModel.__table__.columns:
++            # Try bracket notation first (for Row objects), then getattr
++            try:
++                persistence_data[col.name] = persistence[col.name]
++            except (KeyError, TypeError):
++                persistence_data[col.name] = getattr(persistence, col.name, None)
++        predicate_value = persistence_data["predicate"]
++
++    # Skip relationships with NULL predicates (invalid data)
++    if predicate_value is None:
++        raise ValueError(f"Relationship has NULL predicate - skipping. ID: {persistence_data.get('id', 'unknown')}")
+ 
+     # Find the correct predicate enum member
+-    predicate_value = persistence.predicate
+     try:
+         predicate = PredicateType(predicate_value)
+     except ValueError as e:
+@@ -365,6 +398,10 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
+     cls = create_relationship(predicate, "", "").__class__
+ 
+     for key, field in cls.model_fields.items():
++        # Skip predicate - we've already converted it to enum
++        if key == "predicate":
++            continue
++
+         if key in persistence_data:
+             value = persistence_data[key]
+             if field.annotation == list[str] and value and isinstance(value, str):
+diff --git a/query/.ipynb_checkpoints/README-checkpoint.md b/query/.ipynb_checkpoints/README-checkpoint.md
+new file mode 100644
+index 0000000..877bc55
+--- /dev/null
++++ b/query/.ipynb_checkpoints/README-checkpoint.md
+@@ -0,0 +1,311 @@
++# Medical Knowledge Graph Query Interface
++
++This directory contains tools for querying the medical knowledge graph in a storage-agnostic way.
++
++## Overview
++
++Our storage system is agnostic across:
++
++* SQLite with sqlite-vec
++* PostgreSQL with pgvector
++* Neo4j
++
++This query interface provides a unified, fluent API that works across all backends, with current support for PostgreSQL and planned support for Neo4j.
++
++## Getting Started
++
++### Interactive Exploration
++
++Use the Jupyter notebook to explore queries interactively:
++
++```bash
++# Install dependencies
++pip install jupyter matplotlib pandas psycopg2-binary
++
++# Start Jupyter
++jupyter notebook query/explore_queries.ipynb
++```
++
++The notebook includes comprehensive examples of:
++- Entity and relationship queries
++- Multi-hop graph traversals
++- Semantic search
++- Drug repurposing queries
++- Differential diagnosis
++- Evidence quality filtering
++
++### Python Client Library
++
++#### Installation
++
++The query client is part of the `med-lit-schema` package. Install dependencies:
++
++```bash
++pip install psycopg2-binary pandas
++# Optional for visualizations:
++pip install matplotlib plotly
++```
++
++#### Basic Usage
++
++```python
++from query.client import GraphQuery, find_treatments
++
++# High-level convenience functions
++treatments = find_treatments("breast cancer", min_confidence=0.8)
++print(f"Found {treatments.count} treatments")
++
++# Display as DataFrame
++df = treatments.to_dataframe()
++print(df.head())
++
++# Or build custom queries with fluent API
++query = GraphQuery()
++results = query.relationships(
++    predicate="TREATS",
++    min_confidence=0.8
++).order_by("confidence", "desc").limit(20).execute()
++
++print(f"Query took {results.query_time_ms:.2f}ms")
++```
++
++#### Advanced Queries
++
++```python
++# Entity queries with filters
++drugs = GraphQuery().entities(
++    entity_type="drug"
++).filter(fda_approved="true").limit(50).execute()
++
++# Multi-hop traversal (mechanism of action)
++from query.client import find_drug_mechanisms
++mechanisms = find_drug_mechanisms("tamoxifen", max_hops=3)
++
++# Semantic search (requires embeddings)
++similar = GraphQuery().semantic_search(
++    "PARP inhibitor",
++    entity_type="drug",
++    top_k=10,
++    threshold=0.7
++).execute()
++
++# Complex filtering
++high_quality = GraphQuery().relationships(
++    predicate="TREATS",
++    min_confidence=0.8
++).with_evidence(study_types=["rct", "meta_analysis"]).execute()
++```
++
++## Query Examples
++
++### 1. Entity Queries
++
++```python
++# Find all entities of a type
++drugs = GraphQuery().entities(entity_type="drug").limit(100).execute()
++
++# Filter by properties
++fda_drugs = GraphQuery().entities(
++    entity_type="drug"
++).filter(fda_approved="true").execute()
++
++# Search by name
++disease = GraphQuery().entities(
++    entity_type="disease"
++).filter(name="diabetes").execute()
++```
++
++### 2. Relationship Queries
++
++```python
++# Find relationships by predicate
++treats = GraphQuery().relationships(predicate="TREATS").limit(100).execute()
++
++# Filter by confidence
++high_conf = GraphQuery().relationships(
++    predicate="TREATS",
++    min_confidence=0.8
++).order_by("confidence", "desc").execute()
++
++# Get all relationships for an entity
++entity_rels = GraphQuery().relationships(
++    subject_id="drug_123"
++).execute()
++```
++
++### 3. Multi-Hop Traversals
++
++```python
++# Drug → Disease → Symptom (2-hop)
++path = GraphQuery().traverse(
++    start={"entity_id": "drug_123"},
++    path=["TREATS:disease", "HAS_SYMPTOM:symptom"],
++    max_hops=2
++).execute()
++
++# Drug → Protein → Gene → Disease (3-hop mechanism)
++moa = GraphQuery().traverse(
++    start={"entity_type": "drug", "name": "aspirin"},
++    path=["TARGETS:protein", "ENCODED_BY:gene", "ASSOCIATED_WITH:disease"],
++    max_hops=3
++).execute()
++```
++
++### 4. Evidence and Provenance
++
++```python
++# Relationships with evidence
++with_evidence = GraphQuery().relationships(
++    predicate="TREATS",
++    min_confidence=0.7
++).with_evidence(study_types=["rct", "meta_analysis"]).execute()
++
++# Show source papers
++for result in with_evidence.results:
++    print(f"{result['subject_id']} → {result['object_id']}")
++    print(f"  Papers: {result['source_papers']}")
++    print(f"  Confidence: {result['confidence']}")
++```
++
++### 5. Semantic Search
++
++```python
++# Find similar entities by embedding
++similar_drugs = GraphQuery().semantic_search(
++    "chemotherapy agent",
++    entity_type="drug",
++    top_k=20
++).execute()
++
++# Hybrid semantic + structural
++# (combine semantic_search with other filters)
++```
++
++### 6. Medical Use Cases
++
++#### Drug Repurposing
++
++```python
++# Find drugs targeting proteins associated with a disease
++# Disease → Gene/Protein → Drug
++# Filter for FDA-approved drugs not already indicated for this disease
++```
++
++#### Differential Diagnosis
++
++```python
++from query.client import search_by_symptoms
++
++# Find diseases matching symptom combinations
++candidates = search_by_symptoms(
++    symptoms=["fever", "cough", "fatigue"],
++    min_match=2
++)
++```
++
++#### Mechanism of Action
++
++```python
++from query.client import find_drug_mechanisms
++
++# Multi-hop path from drug to clinical outcome
++mechanisms = find_drug_mechanisms("metformin", max_hops=4)
++```
++
++## API Reference
++
++### GraphQuery Class
++
++The main query builder with fluent API:
++
++```python
++GraphQuery(connection_string: Optional[str] = None)
++```
++
++**Methods:**
++
++- `entities(entity_type, filters)` - Query entities
++- `relationships(predicate, subject_id, object_id, min_confidence)` - Query relationships
++- `traverse(start, path, max_hops)` - Multi-hop traversal
++- `semantic_search(query_text, entity_type, top_k, threshold)` - Semantic search
++- `filter(**kwargs)` - Add filters
++- `limit(n)` - Limit results
++- `order_by(field, direction)` - Order results
++- `with_evidence(study_types)` - Include evidence
++- `execute()` - Execute query and return results
++- `to_sql()` - Generate SQL (for debugging)
++- `to_cypher()` - Generate Cypher for Neo4j (future)
++
++### QueryResults Class
++
++Results object returned by `execute()`:
++
++```python
++@dataclass
++class QueryResults:
++    results: List[Dict[str, Any]]  # Result rows
++    count: int                      # Number of results
++    query_time_ms: float            # Query execution time
++    query_sql: Optional[str]        # SQL that was executed
++    
++    def to_dataframe()  # Convert to pandas DataFrame
++    def to_json()       # Convert to JSON string
++```
++
++### Convenience Functions
++
++Pre-built queries for common use cases:
++
++```python
++find_treatments(disease, min_confidence, study_types)
++find_disease_genes(disease, min_confidence)
++find_drug_mechanisms(drug, max_hops)
++search_by_symptoms(symptoms, min_match)
++```
++
++## Configuration
++
++Set the database connection string via environment variable:
++
++```bash
++export DATABASE_URL="postgresql://user:password@localhost:5432/medlit"
++```
++
++Or pass it directly:
++
++```python
++query = GraphQuery(connection_string="postgresql://...")
++```
++
++## Implementation Notes
++
++### Current Implementation
++
++- ✅ PostgreSQL backend with SQLModel
++- ✅ Entity and relationship queries
++- ✅ Confidence filtering
++- ✅ Property-based filtering
++- ✅ Result conversion to pandas DataFrame
++
++### Planned Features
++
++- ⚠️ Recursive CTEs for multi-hop traversals
++- ⚠️ Evidence table joins
++- ⚠️ Semantic search with pgvector
++- ⚠️ Neo4j Cypher generation
++- ⚠️ Query optimization and caching
++
++### Design Principles
++
++1. **Storage-agnostic** - Abstract interface works across backends
++2. **Fluent API** - Method chaining for readable queries
++3. **Type-safe** - Full type hints for IDE support
++4. **Well-documented** - Clear examples and docstrings
++5. **Testable** - Easy to unit test query building
++
++## Resources
++
++- **Notebook**: `explore_queries.ipynb` - Interactive examples
++- **Client**: `client.py` - Python query library
++- **Notes**: `NOTES.md` - Design discussions
++- **Schema**: `../storage/models/` - Database schema
+diff --git a/query/.ipynb_checkpoints/explore_queries-checkpoint.ipynb b/query/.ipynb_checkpoints/explore_queries-checkpoint.ipynb
+new file mode 100644
+index 0000000..671f0db
+--- /dev/null
++++ b/query/.ipynb_checkpoints/explore_queries-checkpoint.ipynb
+@@ -0,0 +1,1025 @@
++{
++ "cells": [
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Medical Knowledge Graph Query Exploration\n",
++    "\n",
++    "This notebook provides interactive examples for querying the medical knowledge graph.\n",
++    "It covers:\n",
++    "- Entity queries\n",
++    "- Relationship queries\n",
++    "- Multi-hop traversals\n",
++    "- Evidence and provenance\n",
++    "- Semantic search\n",
++    "- Interesting medical queries"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Setup"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Import required libraries\n",
++    "import os\n",
++    "import sys\n",
++    "from typing import List, Dict, Any\n",
++    "\n",
++    "# Add parent directory to path to import local modules\n",
++    "sys.path.insert(0, os.path.abspath('..'))\n",
++    "\n",
++    "from query.client import (\n",
++    "    GraphQuery,\n",
++    "    QueryResults,\n",
++    "    find_treatments,\n",
++    "    find_disease_genes,\n",
++    "    find_drug_mechanisms,\n",
++    "    search_by_symptoms\n",
++    ")\n",
++    "import pandas as pd\n",
++    "import json\n",
++    "\n",
++    "# For visualizations\n",
++    "import matplotlib.pyplot as plt\n",
++    "import seaborn as sns\n",
++    "\n",
++    "# Set display options\n",
++    "pd.set_option('display.max_columns', None)\n",
++    "pd.set_option('display.max_rows', 100)\n",
++    "pd.set_option('display.width', None)\n",
++    "sns.set_style('whitegrid')"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Database connection\n",
++    "# Set your database URL here or use environment variable\n",
++    "DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/medlit')\n",
++    "\n",
++    "print(f\"Connecting to database...\")\n",
++    "print(f\"Database: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'N/A'}\")"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Helper functions for pretty-printing results\n",
++    "\n",
++    "def print_results(results: QueryResults, max_rows: int = 10):\n",
++    "    \"\"\"\n",
++    "    Pretty-print query results.\n",
++    "    \n",
++    "    Args:\n",
++    "        results: QueryResults object\n",
++    "        max_rows: Maximum number of rows to display\n",
++    "    \"\"\"\n",
++    "    print(f\"\\n{'='*80}\")\n",
++    "    print(f\"Query Results: {results.count} rows in {results.query_time_ms:.2f}ms\")\n",
++    "    print(f\"{'='*80}\\n\")\n",
++    "    \n",
++    "    if results.count == 0:\n",
++    "        print(\"No results found.\")\n",
++    "        return\n",
++    "    \n",
++    "    # Convert to DataFrame for nice display\n",
++    "    df = results.to_dataframe()\n",
++    "    display(df.head(max_rows))\n",
++    "    \n",
++    "    if results.count > max_rows:\n",
++    "        print(f\"\\n... and {results.count - max_rows} more rows\")\n",
++    "\n",
++    "def show_query_sql(query: GraphQuery):\n",
++    "    \"\"\"\n",
++    "    Display the SQL query that will be executed.\n",
++    "    \n",
++    "    Args:\n",
++    "        query: GraphQuery object\n",
++    "    \"\"\"\n",
++    "    print(\"\\nGenerated SQL:\")\n",
++    "    print(\"-\" * 80)\n",
++    "    print(query.to_sql())\n",
++    "    print(\"-\" * 80)\n",
++    "\n",
++    "def plot_confidence_distribution(results: QueryResults, title: str = \"Confidence Distribution\"):\n",
++    "    \"\"\"\n",
++    "    Plot distribution of confidence scores.\n",
++    "    \n",
++    "    Args:\n",
++    "        results: QueryResults object\n",
++    "        title: Plot title\n",
++    "    \"\"\"\n",
++    "    if not results.results:\n",
++    "        print(\"No results to plot.\")\n",
++    "        return\n",
++    "    \n",
++    "    df = results.to_dataframe()\n",
++    "    if 'confidence' not in df.columns:\n",
++    "        print(\"No confidence scores in results.\")\n",
++    "        return\n",
++    "    \n",
++    "    plt.figure(figsize=(10, 6))\n",
++    "    plt.hist(df['confidence'].dropna(), bins=20, edgecolor='black', alpha=0.7)\n",
++    "    plt.xlabel('Confidence Score')\n",
++    "    plt.ylabel('Frequency')\n",
++    "    plt.title(title)\n",
++    "    plt.grid(True, alpha=0.3)\n",
++    "    plt.show()\n",
++    "\n",
++    "print(\"Helper functions loaded successfully!\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 1: Entity Queries\n",
++    "\n",
++    "Query entities by type, properties, and other attributes."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 1.1 Find all entities of a type"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find all drug entities (limited to 10)\n",
++    "query = GraphQuery(DATABASE_URL).entities(entity_type=\"drug\").limit(10)\n",
++    "\n",
++    "# Show the SQL that will be executed\n",
++    "show_query_sql(query)\n",
++    "\n",
++    "# Execute and display results\n",
++    "results = query.execute()\n",
++    "print_results(results)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 1.2 Filter entities by properties"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find FDA-approved drugs\n",
++    "# Note: This assumes the properties JSONB field has an 'fda_approved' key\n",
 +    "query = GraphQuery(DATABASE_URL).entities(\n",
 +    "    entity_type=\"drug\"\n",
 +    ").filter(fda_approved=\"true\").limit(20)\n",
-     "\n",
-     "results = query.execute()\n",
-     "print_results(results)"
-@@ -230,7 +231,12 @@
-    "source": [
-     "# Semantic search for entities similar to \"PARP inhibitor\"\n",
-     "# Note: This requires embeddings to be populated in the database\n",
--    "query = GraphQuery(DATABASE_URL).semantic_search(\"PARP inhibitor\", entity_type=\"drug\", top_k=10, threshold=0.7)\n",
++    "\n",
++    "results = query.execute()\n",
++    "print_results(results)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 1.3 Search by name/synonyms"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find entities by name\n",
++    "query = GraphQuery(DATABASE_URL).entities(entity_type=\"disease\").filter(name=\"breast cancer\").limit(5)\n",
++    "\n",
++    "results = query.execute()\n",
++    "print_results(results)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 1.4 Semantic search using embeddings\n",
++    "\n",
++    "Search for entities by semantic similarity using vector embeddings."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Semantic search for entities similar to \"PARP inhibitor\"\n",
++    "# Note: This requires embeddings to be populated in the database\n",
 +    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
 +    "    \"PARP inhibitor\",\n",
 +    "    entity_type=\"drug\",\n",
 +    "    top_k=10,\n",
 +    "    threshold=0.7\n",
 +    ")\n",
-     "\n",
-     "# Note: Semantic search requires embedding generation which is not fully implemented\n",
-     "# This is a placeholder to show the API\n",
-@@ -320,7 +326,10 @@
-    "outputs": [],
-    "source": [
-     "# Find high-confidence TREATS relationships\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).order_by(\"confidence\", \"desc\").limit(20)\n",
++    "\n",
++    "# Note: Semantic search requires embedding generation which is not fully implemented\n",
++    "# This is a placeholder to show the API\n",
++    "print(\"Semantic search query:\")\n",
++    "show_query_sql(query)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 1.5 Count entities by type"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Get all entity types and their counts\n",
++    "entity_types = [\"drug\", \"disease\", \"gene\", \"protein\", \"symptom\", \"procedure\"]\n",
++    "counts = {}\n",
++    "\n",
++    "for entity_type in entity_types:\n",
++    "    query = GraphQuery(DATABASE_URL).entities(entity_type=entity_type)\n",
++    "    results = query.execute()\n",
++    "    counts[entity_type] = results.count\n",
++    "\n",
++    "# Display as DataFrame\n",
++    "count_df = pd.DataFrame(list(counts.items()), columns=['Entity Type', 'Count'])\n",
++    "count_df = count_df.sort_values('Count', ascending=False)\n",
++    "display(count_df)\n",
++    "\n",
++    "# Visualize\n",
++    "plt.figure(figsize=(10, 6))\n",
++    "plt.bar(count_df['Entity Type'], count_df['Count'])\n",
++    "plt.xlabel('Entity Type')\n",
++    "plt.ylabel('Count')\n",
++    "plt.title('Entity Counts by Type')\n",
++    "plt.xticks(rotation=45)\n",
++    "plt.tight_layout()\n",
++    "plt.show()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 2: Relationship Queries\n",
++    "\n",
++    "Query relationships between entities with various filters."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 2.1 Find relationships by predicate"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find all TREATS relationships\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\").limit(20)\n",
++    "\n",
++    "show_query_sql(query)\n",
++    "results = query.execute()\n",
++    "print_results(results)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 2.2 Filter by confidence threshold"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find high-confidence TREATS relationships\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\",\n",
 +    "    min_confidence=0.8\n",
 +    ").order_by(\"confidence\", \"desc\").limit(20)\n",
-     "\n",
-     "results = query.execute()\n",
-     "print_results(results)\n",
-@@ -344,7 +353,10 @@
-    "source": [
-     "# Find relationships with RCT or meta-analysis evidence\n",
-     "# Note: This requires evidence table join (to be implemented)\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.7).with_evidence(study_types=[\"rct\", \"meta_analysis\"]).limit(20)\n",
++    "\n",
++    "results = query.execute()\n",
++    "print_results(results)\n",
++    "\n",
++    "# Plot confidence distribution\n",
++    "plot_confidence_distribution(results, \"High-Confidence TREATS Relationships\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 2.3 Filter by evidence quality"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find relationships with RCT or meta-analysis evidence\n",
++    "# Note: This requires evidence table join (to be implemented)\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\",\n",
 +    "    min_confidence=0.7\n",
 +    ").with_evidence(study_types=[\"rct\", \"meta_analysis\"]).limit(20)\n",
-     "\n",
-     "print(\"Query with evidence filter:\")\n",
-     "print(\"Note: Evidence filtering requires join with evidence table\")\n",
-@@ -369,21 +381,21 @@
-     "disease_results = disease_query.execute()\n",
-     "\n",
-     "if disease_results.count > 0:\n",
--    "    disease_id = disease_results.results[0][\"id\"]\n",
--    "    disease_name = disease_results.results[0][\"name\"]\n",
--    "\n",
++    "\n",
++    "print(\"Query with evidence filter:\")\n",
++    "print(\"Note: Evidence filtering requires join with evidence table\")\n",
++    "show_query_sql(query)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 2.4 Get all relationships for an entity"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# First, find a disease entity\n",
++    "disease_query = GraphQuery(DATABASE_URL).entities(entity_type=\"disease\").limit(1)\n",
++    "disease_results = disease_query.execute()\n",
++    "\n",
++    "if disease_results.count > 0:\n",
 +    "    disease_id = disease_results.results[0]['id']\n",
 +    "    disease_name = disease_results.results[0]['name']\n",
 +    "    \n",
-     "    print(f\"Finding all relationships for: {disease_name} ({disease_id})\\n\")\n",
--    "\n",
++    "    print(f\"Finding all relationships for: {disease_name} ({disease_id})\\n\")\n",
 +    "    \n",
-     "    # Find all relationships where this disease is the object\n",
-     "    query = GraphQuery(DATABASE_URL).relationships(object_id=disease_id).limit(50)\n",
-     "    results = query.execute()\n",
-     "    print_results(results)\n",
--    "\n",
++    "    # Find all relationships where this disease is the object\n",
++    "    query = GraphQuery(DATABASE_URL).relationships(object_id=disease_id).limit(50)\n",
++    "    results = query.execute()\n",
++    "    print_results(results)\n",
 +    "    \n",
-     "    # Group by predicate\n",
-     "    if results.count > 0:\n",
-     "        df = results.to_dataframe()\n",
--    "        predicate_counts = df[\"predicate\"].value_counts()\n",
--    "\n",
++    "    # Group by predicate\n",
++    "    if results.count > 0:\n",
++    "        df = results.to_dataframe()\n",
 +    "        predicate_counts = df['predicate'].value_counts()\n",
 +    "        \n",
-     "        print(\"\\nRelationship types:\")\n",
-     "        display(predicate_counts)\n",
-     "else:\n",
-@@ -453,7 +465,11 @@
-     "# Multi-hop traversal: Find symptoms of diseases treated by a drug\n",
-     "# Note: This requires recursive CTE implementation\n",
-     "\n",
--    "query = GraphQuery(DATABASE_URL).traverse(start={\"entity_type\": \"drug\", \"name\": \"aspirin\"}, path=[\"TREATS:disease\", \"HAS_SYMPTOM:symptom\"], max_hops=2)\n",
++    "        print(\"\\nRelationship types:\")\n",
++    "        display(predicate_counts)\n",
++    "else:\n",
++    "    print(\"No disease entities found in database.\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 2.5 Compare relationship types"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Count different relationship types\n",
++    "predicates = [\"TREATS\", \"CAUSES\", \"ASSOCIATED_WITH\", \"TARGETS\", \"INHIBITS\"]\n",
++    "predicate_counts = {}\n",
++    "\n",
++    "for predicate in predicates:\n",
++    "    query = GraphQuery(DATABASE_URL).relationships(predicate=predicate)\n",
++    "    results = query.execute()\n",
++    "    predicate_counts[predicate] = results.count\n",
++    "\n",
++    "# Visualize\n",
++    "count_df = pd.DataFrame(list(predicate_counts.items()), columns=['Predicate', 'Count'])\n",
++    "count_df = count_df.sort_values('Count', ascending=False)\n",
++    "\n",
++    "plt.figure(figsize=(12, 6))\n",
++    "plt.bar(count_df['Predicate'], count_df['Count'])\n",
++    "plt.xlabel('Relationship Type')\n",
++    "plt.ylabel('Count')\n",
++    "plt.title('Relationship Counts by Type')\n",
++    "plt.xticks(rotation=45)\n",
++    "plt.tight_layout()\n",
++    "plt.show()\n",
++    "\n",
++    "display(count_df)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 3: Multi-Hop Traversals\n",
++    "\n",
++    "Explore multi-hop paths through the knowledge graph."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 3.1 2-hop: Drug \u2192 Disease \u2192 Symptom"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Multi-hop traversal: Find symptoms of diseases treated by a drug\n",
++    "# Note: This requires recursive CTE implementation\n",
++    "\n",
 +    "query = GraphQuery(DATABASE_URL).traverse(\n",
 +    "    start={\"entity_type\": \"drug\", \"name\": \"aspirin\"},\n",
 +    "    path=[\"TREATS:disease\", \"HAS_SYMPTOM:symptom\"],\n",
 +    "    max_hops=2\n",
 +    ")\n",
-     "\n",
-     "print(\"Multi-hop traversal query:\")\n",
-     "print(\"Note: Full implementation requires recursive CTEs\")\n",
-@@ -474,7 +490,11 @@
-    "outputs": [],
-    "source": [
-     "# Find diseases connected to a drug through protein and gene interactions\n",
--    "query = GraphQuery(DATABASE_URL).traverse(start={\"entity_type\": \"drug\", \"name\": \"tamoxifen\"}, path=[\"TARGETS:protein\", \"ENCODED_BY:gene\", \"ASSOCIATED_WITH:disease\"], max_hops=3)\n",
++    "\n",
++    "print(\"Multi-hop traversal query:\")\n",
++    "print(\"Note: Full implementation requires recursive CTEs\")\n",
++    "show_query_sql(query)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 3.2 3-hop: Drug \u2192 Protein \u2192 Gene \u2192 Disease"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find diseases connected to a drug through protein and gene interactions\n",
 +    "query = GraphQuery(DATABASE_URL).traverse(\n",
 +    "    start={\"entity_type\": \"drug\", \"name\": \"tamoxifen\"},\n",
 +    "    path=[\"TARGETS:protein\", \"ENCODED_BY:gene\", \"ASSOCIATED_WITH:disease\"],\n",
 +    "    max_hops=3\n",
 +    ")\n",
-     "\n",
-     "print(\"3-hop mechanism of action query:\")\n",
-     "show_query_sql(query)"
-@@ -523,7 +543,10 @@
-    "outputs": [],
-    "source": [
-     "# Get a relationship with evidence details\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).limit(1)\n",
++    "\n",
++    "print(\"3-hop mechanism of action query:\")\n",
++    "show_query_sql(query)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 3.3 Path finding with constraints"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find paths between two entities with confidence threshold\n",
++    "# This would require a more complex query builder\n",
++    "print(\"Path finding with constraints:\")\n",
++    "print(\"Example: Find all paths from 'metformin' to 'diabetes' with min confidence 0.8\")\n",
++    "print(\"Implementation: Requires bidirectional search or shortest path algorithms\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 4: Evidence and Provenance\n",
++    "\n",
++    "Examine evidence supporting relationships and track provenance."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 4.1 Show evidence for a relationship"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Get a relationship with evidence details\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\",\n",
 +    "    min_confidence=0.8\n",
 +    ").limit(1)\n",
-     "\n",
-     "results = query.execute()\n",
-     "\n",
-@@ -533,7 +556,7 @@
-     "    print(f\"Confidence: {rel.get('confidence', 'N/A')}\")\n",
-     "    print(f\"Source papers: {rel.get('source_papers', 'N/A')}\")\n",
-     "    print(f\"Evidence count: {rel.get('evidence_count', 'N/A')}\")\n",
--    "\n",
++    "\n",
++    "results = query.execute()\n",
++    "\n",
++    "if results.count > 0:\n",
++    "    rel = results.results[0]\n",
++    "    print(f\"Relationship: {rel.get('subject_id')} TREATS {rel.get('object_id')}\")\n",
++    "    print(f\"Confidence: {rel.get('confidence', 'N/A')}\")\n",
++    "    print(f\"Source papers: {rel.get('source_papers', 'N/A')}\")\n",
++    "    print(f\"Evidence count: {rel.get('evidence_count', 'N/A')}\")\n",
 +    "    \n",
-     "    # In a full implementation, we would join with the evidence table here\n",
-     "    print(\"\\nNote: Detailed evidence requires join with evidence table\")\n",
-     "else:\n",
-@@ -554,7 +577,12 @@
-    "outputs": [],
-    "source": [
-     "# Compare relationships by study quality\n",
--    "study_types = {\"RCT\": \"rct\", \"Meta-analysis\": \"meta_analysis\", \"Cohort\": \"cohort\", \"Case report\": \"case_report\"}\n",
++    "    # In a full implementation, we would join with the evidence table here\n",
++    "    print(\"\\nNote: Detailed evidence requires join with evidence table\")\n",
++    "else:\n",
++    "    print(\"No relationships found\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 4.2 Filter by study type"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Compare relationships by study quality\n",
 +    "study_types = {\n",
 +    "    \"RCT\": \"rct\",\n",
 +    "    \"Meta-analysis\": \"meta_analysis\",\n",
 +    "    \"Cohort\": \"cohort\",\n",
 +    "    \"Case report\": \"case_report\"\n",
 +    "}\n",
-     "\n",
-     "print(\"Relationships by study type:\")\n",
-     "print(\"Note: This requires evidence table implementation\\n\")\n",
-@@ -577,13 +605,16 @@
-    "outputs": [],
-    "source": [
-     "# Get relationships and their source papers\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).limit(10)\n",
++    "\n",
++    "print(\"Relationships by study type:\")\n",
++    "print(\"Note: This requires evidence table implementation\\n\")\n",
++    "\n",
++    "for name, study_type in study_types.items():\n",
++    "    print(f\"- {name}: Evidence filtering by study_type='{study_type}'\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 4.3 Show paper sources"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Get relationships and their source papers\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\",\n",
 +    "    min_confidence=0.8\n",
 +    ").limit(10)\n",
-     "\n",
-     "results = query.execute()\n",
-     "\n",
-     "if results.count > 0:\n",
-     "    df = results.to_dataframe()\n",
--    "\n",
++    "\n",
++    "results = query.execute()\n",
++    "\n",
++    "if results.count > 0:\n",
++    "    df = results.to_dataframe()\n",
 +    "    \n",
-     "    # Show relationships with their papers\n",
-     "    print(\"Relationships with source papers:\\n\")\n",
-     "    for idx, row in df.iterrows():\n",
-@@ -607,25 +638,27 @@
-    "outputs": [],
-    "source": [
-     "# Analyze evidence quality across relationships\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\").limit(100)\n",
++    "    # Show relationships with their papers\n",
++    "    print(\"Relationships with source papers:\\n\")\n",
++    "    for idx, row in df.iterrows():\n",
++    "        print(f\"{row['subject_id']} \u2192 {row['object_id']}\")\n",
++    "        print(f\"  Confidence: {row.get('confidence', 'N/A')}\")\n",
++    "        print(f\"  Papers: {row.get('source_papers', 'N/A')}\")\n",
++    "        print()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 4.4 Aggregate evidence quality"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Analyze evidence quality across relationships\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\"\n",
 +    ").limit(100)\n",
-     "\n",
-     "results = query.execute()\n",
-     "\n",
-     "if results.count > 0:\n",
-     "    df = results.to_dataframe()\n",
--    "\n",
++    "\n",
++    "results = query.execute()\n",
++    "\n",
++    "if results.count > 0:\n",
++    "    df = results.to_dataframe()\n",
 +    "    \n",
-     "    # Analyze confidence scores\n",
-     "    print(\"Evidence quality statistics:\\n\")\n",
--    "    print(df[\"confidence\"].describe())\n",
--    "\n",
++    "    # Analyze confidence scores\n",
++    "    print(\"Evidence quality statistics:\\n\")\n",
 +    "    print(df['confidence'].describe())\n",
 +    "    \n",
-     "    # Plot distribution\n",
-     "    plot_confidence_distribution(results, \"TREATS Relationship Confidence Distribution\")\n",
--    "\n",
++    "    # Plot distribution\n",
++    "    plot_confidence_distribution(results, \"TREATS Relationship Confidence Distribution\")\n",
 +    "    \n",
-     "    # High vs low confidence\n",
--    "    high_conf = df[df[\"confidence\"] >= 0.8].shape[0]\n",
--    "    med_conf = df[(df[\"confidence\"] >= 0.6) & (df[\"confidence\"] < 0.8)].shape[0]\n",
--    "    low_conf = df[df[\"confidence\"] < 0.6].shape[0]\n",
--    "\n",
++    "    # High vs low confidence\n",
 +    "    high_conf = df[df['confidence'] >= 0.8].shape[0]\n",
 +    "    med_conf = df[(df['confidence'] >= 0.6) & (df['confidence'] < 0.8)].shape[0]\n",
 +    "    low_conf = df[df['confidence'] < 0.6].shape[0]\n",
 +    "    \n",
-     "    print(\"\\nConfidence breakdown:\")\n",
-     "    print(f\"  High (≥0.8): {high_conf}\")\n",
-     "    print(f\"  Medium (0.6-0.8): {med_conf}\")\n",
-@@ -655,7 +688,12 @@
-    "outputs": [],
-    "source": [
-     "# Semantic search for drugs similar to \"chemotherapy\"\n",
--    "query = GraphQuery(DATABASE_URL).semantic_search(\"chemotherapy agent\", entity_type=\"drug\", top_k=20, threshold=0.7)\n",
++    "    print(f\"\\nConfidence breakdown:\")\n",
++    "    print(f\"  High (\u22650.8): {high_conf}\")\n",
++    "    print(f\"  Medium (0.6-0.8): {med_conf}\")\n",
++    "    print(f\"  Low (<0.6): {low_conf}\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 5: Semantic Search\n",
++    "\n",
++    "Use vector embeddings for semantic similarity search."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 5.1 Vector similarity search for entities"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Semantic search for drugs similar to \"chemotherapy\"\n",
 +    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
 +    "    \"chemotherapy agent\",\n",
 +    "    entity_type=\"drug\",\n",
 +    "    top_k=20,\n",
 +    "    threshold=0.7\n",
 +    ")\n",
-     "\n",
-     "print(\"Semantic search for 'chemotherapy agent':\")\n",
-     "print(\"Note: Requires embeddings to be populated in database\")\n",
-@@ -676,7 +714,11 @@
-    "outputs": [],
-    "source": [
-     "# Find diseases similar to \"cardiovascular disease\"\n",
--    "query = GraphQuery(DATABASE_URL).semantic_search(\"cardiovascular disease\", entity_type=\"disease\", top_k=15)\n",
++    "\n",
++    "print(\"Semantic search for 'chemotherapy agent':\")\n",
++    "print(\"Note: Requires embeddings to be populated in database\")\n",
++    "show_query_sql(query)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 5.2 Find similar diseases/drugs by embedding"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find diseases similar to \"cardiovascular disease\"\n",
 +    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
 +    "    \"cardiovascular disease\",\n",
 +    "    entity_type=\"disease\",\n",
 +    "    top_k=15\n",
 +    ")\n",
-     "\n",
-     "print(\"Finding diseases similar to 'cardiovascular disease':\")\n",
-     "print(\"This would return diseases like:\")\n",
-@@ -743,7 +785,9 @@
-     "print(\"4. These are repurposing candidates!\\n\")\n",
-     "\n",
-     "# Step 1: Find disease\n",
--    "disease_query = GraphQuery(DATABASE_URL).entities(entity_type=\"disease\").filter(name=\"Alzheimer\").limit(1)\n",
++    "\n",
++    "print(\"Finding diseases similar to 'cardiovascular disease':\")\n",
++    "print(\"This would return diseases like:\")\n",
++    "print(\"  - Heart failure\")\n",
++    "print(\"  - Myocardial infarction\")\n",
++    "print(\"  - Atherosclerosis\")\n",
++    "print(\"  - Coronary artery disease\")\n",
++    "print(\"  etc.\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 5.3 Hybrid: semantic + graph structure"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Combine semantic search with graph structure\n",
++    "# Example: Find drugs similar to \"PARP inhibitor\" that treat breast cancer\n",
++    "\n",
++    "print(\"Hybrid semantic + structural query:\")\n",
++    "print(\"1. Semantic search for drugs similar to 'PARP inhibitor'\")\n",
++    "print(\"2. Filter to only drugs that TREAT breast cancer\")\n",
++    "print(\"3. Rank by combination of semantic similarity and confidence\")\n",
++    "print(\"\\nThis requires combining semantic_search() with relationships()\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Section 6: Interesting Medical Queries\n",
++    "\n",
++    "Complex queries for real-world medical knowledge discovery."
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.1 Drug Repurposing\n",
++    "\n",
++    "Find drugs targeting proteins linked to a disease - potential for repurposing."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Drug repurposing: Find drugs that target proteins associated with Alzheimer's\n",
++    "print(\"Drug Repurposing Query: Alzheimer's Disease\\n\")\n",
++    "print(\"Strategy:\")\n",
++    "print(\"1. Find genes/proteins associated with Alzheimer's\")\n",
++    "print(\"2. Find drugs that target those proteins\")\n",
++    "print(\"3. Check if drugs are FDA-approved for other indications\")\n",
++    "print(\"4. These are repurposing candidates!\\n\")\n",
++    "\n",
++    "# Step 1: Find disease\n",
 +    "disease_query = GraphQuery(DATABASE_URL).entities(\n",
 +    "    entity_type=\"disease\"\n",
 +    ").filter(name=\"Alzheimer\").limit(1)\n",
-     "\n",
-     "# This would require multi-hop traversal:\n",
-     "# Disease → Gene/Protein → Drug\n",
-@@ -839,7 +883,11 @@
-     "print(\"4. Flag as controversial if both supported by high-quality evidence\\n\")\n",
-     "\n",
-     "# Example\n",
--    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", subject_id=\"drug_123\", object_id=\"disease_456\")\n",
++    "\n",
++    "# This would require multi-hop traversal:\n",
++    "# Disease \u2192 Gene/Protein \u2192 Drug\n",
++    "print(\"Would execute: Disease \u2192 ASSOCIATED_WITH \u2192 Gene/Protein \u2192 TARGETED_BY \u2192 Drug\")\n",
++    "print(\"Filter: drugs.properties->>'fda_approved' = 'true'\")\n",
++    "print(\"Exclude: drugs already indicated for Alzheimer's\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.2 Differential Diagnosis\n",
++    "\n",
++    "Find diseases matching a combination of symptoms."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Differential diagnosis from symptoms\n",
++    "symptoms = [\"fever\", \"cough\", \"shortness of breath\", \"fatigue\"]\n",
++    "\n",
++    "print(\"Differential Diagnosis Query\\n\")\n",
++    "print(f\"Symptoms: {', '.join(symptoms)}\\n\")\n",
++    "print(\"Strategy:\")\n",
++    "print(\"1. Find all diseases associated with each symptom\")\n",
++    "print(\"2. Rank diseases by number of matching symptoms\")\n",
++    "print(\"3. Weight by confidence scores\")\n",
++    "print(\"4. Return top differential diagnoses\\n\")\n",
++    "\n",
++    "# Use convenience function (placeholder)\n",
++    "from query.client import search_by_symptoms\n",
++    "\n",
++    "print(\"Example output:\")\n",
++    "print(\"1. COVID-19 (4/4 symptoms, avg confidence: 0.92)\")\n",
++    "print(\"2. Pneumonia (4/4 symptoms, avg confidence: 0.87)\")\n",
++    "print(\"3. Influenza (3/4 symptoms, avg confidence: 0.85)\")\n",
++    "print(\"4. Bronchitis (3/4 symptoms, avg confidence: 0.78)\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.3 Mechanism of Action\n",
++    "\n",
++    "Multi-hop path from drug to clinical outcome."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Mechanism of action: How does aspirin reduce cardiovascular risk?\n",
++    "print(\"Mechanism of Action: Aspirin \u2192 Cardiovascular Protection\\n\")\n",
++    "print(\"Query path:\")\n",
++    "print(\"Aspirin \u2192 INHIBITS \u2192 COX-2 enzyme \u2192 REDUCES \u2192 Thromboxane A2\")\n",
++    "print(\"       \u2192 DECREASES \u2192 Platelet aggregation \u2192 REDUCES \u2192 Thrombosis\")\n",
++    "print(\"       \u2192 PREVENTS \u2192 Heart attack / Stroke\\n\")\n",
++    "\n",
++    "# This requires recursive traversal\n",
++    "from query.client import find_drug_mechanisms\n",
++    "\n",
++    "print(\"Would use: find_drug_mechanisms('aspirin', max_hops=5)\")\n",
++    "print(\"Returns all paths from drug to outcomes with mechanistic relationships\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.4 Contradictory Evidence\n",
++    "\n",
++    "Find relationships with conflicting evidence."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find contradictory evidence for drug-disease relationships\n",
++    "print(\"Contradictory Evidence Detection\\n\")\n",
++    "print(\"Strategy:\")\n",
++    "print(\"1. Find all TREATS relationships for a drug-disease pair\")\n",
++    "print(\"2. Check for conflicting INEFFECTIVE_FOR relationships\")\n",
++    "print(\"3. Compare evidence quality and recency\")\n",
++    "print(\"4. Flag as controversial if both supported by high-quality evidence\\n\")\n",
++    "\n",
++    "# Example\n",
 +    "query = GraphQuery(DATABASE_URL).relationships(\n",
 +    "    predicate=\"TREATS\",\n",
 +    "    subject_id=\"drug_123\",\n",
 +    "    object_id=\"disease_456\"\n",
 +    ")\n",
++    "\n",
++    "print(\"Would look for:\")\n",
++    "print(\"- TREATS relationships with positive outcomes\")\n",
++    "print(\"- INEFFECTIVE_FOR or CONTRAINDICATED relationships\")\n",
++    "print(\"- Compare study designs, sample sizes, publication dates\")\n",
++    "print(\"- Present both sides with evidence quality metrics\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.5 Recent Discoveries\n",
++    "\n",
++    "Time-filtered queries for new relationships."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Find recent discoveries (last 2 years)\n",
++    "print(\"Recent Discoveries Query\\n\")\n",
++    "print(\"Find relationships discovered in papers from 2023-2025\\n\")\n",
++    "\n",
++    "# This would require:\n",
++    "# 1. Join with papers table on source_papers\n",
++    "# 2. Filter by publication_date >= '2023-01-01'\n",
++    "# 3. Group by relationship type\n",
++    "\n",
++    "print(\"Example query:\")\n",
++    "print(\"SELECT r.*, p.publication_date, p.title\")\n",
++    "print(\"FROM relationships r\")\n",
++    "print(\"JOIN papers p ON p.id = ANY(string_to_array(r.source_papers, ','))\")\n",
++    "print(\"WHERE p.publication_date >= '2023-01-01'\")\n",
++    "print(\"ORDER BY p.publication_date DESC\")\n",
++    "print(\"\\nThis highlights cutting-edge research findings!\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "### 6.6 Clinical Trial Landscape\n",
++    "\n",
++    "Analyze drugs in clinical trials for a disease."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Clinical trial landscape for a disease\n",
++    "print(\"Clinical Trial Landscape Analysis\\n\")\n",
++    "print(\"Find all drugs in clinical trials for a disease\\n\")\n",
++    "\n",
++    "# Strategy:\n",
++    "print(\"1. Find disease entity\")\n",
++    "print(\"2. Find all TREATS relationships with that disease\")\n",
++    "print(\"3. Filter by evidence from clinical trial papers\")\n",
++    "print(\"4. Group by trial phase (if available in properties)\")\n",
++    "print(\"5. Show drug \u2192 disease \u2192 trial phase \u2192 outcomes\\n\")\n",
++    "\n",
++    "print(\"Example for 'multiple myeloma':\")\n",
++    "print(\"  Phase I: 5 drugs\")\n",
++    "print(\"  Phase II: 12 drugs\")\n",
++    "print(\"  Phase III: 8 drugs\")\n",
++    "print(\"  Phase IV: 3 drugs\")\n",
++    "print(\"\\nVisualize as pipeline diagram\")"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "## Summary and Next Steps\n",
++    "\n",
++    "This notebook demonstrates the query capabilities of the medical knowledge graph.\n",
++    "\n",
++    "### What we covered:\n",
++    "1. \u2705 Entity queries by type and properties\n",
++    "2. \u2705 Relationship queries with confidence filtering\n",
++    "3. \u26a0\ufe0f  Multi-hop traversals (requires recursive CTE implementation)\n",
++    "4. \u2705 Evidence and provenance tracking\n",
++    "5. \u26a0\ufe0f  Semantic search (requires embeddings)\n",
++    "6. \u2705 Complex medical queries (conceptual examples)\n",
++    "\n",
++    "### To implement next:\n",
++    "- Recursive CTEs for multi-hop traversals\n",
++    "- Evidence table joins for detailed provenance\n",
++    "- Embedding generation and semantic search\n",
++    "- Paper metadata integration\n",
++    "- Graph visualization (NetworkX, Plotly)\n",
++    "\n",
++    "### Resources:\n",
++    "- Client API: `query/client.py`\n",
++    "- README: `query/README.md`\n",
++    "- Database schema: `storage/models/`"
++   ]
++  }
++ ],
++ "metadata": {
++  "kernelspec": {
++   "display_name": "Python 3",
++   "language": "python",
++   "name": "python3"
++  },
++  "language_info": {
++   "codemirror_mode": {
++    "name": "ipython",
++    "version": 3
++   },
++   "file_extension": ".py",
++   "mimetype": "text/x-python",
++   "name": "python",
++   "nbconvert_exporter": "python",
++   "pygments_lexer": "ipython3",
++   "version": "3.12.0"
++  }
++ },
++ "nbformat": 4,
++ "nbformat_minor": 4
++}
+\ No newline at end of file
+diff --git a/query/client.py b/query/client.py
+index c8a9188..6e91a70 100644
+--- a/query/client.py
++++ b/query/client.py
+@@ -446,7 +446,7 @@ class GraphQuery:
+         """Build SQL for multi-hop traversal."""
+         # Multi-hop traversal requires recursive CTEs which is a complex feature
+         # This is intentionally not implemented in this version
+-        raise NotImplementedError("Multi-hop traversal queries require recursive CTEs. " "This feature is planned but not yet implemented. " "Contributions welcome!")
++        raise NotImplementedError("Multi-hop traversal queries require recursive CTEs. This feature is planned but not yet implemented. Contributions welcome!")
+ 
+     def _build_semantic_query(self) -> str:
+         """Build SQL for semantic search."""
+@@ -649,5 +649,5 @@ def search_by_symptoms(symptoms: List[str], min_match: int = 2, connection_strin
+     # This requires complex query logic to find diseases
+     # that have at least min_match of the given symptoms
+     raise NotImplementedError(
+-        "Symptom-based differential diagnosis is not yet implemented. " "This requires joining entities and relationships to find diseases " "that match multiple symptoms. Contributions welcome!"
++        "Symptom-based differential diagnosis is not yet implemented. This requires joining entities and relationships to find diseases that match multiple symptoms. Contributions welcome!"
+     )
+diff --git a/query/explore_queries.ipynb b/query/explore_queries.ipynb
+index 671f0db..26a0322 100644
+--- a/query/explore_queries.ipynb
++++ b/query/explore_queries.ipynb
+@@ -32,31 +32,22 @@
+     "# Import required libraries\n",
+     "import os\n",
+     "import sys\n",
+-    "from typing import List, Dict, Any\n",
+     "\n",
+     "# Add parent directory to path to import local modules\n",
+-    "sys.path.insert(0, os.path.abspath('..'))\n",
+-    "\n",
+-    "from query.client import (\n",
+-    "    GraphQuery,\n",
+-    "    QueryResults,\n",
+-    "    find_treatments,\n",
+-    "    find_disease_genes,\n",
+-    "    find_drug_mechanisms,\n",
+-    "    search_by_symptoms\n",
+-    ")\n",
++    "sys.path.insert(0, os.path.abspath(\"..\"))\n",
++    "\n",
++    "from query.client import GraphQuery, QueryResults\n",
+     "import pandas as pd\n",
+-    "import json\n",
+     "\n",
+     "# For visualizations\n",
+     "import matplotlib.pyplot as plt\n",
+     "import seaborn as sns\n",
+     "\n",
+     "# Set display options\n",
+-    "pd.set_option('display.max_columns', None)\n",
+-    "pd.set_option('display.max_rows', 100)\n",
+-    "pd.set_option('display.width', None)\n",
+-    "sns.set_style('whitegrid')"
++    "pd.set_option(\"display.max_columns\", None)\n",
++    "pd.set_option(\"display.max_rows\", 100)\n",
++    "pd.set_option(\"display.width\", None)\n",
++    "sns.set_style(\"whitegrid\")"
+    ]
+   },
+   {
+@@ -67,9 +58,9 @@
+    "source": [
+     "# Database connection\n",
+     "# Set your database URL here or use environment variable\n",
+-    "DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/medlit')\n",
++    "DATABASE_URL = os.getenv(\"DATABASE_URL\", \"postgresql://postgres:postgres@localhost:5432/medlit\")\n",
+     "\n",
+-    "print(f\"Connecting to database...\")\n",
++    "print(\"Connecting to database...\")\n",
+     "print(f\"Database: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'N/A'}\")"
+    ]
+   },
+@@ -81,33 +72,35 @@
+    "source": [
+     "# Helper functions for pretty-printing results\n",
+     "\n",
++    "\n",
+     "def print_results(results: QueryResults, max_rows: int = 10):\n",
+     "    \"\"\"\n",
+     "    Pretty-print query results.\n",
+-    "    \n",
++    "\n",
+     "    Args:\n",
+     "        results: QueryResults object\n",
+     "        max_rows: Maximum number of rows to display\n",
+     "    \"\"\"\n",
+-    "    print(f\"\\n{'='*80}\")\n",
++    "    print(f\"\\n{'=' * 80}\")\n",
+     "    print(f\"Query Results: {results.count} rows in {results.query_time_ms:.2f}ms\")\n",
+-    "    print(f\"{'='*80}\\n\")\n",
+-    "    \n",
++    "    print(f\"{'=' * 80}\\n\")\n",
++    "\n",
+     "    if results.count == 0:\n",
+     "        print(\"No results found.\")\n",
+     "        return\n",
+-    "    \n",
++    "\n",
+     "    # Convert to DataFrame for nice display\n",
+     "    df = results.to_dataframe()\n",
+     "    display(df.head(max_rows))\n",
+-    "    \n",
++    "\n",
+     "    if results.count > max_rows:\n",
+     "        print(f\"\\n... and {results.count - max_rows} more rows\")\n",
+     "\n",
++    "\n",
+     "def show_query_sql(query: GraphQuery):\n",
+     "    \"\"\"\n",
+     "    Display the SQL query that will be executed.\n",
+-    "    \n",
++    "\n",
+     "    Args:\n",
+     "        query: GraphQuery object\n",
+     "    \"\"\"\n",
+@@ -116,10 +109,11 @@
+     "    print(query.to_sql())\n",
+     "    print(\"-\" * 80)\n",
+     "\n",
++    "\n",
+     "def plot_confidence_distribution(results: QueryResults, title: str = \"Confidence Distribution\"):\n",
+     "    \"\"\"\n",
+     "    Plot distribution of confidence scores.\n",
+-    "    \n",
++    "\n",
+     "    Args:\n",
+     "        results: QueryResults object\n",
+     "        title: Plot title\n",
+@@ -127,20 +121,21 @@
+     "    if not results.results:\n",
+     "        print(\"No results to plot.\")\n",
+     "        return\n",
+-    "    \n",
++    "\n",
+     "    df = results.to_dataframe()\n",
+-    "    if 'confidence' not in df.columns:\n",
++    "    if \"confidence\" not in df.columns:\n",
+     "        print(\"No confidence scores in results.\")\n",
+     "        return\n",
+-    "    \n",
++    "\n",
+     "    plt.figure(figsize=(10, 6))\n",
+-    "    plt.hist(df['confidence'].dropna(), bins=20, edgecolor='black', alpha=0.7)\n",
+-    "    plt.xlabel('Confidence Score')\n",
+-    "    plt.ylabel('Frequency')\n",
++    "    plt.hist(df[\"confidence\"].dropna(), bins=20, edgecolor=\"black\", alpha=0.7)\n",
++    "    plt.xlabel(\"Confidence Score\")\n",
++    "    plt.ylabel(\"Frequency\")\n",
+     "    plt.title(title)\n",
+     "    plt.grid(True, alpha=0.3)\n",
+     "    plt.show()\n",
+     "\n",
++    "\n",
+     "print(\"Helper functions loaded successfully!\")"
+    ]
+   },
+@@ -192,9 +187,7 @@
+    "source": [
+     "# Find FDA-approved drugs\n",
+     "# Note: This assumes the properties JSONB field has an 'fda_approved' key\n",
+-    "query = GraphQuery(DATABASE_URL).entities(\n",
+-    "    entity_type=\"drug\"\n",
+-    ").filter(fda_approved=\"true\").limit(20)\n",
++    "query = GraphQuery(DATABASE_URL).entities(entity_type=\"drug\").filter(fda_approved=\"true\").limit(20)\n",
+     "\n",
+     "results = query.execute()\n",
+     "print_results(results)"
+@@ -237,12 +230,7 @@
+    "source": [
+     "# Semantic search for entities similar to \"PARP inhibitor\"\n",
+     "# Note: This requires embeddings to be populated in the database\n",
+-    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
+-    "    \"PARP inhibitor\",\n",
+-    "    entity_type=\"drug\",\n",
+-    "    top_k=10,\n",
+-    "    threshold=0.7\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).semantic_search(\"PARP inhibitor\", entity_type=\"drug\", top_k=10, threshold=0.7)\n",
+     "\n",
+     "# Note: Semantic search requires embedding generation which is not fully implemented\n",
+     "# This is a placeholder to show the API\n",
+@@ -273,16 +261,16 @@
+     "    counts[entity_type] = results.count\n",
+     "\n",
+     "# Display as DataFrame\n",
+-    "count_df = pd.DataFrame(list(counts.items()), columns=['Entity Type', 'Count'])\n",
+-    "count_df = count_df.sort_values('Count', ascending=False)\n",
++    "count_df = pd.DataFrame(list(counts.items()), columns=[\"Entity Type\", \"Count\"])\n",
++    "count_df = count_df.sort_values(\"Count\", ascending=False)\n",
+     "display(count_df)\n",
+     "\n",
+     "# Visualize\n",
+     "plt.figure(figsize=(10, 6))\n",
+-    "plt.bar(count_df['Entity Type'], count_df['Count'])\n",
+-    "plt.xlabel('Entity Type')\n",
+-    "plt.ylabel('Count')\n",
+-    "plt.title('Entity Counts by Type')\n",
++    "plt.bar(count_df[\"Entity Type\"], count_df[\"Count\"])\n",
++    "plt.xlabel(\"Entity Type\")\n",
++    "plt.ylabel(\"Count\")\n",
++    "plt.title(\"Entity Counts by Type\")\n",
+     "plt.xticks(rotation=45)\n",
+     "plt.tight_layout()\n",
+     "plt.show()"
+@@ -332,10 +320,7 @@
+    "outputs": [],
+    "source": [
+     "# Find high-confidence TREATS relationships\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\",\n",
+-    "    min_confidence=0.8\n",
+-    ").order_by(\"confidence\", \"desc\").limit(20)\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).order_by(\"confidence\", \"desc\").limit(20)\n",
+     "\n",
+     "results = query.execute()\n",
+     "print_results(results)\n",
+@@ -359,10 +344,7 @@
+    "source": [
+     "# Find relationships with RCT or meta-analysis evidence\n",
+     "# Note: This requires evidence table join (to be implemented)\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\",\n",
+-    "    min_confidence=0.7\n",
+-    ").with_evidence(study_types=[\"rct\", \"meta_analysis\"]).limit(20)\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.7).with_evidence(study_types=[\"rct\", \"meta_analysis\"]).limit(20)\n",
+     "\n",
+     "print(\"Query with evidence filter:\")\n",
+     "print(\"Note: Evidence filtering requires join with evidence table\")\n",
+@@ -387,21 +369,21 @@
+     "disease_results = disease_query.execute()\n",
+     "\n",
+     "if disease_results.count > 0:\n",
+-    "    disease_id = disease_results.results[0]['id']\n",
+-    "    disease_name = disease_results.results[0]['name']\n",
+-    "    \n",
++    "    disease_id = disease_results.results[0][\"id\"]\n",
++    "    disease_name = disease_results.results[0][\"name\"]\n",
++    "\n",
+     "    print(f\"Finding all relationships for: {disease_name} ({disease_id})\\n\")\n",
+-    "    \n",
++    "\n",
+     "    # Find all relationships where this disease is the object\n",
+     "    query = GraphQuery(DATABASE_URL).relationships(object_id=disease_id).limit(50)\n",
+     "    results = query.execute()\n",
+     "    print_results(results)\n",
+-    "    \n",
++    "\n",
+     "    # Group by predicate\n",
+     "    if results.count > 0:\n",
+     "        df = results.to_dataframe()\n",
+-    "        predicate_counts = df['predicate'].value_counts()\n",
+-    "        \n",
++    "        predicate_counts = df[\"predicate\"].value_counts()\n",
++    "\n",
+     "        print(\"\\nRelationship types:\")\n",
+     "        display(predicate_counts)\n",
+     "else:\n",
+@@ -431,14 +413,14 @@
+     "    predicate_counts[predicate] = results.count\n",
+     "\n",
+     "# Visualize\n",
+-    "count_df = pd.DataFrame(list(predicate_counts.items()), columns=['Predicate', 'Count'])\n",
+-    "count_df = count_df.sort_values('Count', ascending=False)\n",
++    "count_df = pd.DataFrame(list(predicate_counts.items()), columns=[\"Predicate\", \"Count\"])\n",
++    "count_df = count_df.sort_values(\"Count\", ascending=False)\n",
+     "\n",
+     "plt.figure(figsize=(12, 6))\n",
+-    "plt.bar(count_df['Predicate'], count_df['Count'])\n",
+-    "plt.xlabel('Relationship Type')\n",
+-    "plt.ylabel('Count')\n",
+-    "plt.title('Relationship Counts by Type')\n",
++    "plt.bar(count_df[\"Predicate\"], count_df[\"Count\"])\n",
++    "plt.xlabel(\"Relationship Type\")\n",
++    "plt.ylabel(\"Count\")\n",
++    "plt.title(\"Relationship Counts by Type\")\n",
+     "plt.xticks(rotation=45)\n",
+     "plt.tight_layout()\n",
+     "plt.show()\n",
+@@ -459,7 +441,7 @@
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": [
+-    "### 3.1 2-hop: Drug \u2192 Disease \u2192 Symptom"
++    "### 3.1 2-hop: Drug → Disease → Symptom"
+    ]
+   },
+   {
+@@ -471,11 +453,7 @@
+     "# Multi-hop traversal: Find symptoms of diseases treated by a drug\n",
+     "# Note: This requires recursive CTE implementation\n",
+     "\n",
+-    "query = GraphQuery(DATABASE_URL).traverse(\n",
+-    "    start={\"entity_type\": \"drug\", \"name\": \"aspirin\"},\n",
+-    "    path=[\"TREATS:disease\", \"HAS_SYMPTOM:symptom\"],\n",
+-    "    max_hops=2\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).traverse(start={\"entity_type\": \"drug\", \"name\": \"aspirin\"}, path=[\"TREATS:disease\", \"HAS_SYMPTOM:symptom\"], max_hops=2)\n",
+     "\n",
+     "print(\"Multi-hop traversal query:\")\n",
+     "print(\"Note: Full implementation requires recursive CTEs\")\n",
+@@ -486,7 +464,7 @@
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": [
+-    "### 3.2 3-hop: Drug \u2192 Protein \u2192 Gene \u2192 Disease"
++    "### 3.2 3-hop: Drug → Protein → Gene → Disease"
+    ]
+   },
+   {
+@@ -496,11 +474,7 @@
+    "outputs": [],
+    "source": [
+     "# Find diseases connected to a drug through protein and gene interactions\n",
+-    "query = GraphQuery(DATABASE_URL).traverse(\n",
+-    "    start={\"entity_type\": \"drug\", \"name\": \"tamoxifen\"},\n",
+-    "    path=[\"TARGETS:protein\", \"ENCODED_BY:gene\", \"ASSOCIATED_WITH:disease\"],\n",
+-    "    max_hops=3\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).traverse(start={\"entity_type\": \"drug\", \"name\": \"tamoxifen\"}, path=[\"TARGETS:protein\", \"ENCODED_BY:gene\", \"ASSOCIATED_WITH:disease\"], max_hops=3)\n",
+     "\n",
+     "print(\"3-hop mechanism of action query:\")\n",
+     "show_query_sql(query)"
+@@ -549,10 +523,7 @@
+    "outputs": [],
+    "source": [
+     "# Get a relationship with evidence details\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\",\n",
+-    "    min_confidence=0.8\n",
+-    ").limit(1)\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).limit(1)\n",
+     "\n",
+     "results = query.execute()\n",
+     "\n",
+@@ -562,7 +533,7 @@
+     "    print(f\"Confidence: {rel.get('confidence', 'N/A')}\")\n",
+     "    print(f\"Source papers: {rel.get('source_papers', 'N/A')}\")\n",
+     "    print(f\"Evidence count: {rel.get('evidence_count', 'N/A')}\")\n",
+-    "    \n",
++    "\n",
+     "    # In a full implementation, we would join with the evidence table here\n",
+     "    print(\"\\nNote: Detailed evidence requires join with evidence table\")\n",
+     "else:\n",
+@@ -583,12 +554,7 @@
+    "outputs": [],
+    "source": [
+     "# Compare relationships by study quality\n",
+-    "study_types = {\n",
+-    "    \"RCT\": \"rct\",\n",
+-    "    \"Meta-analysis\": \"meta_analysis\",\n",
+-    "    \"Cohort\": \"cohort\",\n",
+-    "    \"Case report\": \"case_report\"\n",
+-    "}\n",
++    "study_types = {\"RCT\": \"rct\", \"Meta-analysis\": \"meta_analysis\", \"Cohort\": \"cohort\", \"Case report\": \"case_report\"}\n",
+     "\n",
+     "print(\"Relationships by study type:\")\n",
+     "print(\"Note: This requires evidence table implementation\\n\")\n",
+@@ -611,20 +577,17 @@
+    "outputs": [],
+    "source": [
+     "# Get relationships and their source papers\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\",\n",
+-    "    min_confidence=0.8\n",
+-    ").limit(10)\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", min_confidence=0.8).limit(10)\n",
+     "\n",
+     "results = query.execute()\n",
+     "\n",
+     "if results.count > 0:\n",
+     "    df = results.to_dataframe()\n",
+-    "    \n",
++    "\n",
+     "    # Show relationships with their papers\n",
+     "    print(\"Relationships with source papers:\\n\")\n",
+     "    for idx, row in df.iterrows():\n",
+-    "        print(f\"{row['subject_id']} \u2192 {row['object_id']}\")\n",
++    "        print(f\"{row['subject_id']} → {row['object_id']}\")\n",
+     "        print(f\"  Confidence: {row.get('confidence', 'N/A')}\")\n",
+     "        print(f\"  Papers: {row.get('source_papers', 'N/A')}\")\n",
+     "        print()"
+@@ -644,29 +607,27 @@
+    "outputs": [],
+    "source": [
+     "# Analyze evidence quality across relationships\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\"\n",
+-    ").limit(100)\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\").limit(100)\n",
+     "\n",
+     "results = query.execute()\n",
+     "\n",
+     "if results.count > 0:\n",
+     "    df = results.to_dataframe()\n",
+-    "    \n",
++    "\n",
+     "    # Analyze confidence scores\n",
+     "    print(\"Evidence quality statistics:\\n\")\n",
+-    "    print(df['confidence'].describe())\n",
+-    "    \n",
++    "    print(df[\"confidence\"].describe())\n",
++    "\n",
+     "    # Plot distribution\n",
+     "    plot_confidence_distribution(results, \"TREATS Relationship Confidence Distribution\")\n",
+-    "    \n",
++    "\n",
+     "    # High vs low confidence\n",
+-    "    high_conf = df[df['confidence'] >= 0.8].shape[0]\n",
+-    "    med_conf = df[(df['confidence'] >= 0.6) & (df['confidence'] < 0.8)].shape[0]\n",
+-    "    low_conf = df[df['confidence'] < 0.6].shape[0]\n",
+-    "    \n",
+-    "    print(f\"\\nConfidence breakdown:\")\n",
+-    "    print(f\"  High (\u22650.8): {high_conf}\")\n",
++    "    high_conf = df[df[\"confidence\"] >= 0.8].shape[0]\n",
++    "    med_conf = df[(df[\"confidence\"] >= 0.6) & (df[\"confidence\"] < 0.8)].shape[0]\n",
++    "    low_conf = df[df[\"confidence\"] < 0.6].shape[0]\n",
++    "\n",
++    "    print(\"\\nConfidence breakdown:\")\n",
++    "    print(f\"  High (≥0.8): {high_conf}\")\n",
+     "    print(f\"  Medium (0.6-0.8): {med_conf}\")\n",
+     "    print(f\"  Low (<0.6): {low_conf}\")"
+    ]
+@@ -694,12 +655,7 @@
+    "outputs": [],
+    "source": [
+     "# Semantic search for drugs similar to \"chemotherapy\"\n",
+-    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
+-    "    \"chemotherapy agent\",\n",
+-    "    entity_type=\"drug\",\n",
+-    "    top_k=20,\n",
+-    "    threshold=0.7\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).semantic_search(\"chemotherapy agent\", entity_type=\"drug\", top_k=20, threshold=0.7)\n",
+     "\n",
+     "print(\"Semantic search for 'chemotherapy agent':\")\n",
+     "print(\"Note: Requires embeddings to be populated in database\")\n",
+@@ -720,11 +676,7 @@
+    "outputs": [],
+    "source": [
+     "# Find diseases similar to \"cardiovascular disease\"\n",
+-    "query = GraphQuery(DATABASE_URL).semantic_search(\n",
+-    "    \"cardiovascular disease\",\n",
+-    "    entity_type=\"disease\",\n",
+-    "    top_k=15\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).semantic_search(\"cardiovascular disease\", entity_type=\"disease\", top_k=15)\n",
+     "\n",
+     "print(\"Finding diseases similar to 'cardiovascular disease':\")\n",
+     "print(\"This would return diseases like:\")\n",
+@@ -791,13 +743,11 @@
+     "print(\"4. These are repurposing candidates!\\n\")\n",
+     "\n",
+     "# Step 1: Find disease\n",
+-    "disease_query = GraphQuery(DATABASE_URL).entities(\n",
+-    "    entity_type=\"disease\"\n",
+-    ").filter(name=\"Alzheimer\").limit(1)\n",
++    "disease_query = GraphQuery(DATABASE_URL).entities(entity_type=\"disease\").filter(name=\"Alzheimer\").limit(1)\n",
+     "\n",
+     "# This would require multi-hop traversal:\n",
+-    "# Disease \u2192 Gene/Protein \u2192 Drug\n",
+-    "print(\"Would execute: Disease \u2192 ASSOCIATED_WITH \u2192 Gene/Protein \u2192 TARGETED_BY \u2192 Drug\")\n",
++    "# Disease → Gene/Protein → Drug\n",
++    "print(\"Would execute: Disease → ASSOCIATED_WITH → Gene/Protein → TARGETED_BY → Drug\")\n",
+     "print(\"Filter: drugs.properties->>'fda_approved' = 'true'\")\n",
+     "print(\"Exclude: drugs already indicated for Alzheimer's\")"
+    ]
+@@ -829,7 +779,6 @@
+     "print(\"4. Return top differential diagnoses\\n\")\n",
+     "\n",
+     "# Use convenience function (placeholder)\n",
+-    "from query.client import search_by_symptoms\n",
+     "\n",
+     "print(\"Example output:\")\n",
+     "print(\"1. COVID-19 (4/4 symptoms, avg confidence: 0.92)\")\n",
+@@ -854,14 +803,13 @@
+    "outputs": [],
+    "source": [
+     "# Mechanism of action: How does aspirin reduce cardiovascular risk?\n",
+-    "print(\"Mechanism of Action: Aspirin \u2192 Cardiovascular Protection\\n\")\n",
++    "print(\"Mechanism of Action: Aspirin → Cardiovascular Protection\\n\")\n",
+     "print(\"Query path:\")\n",
+-    "print(\"Aspirin \u2192 INHIBITS \u2192 COX-2 enzyme \u2192 REDUCES \u2192 Thromboxane A2\")\n",
+-    "print(\"       \u2192 DECREASES \u2192 Platelet aggregation \u2192 REDUCES \u2192 Thrombosis\")\n",
+-    "print(\"       \u2192 PREVENTS \u2192 Heart attack / Stroke\\n\")\n",
++    "print(\"Aspirin → INHIBITS → COX-2 enzyme → REDUCES → Thromboxane A2\")\n",
++    "print(\"       → DECREASES → Platelet aggregation → REDUCES → Thrombosis\")\n",
++    "print(\"       → PREVENTS → Heart attack / Stroke\\n\")\n",
+     "\n",
+     "# This requires recursive traversal\n",
+-    "from query.client import find_drug_mechanisms\n",
+     "\n",
+     "print(\"Would use: find_drug_mechanisms('aspirin', max_hops=5)\")\n",
+     "print(\"Returns all paths from drug to outcomes with mechanistic relationships\")"
+@@ -891,11 +839,7 @@
+     "print(\"4. Flag as controversial if both supported by high-quality evidence\\n\")\n",
+     "\n",
+     "# Example\n",
+-    "query = GraphQuery(DATABASE_URL).relationships(\n",
+-    "    predicate=\"TREATS\",\n",
+-    "    subject_id=\"drug_123\",\n",
+-    "    object_id=\"disease_456\"\n",
+-    ")\n",
++    "query = GraphQuery(DATABASE_URL).relationships(predicate=\"TREATS\", subject_id=\"drug_123\", object_id=\"disease_456\")\n",
      "\n",
      "print(\"Would look for:\")\n",
      "print(\"- TREATS relationships with positive outcomes\")\n",
+@@ -961,7 +905,7 @@
+     "print(\"2. Find all TREATS relationships with that disease\")\n",
+     "print(\"3. Filter by evidence from clinical trial papers\")\n",
+     "print(\"4. Group by trial phase (if available in properties)\")\n",
+-    "print(\"5. Show drug \u2192 disease \u2192 trial phase \u2192 outcomes\\n\")\n",
++    "print(\"5. Show drug → disease → trial phase → outcomes\\n\")\n",
+     "\n",
+     "print(\"Example for 'multiple myeloma':\")\n",
+     "print(\"  Phase I: 5 drugs\")\n",
+@@ -980,12 +924,12 @@
+     "This notebook demonstrates the query capabilities of the medical knowledge graph.\n",
+     "\n",
+     "### What we covered:\n",
+-    "1. \u2705 Entity queries by type and properties\n",
+-    "2. \u2705 Relationship queries with confidence filtering\n",
+-    "3. \u26a0\ufe0f  Multi-hop traversals (requires recursive CTE implementation)\n",
+-    "4. \u2705 Evidence and provenance tracking\n",
+-    "5. \u26a0\ufe0f  Semantic search (requires embeddings)\n",
+-    "6. \u2705 Complex medical queries (conceptual examples)\n",
++    "1. ✅ Entity queries by type and properties\n",
++    "2. ✅ Relationship queries with confidence filtering\n",
++    "3. ⚠️  Multi-hop traversals (requires recursive CTE implementation)\n",
++    "4. ✅ Evidence and provenance tracking\n",
++    "5. ⚠️  Semantic search (requires embeddings)\n",
++    "6. ✅ Complex medical queries (conceptual examples)\n",
+     "\n",
+     "### To implement next:\n",
+     "- Recursive CTEs for multi-hop traversals\n",
+diff --git a/query/graphql_examples.py b/query/graphql_examples.py
+new file mode 100644
+index 0000000..d9ca80c
+--- /dev/null
++++ b/query/graphql_examples.py
+@@ -0,0 +1,51 @@
++"""
++Example GraphQL queries for the Medical Literature Knowledge Graph API.
++
++These queries are displayed in the GraphiQL interface to help users get started.
++"""
++
++EXAMPLE_QUERIES = {
++    "Get Entity by ID": """# Retrieve a specific entity by its canonical ID
++# Returns entire entity as JSON
++query GetEntity {
++  entity(id: "drug_aspirin")
++}""",
++    "Search Entities": """# Search for entities with pagination
++# Returns array of entities as JSON
++query SearchEntities {
++  entities(limit: 10, offset: 0)
++}""",
++    "Find Treatments": """# Find all TREATS relationships
++# Returns array of relationships as JSON
++query FindTreatments {
++  relationships(
++    predicate: "TREATS"
++    limit: 20
++  )
++}""",
++    "Get Paper": """# Retrieve a research paper by ID
++# Returns entire paper as JSON
++query GetPaper {
++  paper(id: "pmid_12345678")
++}""",
++    "Filter by Subject": """# Find all relationships for a specific entity
++# Returns array of relationships as JSON
++query FilterBySubject {
++  relationships(
++    subjectId: "drug_aspirin"
++    limit: 50
++  )
++}""",
++    "Multiple Queries": """# Get an entity and its relationships in one request
++# Demonstrates multiple queries in a single operation
++query EntityWithRelationships {
++  entity(id: "drug_metformin")
++  relationships(
++    subjectId: "drug_metformin"
++    limit: 10
++  )
++}""",
++}
++
++# Default query shown when GraphiQL first loads
++DEFAULT_QUERY = EXAMPLE_QUERIES["Search Entities"]
+diff --git a/query/graphql_schema.py b/query/graphql_schema.py
+new file mode 100644
+index 0000000..cd8a320
+--- /dev/null
++++ b/query/graphql_schema.py
+@@ -0,0 +1,82 @@
++"""
++GraphQL schema for the Medical Literature Knowledge Graph API.
++
++This is a simplified schema that avoids complex nested type conversions.
++For production use, consider using manual type definitions or resolving
++the Pydantic integration issues with nested models.
++"""
++
++import strawberry
++from typing import List, Optional
++from strawberry.scalars import JSON
++from .storage_factory import get_storage
++
++
++@strawberry.type
++class Query:
++    @strawberry.field
++    def paper(self, id: str) -> Optional[JSON]:
++        """
++        Retrieve a single paper by its ID.
++
++        Note: Returns a JSON-serializable dict. For full type safety,
++        define explicit Strawberry types for all nested models.
++        """
++        storage = get_storage()
++        paper = storage.papers.get_paper(paper_id=id)
++        if paper:
++            return paper.model_dump()
++        return None
++
++    @strawberry.field
++    def entity(self, id: str) -> Optional[JSON]:
++        """
++        Retrieve a single medical entity by its canonical ID.
++
++        Note: Returns a JSON-serializable dict. For full type safety,
++        define explicit Strawberry types for all entity types.
++        """
++        storage = get_storage()
++        entity = storage.entities.get_by_id(entity_id=id)
++        if entity:
++            return entity.model_dump()
++        return None
++
++    @strawberry.field
++    def entities(
++        self,
++        limit: int = 100,
++        offset: int = 0,
++    ) -> List[JSON]:
++        """
++        List all medical entities with pagination.
++
++        Note: Returns JSON-serializable dicts. For full type safety,
++        define explicit Strawberry types for all entity types.
++        """
++        storage = get_storage()
++        entities = storage.entities.list_entities(limit=limit, offset=offset)
++        return [entity.model_dump() for entity in entities]
++
++    @strawberry.field
++    def relationships(
++        self,
++        subject_id: Optional[str] = None,
++        predicate: Optional[str] = None,
++        object_id: Optional[str] = None,
++        limit: int = 100,
++    ) -> List[JSON]:
++        """
++        Find relationships based on subject, predicate, or object.
++
++        Note: Returns JSON-serializable dicts. For full type safety,
++        define explicit Strawberry types for all relationship types.
++        """
++        storage = get_storage()
++        relationships = storage.relationships.find_relationships(
++            subject_id=subject_id,
++            predicate=predicate,
++            object_id=object_id,
++            limit=limit,
++        )
++        return [rel.model_dump() for rel in relationships]
+diff --git a/query/routers/graphiql_custom.py b/query/routers/graphiql_custom.py
+new file mode 100644
+index 0000000..6d0066b
+--- /dev/null
++++ b/query/routers/graphiql_custom.py
+@@ -0,0 +1,148 @@
++"""
++Custom GraphiQL interface with example queries.
++
++Serves a custom GraphiQL HTML page with a dropdown menu of example queries.
++"""
++
++from fastapi import APIRouter
++from fastapi.responses import HTMLResponse
++import json
++
++from ..graphql_examples import EXAMPLE_QUERIES, DEFAULT_QUERY
++
++router = APIRouter()
++
++
++def create_graphiql_html(graphql_endpoint: str = "/graphql") -> str:
++    """
++    Create custom GraphiQL HTML with example queries dropdown.
++
++    Attributes:
++
++        graphql_endpoint: The GraphQL endpoint URL
++
++    Returns: HTML string for the GraphiQL interface
++    """
++    # Convert example queries to JavaScript format
++    examples_js = json.dumps(EXAMPLE_QUERIES, indent=2)
++
++    return f"""<!DOCTYPE html>
++<html>
++<head>
++    <title>Medical Literature Knowledge Graph - GraphiQL</title>
++    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>🧬</text></svg>">
++    <style>
++        body {{
++            margin: 0;
++            padding: 0;
++            height: 100vh;
++            overflow: hidden;
++            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
++        }}
++        #graphiql {{
++            height: 100vh;
++        }}
++        .graphiql-container {{
++            height: 100%;
++        }}
++        #examples-dropdown {{
++            position: absolute;
++            top: 10px;
++            right: 60px;
++            z-index: 100;
++        }}
++        #examples-dropdown select {{
++            padding: 8px 12px;
++            border: 1px solid #d6d6d6;
++            border-radius: 4px;
++            background: white;
++            font-size: 14px;
++            cursor: pointer;
++            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
++        }}
++        #examples-dropdown select:hover {{
++            border-color: #b0b0b0;
++        }}
++        #examples-dropdown select:focus {{
++            outline: none;
++            border-color: #0070f3;
++            box-shadow: 0 0 0 3px rgba(0,112,243,0.1);
++        }}
++    </style>
++    <link rel="stylesheet" href="https://unpkg.com/graphiql@3/graphiql.min.css" />
++</head>
++<body>
++    <div id="graphiql">Loading...</div>
++    <div id="examples-dropdown">
++        <select id="example-selector">
++            <option value="">-- Select Example Query --</option>
++        </select>
++    </div>
++
++    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
++    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
++    <script crossorigin src="https://unpkg.com/graphiql@3/graphiql.min.js"></script>
++
++    <script>
++        const examples = {examples_js};
++        const {{ useState }} = React;
++
++        // GraphQL fetcher function
++        const fetcher = GraphiQL.createFetcher({{
++            url: '{graphql_endpoint}',
++        }});
++
++        // GraphiQL component with state management
++        function GraphiQLWithExamples() {{
++            const [query, setQuery] = useState(`{DEFAULT_QUERY.replace("`", "`")}`);
++
++            // Expose setQuery to window for dropdown access
++            React.useEffect(() => {{
++                window.setGraphiQLQuery = setQuery;
++            }}, []);
++
++            return React.createElement(GraphiQL, {{
++                fetcher: fetcher,
++                query: query,
++                onEditQuery: setQuery
++            }});
++        }}
++
++        // Render GraphiQL
++        const root = ReactDOM.createRoot(document.getElementById('graphiql'));
++        root.render(React.createElement(GraphiQLWithExamples));
++
++        // Populate examples dropdown
++        const selector = document.getElementById('example-selector');
++        Object.keys(examples).forEach(name => {{
++            const option = document.createElement('option');
++            option.value = name;
++            option.textContent = name;
++            selector.appendChild(option);
++        }});
++
++        // Handle example selection
++        selector.addEventListener('change', (e) => {{
++            const selectedName = e.target.value;
++            if (selectedName && examples[selectedName]) {{
++                // Update the query in GraphiQL using the exposed setter
++                if (window.setGraphiQLQuery) {{
++                    window.setGraphiQLQuery(examples[selectedName]);
++                }}
++                // Reset dropdown to prompt
++                setTimeout(() => {{
++                    e.target.value = '';
++                }}, 100);
++            }}
++        }});
++    </script>
++</body>
++</html>"""
++
++
++@router.get("/", response_class=HTMLResponse)
++async def graphiql_interface():
++    """
++    Serve custom GraphiQL interface with example queries dropdown.
++    """
++    return create_graphiql_html()
+diff --git a/query/routers/mcp_api.py b/query/routers/mcp_api.py
+new file mode 100644
+index 0000000..2e083d2
+--- /dev/null
++++ b/query/routers/mcp_api.py
+@@ -0,0 +1,225 @@
++"""
++MCP (Model Context Protocol) API integration for AI agent access.
++
++This module provides AI-friendly tools for querying the medical knowledge graph,
++designed for integration with LLMs like Claude, GPT, etc.
++"""
++
++from typing import List, Optional
++
++from mcp.server import FastMCP
++
++from med_lit_schema.entity import Disease, Drug, Gene
++
++from ..storage_factory import get_storage
++
++
++# Create FastMCP server instance
++mcp_server = FastMCP(
++    name="Medical Knowledge Graph",
++    instructions="Query interface for medical literature knowledge graph with tools for finding treatments, genes, entities, and papers.",
++)
++
++
++# Tool implementations using FastMCP decorators
++@mcp_server.tool()
++async def find_treatments(disease_name: str, limit: int = 10) -> List[dict]:
++    """
++    Find drugs that treat a specific disease.
++
++    This tool searches for Disease-TREATS-Drug relationships in the knowledge graph.
++    It finds diseases matching the query name and returns all drugs that treat them.
++
++    Args:
++        disease_name: Name or partial name of the disease
++        limit: Maximum number of treatments to return (default: 10)
++
++    Returns:
++        List of treatment dictionaries with drug and disease information
++    """
++    storage = get_storage()
++
++    # Search for diseases matching the name
++    all_entities = storage.entities.list_entities(limit=1000)
++    matching_diseases = [entity for entity in all_entities if isinstance(entity, Disease) and disease_name.lower() in entity.name.lower()]
++
++    if not matching_diseases:
++        return []
++
++    # Find treatments for each disease
++    results = []
++    for disease in matching_diseases[:5]:  # Limit to first 5 diseases
++        # Find all relationships where this disease is the object and predicate is TREATS
++        relationships = storage.relationships.find_relationships(
++            predicate="TREATS",
++            object_id=disease.canonical_id,
++            limit=limit,
++        )
++
++        for rel in relationships:
++            # Get the drug entity
++            drug_entity = storage.entities.get_by_id(rel.subject_id)
++            if drug_entity and isinstance(drug_entity, Drug):
++                # Count evidence items
++                evidence_items = storage.evidence.get_evidence_for_relationship(
++                    subject_id=rel.subject_id,
++                    predicate=rel.predicate,
++                    object_id=rel.object_id,
++                )
++
++                results.append(
++                    {
++                        "drug_id": drug_entity.canonical_id,
++                        "drug_name": drug_entity.name,
++                        "disease_id": disease.canonical_id,
++                        "disease_name": disease.name,
++                        "evidence_count": len(evidence_items),
++                    }
++                )
++
++    return results[:limit]
++
++
++@mcp_server.tool()
++async def find_related_genes(disease_name: str, limit: int = 10) -> List[dict]:
++    """
++    Find genes associated with or implicated in a disease.
++
++    This tool searches for Disease-Gene relationships in the knowledge graph.
++
++    Args:
++        disease_name: Name or partial name of the disease
++        limit: Maximum number of genes to return (default: 10)
++
++    Returns:
++        List of gene dictionaries with relationship information
++    """
++    storage = get_storage()
++
++    # Search for diseases matching the name
++    all_entities = storage.entities.list_entities(limit=1000)
++    matching_diseases = [entity for entity in all_entities if isinstance(entity, Disease) and disease_name.lower() in entity.name.lower()]
++
++    if not matching_diseases:
++        return []
++
++    # Find related genes
++    results = []
++    for disease in matching_diseases[:5]:
++        # Find relationships where disease is subject or object
++        relationships = storage.relationships.find_relationships(
++            subject_id=disease.canonical_id,
++            limit=limit * 2,  # Get more to filter
++        )
++        relationships += storage.relationships.find_relationships(
++            object_id=disease.canonical_id,
++            limit=limit * 2,
++        )
++
++        for rel in relationships:
++            # Check if the other entity is a gene
++            gene_id = rel.object_id if rel.subject_id == disease.canonical_id else rel.subject_id
++            gene_entity = storage.entities.get_by_id(gene_id)
++
++            if gene_entity and isinstance(gene_entity, Gene):
++                results.append(
++                    {
++                        "gene_id": gene_entity.canonical_id,
++                        "gene_symbol": gene_entity.symbol,
++                        "relationship_type": rel.predicate,
++                        "disease_id": disease.canonical_id,
++                        "disease_name": disease.name,
++                    }
++                )
++
++    return results[:limit]
++
++
++@mcp_server.tool()
++async def get_entity(entity_id: str) -> Optional[dict]:
++    """
++    Retrieve a specific entity (Disease, Drug, Gene, Protein) by its canonical ID.
++
++    Returns the full entity data including all metadata and identifiers.
++
++    Args:
++        entity_id: Canonical ID of the entity
++
++    Returns:
++        Entity dictionary or None if not found
++    """
++    storage = get_storage()
++    entity = storage.entities.get_by_id(entity_id)
++
++    if entity:
++        return entity.model_dump()
++    return None
++
++
++@mcp_server.tool()
++async def search_entities(query: str, entity_type: Optional[str] = None, limit: int = 10) -> List[dict]:
++    """
++    Search for entities matching a query string.
++
++    This performs a simple name-based search. For semantic search,
++    use the /api/v1/search/semantic endpoint instead.
++
++    Args:
++        query: Search query text
++        entity_type: Optional entity type filter (Disease, Drug, Gene, Protein)
++        limit: Maximum number of results to return (default: 10)
++
++    Returns:
++        List of matching entity dictionaries
++    """
++    storage = get_storage()
++
++    # Get all entities (in production, this should use proper search)
++    all_entities = storage.entities.list_entities(limit=1000)
++
++    # Filter by query and type
++    results = []
++    query_lower = query.lower()
++
++    for entity in all_entities:
++        # Check name match
++        if query_lower not in entity.name.lower():
++            continue
++
++        # Check type filter
++        if entity_type:
++            entity_type_name = type(entity).__name__
++            if entity_type_name != entity_type:
++                continue
++
++        results.append(entity.model_dump())
++
++        if len(results) >= limit:
++            break
++
++    return results
++
++
++@mcp_server.tool()
++async def get_paper(paper_id: str) -> Optional[dict]:
++    """
++    Retrieve a research paper by its ID (PMC, DOI, or PMID).
++
++    Returns the full paper metadata including title, abstract, and identifiers.
++
++    Args:
++        paper_id: ID of the paper (PMC, DOI, or PMID)
++
++    Returns:
++        Paper dictionary or None if not found
++    """
++    storage = get_storage()
++    paper = storage.papers.get_paper(paper_id)
++
++    if paper:
++        return paper.model_dump()
++    return None
++
++
++# Export the MCP server instance for mounting in the main FastAPI app
++__all__ = ["mcp_server"]
+diff --git a/query/routers/rest_api.py b/query/routers/rest_api.py
+new file mode 100644
+index 0000000..a4bdb73
+--- /dev/null
++++ b/query/routers/rest_api.py
+@@ -0,0 +1,189 @@
++"""
++REST API router for the Medical Literature Knowledge Graph.
++"""
++
++from typing import List, Optional
++
++from fastapi import APIRouter, Depends, HTTPException
++from pydantic import BaseModel, Field
++from med_lit_schema.entity import BaseMedicalEntity, Paper
++from med_lit_schema.relationship import BaseRelationship
++from med_lit_schema.storage.interfaces import PipelineStorageInterface
++from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
++
++from ..storage_factory import get_storage
++
++router = APIRouter(prefix="/api/v1")
++
++
++class SemanticSearchRequest(BaseModel):
++    """
++    Request model for semantic search.
++
++    Attributes:
++
++        query_text: Natural language query text to search for
++        top_k: Maximum number of results to return (default: 10)
++        threshold: Minimum similarity threshold (0.0-1.0, default: 0.7)
++    """
++
++    query_text: str = Field(..., description="Natural language query text to search for")
++    top_k: int = Field(10, ge=1, le=100, description="Maximum number of results to return")
++    threshold: float = Field(0.7, ge=0.0, le=1.0, description="Minimum similarity threshold")
++
++
++class SemanticSearchResult(BaseModel):
++    """
++    Result model for semantic search.
++
++    Attributes:
++
++        subject_id: Subject entity canonical ID
++        predicate: Relationship predicate
++        object_id: Object entity canonical ID
++        similarity_score: Similarity score (0.0-1.0)
++    """
++
++    subject_id: str = Field(..., description="Subject entity canonical ID")
++    predicate: str = Field(..., description="Relationship predicate")
++    object_id: str = Field(..., description="Object entity canonical ID")
++    similarity_score: float = Field(..., description="Similarity score (0.0-1.0)")
++
++
++# Initialize embedding generator singleton
++_embedding_generator: Optional[SentenceTransformerEmbeddingGenerator] = None
++
++
++def get_embedding_generator() -> SentenceTransformerEmbeddingGenerator:
++    """Get or create the embedding generator singleton."""
++    global _embedding_generator
++    if _embedding_generator is None:
++        _embedding_generator = SentenceTransformerEmbeddingGenerator()
++    return _embedding_generator
++
++
++@router.get(
++    "/papers/{paper_id}",
++    response_model=Paper,
++    summary="Get a single paper by its ID",
++)
++async def get_paper_by_id(paper_id: str, storage: PipelineStorageInterface = Depends(get_storage)):
++    """
++    Retrieve a single research paper by its unique identifier (e.g., PMC ID, DOI, PMID).
++    """
++    paper = storage.papers.get_paper(paper_id=paper_id)
++    if not paper:
++        raise HTTPException(status_code=404, detail="Paper not found")
++    return paper
++
++
++@router.get(
++    "/entities/{entity_id}",
++    response_model=BaseMedicalEntity,
++    summary="Get a single entity by its canonical ID",
++)
++async def get_entity_by_id(entity_id: str, storage: PipelineStorageInterface = Depends(get_storage)):
++    """
++    Retrieve a single medical entity (e.g., Disease, Gene, Drug) by its
++    canonical identifier (e.g., UMLS ID, HGNC ID).
++    """
++    entity = storage.entities.get_by_id(entity_id=entity_id)
++    if not entity:
++        raise HTTPException(status_code=404, detail="Entity not found")
++    return entity
++
++
++@router.get(
++    "/entities",
++    response_model=List[BaseMedicalEntity],
++    summary="List all entities",
++)
++async def list_entities(limit: int = 100, offset: int = 0, storage: PipelineStorageInterface = Depends(get_storage)):
++    """
++    List all medical entities in the knowledge graph.
++
++    - **limit**: Maximum number of entities to return.
++    - **offset**: Number of entities to skip for pagination.
++    """
++    return storage.entities.list_entities(limit=limit, offset=offset)
++
++
++@router.get(
++    "/relationships",
++    response_model=List[BaseRelationship],
++    summary="Find relationships between entities",
++)
++async def find_relationships(
++    subject_id: Optional[str] = None,
++    predicate: Optional[str] = None,
++    object_id: Optional[str] = None,
++    limit: int = 100,
++    storage: PipelineStorageInterface = Depends(get_storage),
++):
++    """
++    Find relationships based on subject, predicate, or object.
++
++    - **subject_id**: Canonical ID of the subject entity.
++    - **predicate**: Type of the relationship (e.g., 'TREATS', 'CAUSES').
++    - **object_id**: Canonical ID of the object entity.
++    - **limit**: Maximum number of relationships to return.
++    """
++    relationships = storage.relationships.find_relationships(
++        subject_id=subject_id,
++        predicate=predicate,
++        object_id=object_id,
++        limit=limit,
++    )
++    return relationships
++
++
++@router.post(
++    "/search/semantic",
++    response_model=List[SemanticSearchResult],
++    summary="Semantic search for relationships",
++)
++async def semantic_search(
++    request: SemanticSearchRequest,
++    storage: PipelineStorageInterface = Depends(get_storage),
++    embedding_gen: SentenceTransformerEmbeddingGenerator = Depends(get_embedding_generator),
++):
++    """
++    Perform semantic search to find relationships similar to the query text.
++
++    This endpoint generates an embedding for the query text and searches for
++    similar relationships in the knowledge graph using vector similarity.
++
++    - **query_text**: Natural language query describing what to search for
++    - **top_k**: Maximum number of results to return (1-100)
++    - **threshold**: Minimum similarity threshold (0.0-1.0)
++
++    Example:
++
++        >>> {
++        ...     "query_text": "drugs that treat diabetes",
++        ...     "top_k": 10,
++        ...     "threshold": 0.7
++        ... }
++    """
++    # Generate embedding for the query text
++    query_embedding = embedding_gen.generate_embedding(request.query_text)
++
++    # Search for similar relationships
++    similar_relationships = storage.relationship_embeddings.find_similar_relationships(
++        query_embedding=query_embedding,
++        top_k=request.top_k,
++        threshold=request.threshold,
++    )
++
++    # Format results
++    results = [
++        SemanticSearchResult(
++            subject_id=subject_id,
++            predicate=predicate,
++            object_id=object_id,
++            similarity_score=score,
++        )
++        for (subject_id, predicate, object_id), score in similar_relationships
++    ]
++
++    return results
+diff --git a/query/server.py b/query/server.py
+new file mode 100644
+index 0000000..acacfb8
+--- /dev/null
++++ b/query/server.py
+@@ -0,0 +1,52 @@
++from contextlib import asynccontextmanager
++from fastapi import FastAPI
++import strawberry
++from strawberry.fastapi import GraphQLRouter
++
++from .storage_factory import close_storage, get_engine
++from .routers import rest_api
++from .routers.mcp_api import mcp_server
++from .routers import graphiql_custom
++from .graphql_schema import Query
++
++
++@asynccontextmanager
++async def lifespan(app: FastAPI):
++    """
++    Application lifespan manager.
++    Initializes storage on startup and closes it on shutdown.
++    """
++    get_engine()  # Initialize storage
++    yield
++    close_storage()  # Close storage connections
++
++
++app = FastAPI(
++    title="Medical Literature Knowledge Graph API",
++    description="A read-only API for querying the medical literature knowledge graph.",
++    version="0.1.0",
++    lifespan=lifespan,
++)
++
++# Mount REST API
++app.include_router(rest_api.router)
++
++# Mount GraphQL API (without built-in GraphiQL)
++graphql_schema = strawberry.Schema(query=Query)
++graphql_router = GraphQLRouter(graphql_schema, graphiql=False)
++app.include_router(graphql_router, prefix="/graphql")
++
++# Mount custom GraphiQL interface with example queries
++app.include_router(graphiql_custom.router, prefix="/graphiql", tags=["GraphQL"])
++
++# Mount MCP API (Server-Sent Events and HTTP endpoints)
++app.mount("/mcp/sse", mcp_server.sse_app)
++app.mount("/mcp", mcp_server.streamable_http_app)
++
++
++@app.get("/health")
++async def health_check():
++    """
++    Health check endpoint to verify that the server is running.
++    """
++    return {"status": "ok"}
+diff --git a/query/storage_factory.py b/query/storage_factory.py
+new file mode 100644
+index 0000000..e3ca1ef
+--- /dev/null
++++ b/query/storage_factory.py
+@@ -0,0 +1,51 @@
++"""
++Storage factory for creating and managing storage backend instances.
++"""
++
++import os
++from typing import Generator
++from sqlalchemy import create_engine
++from sqlmodel import Session
++from storage.backends.postgres import PostgresPipelineStorage
++from storage.interfaces import PipelineStorageInterface
++
++# Singleton engine
++_engine = None
++
++
++def get_engine():
++    """
++    Returns a singleton instance of the SQLAlchemy engine.
++    """
++    global _engine
++    if _engine is None:
++        db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medlit")
++        if not db_url:
++            raise ValueError("DATABASE_URL environment variable is not set.")
++        _engine = create_engine(db_url)
++    return _engine
++
++
++def get_storage() -> Generator[PipelineStorageInterface, None, None]:
++    """
++    FastAPI dependency that provides a storage instance with a request-scoped session.
++    """
++    engine = get_engine()
++    with Session(engine) as session:
++        try:
++            storage = PostgresPipelineStorage(session)
++            yield storage
++            session.commit()
++        except Exception:
++            session.rollback()
++            raise
++
++
++def close_storage():
++    """
++    Closes the engine connection.
++    """
++    global _engine
++    if _engine:
++        _engine.dispose()
++        _engine = None
+diff --git a/relationship.py b/relationship.py
+index 3f5b53a..7bb6dd8 100644
+--- a/relationship.py
++++ b/relationship.py
+@@ -208,6 +208,7 @@ class AssociatedWith(BaseMedicalRelationship):
+     statistical association exists.
+ 
+     Valid directions:
++
+         - Disease -> Disease (comorbidities)
+         - Gene -> Disease
+         - Biomarker -> Disease
+diff --git a/storage/backends/postgres.py b/storage/backends/postgres.py
+index 199c55e..8a0d45f 100644
+--- a/storage/backends/postgres.py
++++ b/storage/backends/postgres.py
+@@ -20,7 +20,7 @@ if TYPE_CHECKING:
+         BaseMedicalEntity,
+     )
+ 
+-from sqlalchemy import create_engine, select
++from sqlalchemy import select
+ from sqlmodel import Session
+ 
+ from med_lit_schema.storage.interfaces import (
+@@ -56,9 +56,17 @@ class PostgresPaperStorage(PaperStorageInterface):
+ 
+     def add_paper(self, paper: Paper) -> None:
+         """Add or update a paper in storage."""
++
++        # Serialize extraction_provenance and metadata to JSON
++        extraction_prov_json = None
++        if paper.extraction_provenance:
++            extraction_prov_json = paper.extraction_provenance.model_dump_json()
++
++        metadata_json = None
++        if paper.metadata:
++            metadata_json = paper.metadata.model_dump_json()
++
+         # Convert domain model to persistence model
+-        # Note: PaperPersistence is simplified - full Paper domain model has more fields
+-        # that would need to be stored in a JSONB field or separate tables
+         persistence = PaperPersistence(
+             id=paper.paper_id,
+             title=paper.title,
+@@ -70,14 +78,12 @@ class PostgresPaperStorage(PaperStorageInterface):
+             pubmed_id=paper.pmid,
+             entity_count=len(paper.entities),
+             relationship_count=len(paper.relationships),
++            extraction_provenance_json=extraction_prov_json,
++            metadata_json=metadata_json,
+         )
+ 
+         # Use merge to handle updates
+         self.session.merge(persistence)
+-        self.session.commit()
+-
+-        # Note: Full Paper model also has metadata and extraction_provenance
+-        # which would need to be stored separately or in a JSONB field
+ 
+     def get_paper(self, paper_id: str) -> Optional[Paper]:
+         """Get a paper by ID."""
+@@ -85,30 +91,8 @@ class PostgresPaperStorage(PaperStorageInterface):
+         if not persistence:
+             return None
+ 
+-        # Convert back to domain model
+-        # Note: This is a simplified conversion - full implementation would
+-        # need to load entities, relationships, metadata, and provenance separately
+-        from ..entity import PaperMetadata, ExtractionProvenance
+-
+-        return Paper(
+-            paper_id=persistence.id,
+-            title=persistence.title,
+-            abstract=persistence.abstract or "",
+-            authors=persistence.authors.split(", ") if persistence.authors else [],
+-            publication_date=persistence.publication_date,
+-            journal=persistence.journal,
+-            doi=persistence.doi,
+-            pmid=persistence.pubmed_id,
+-            entities=[],  # Would need to load separately
+-            relationships=[],  # Would need to load separately
+-            metadata=PaperMetadata(),  # Would need to load from separate storage
+-            extraction_provenance=ExtractionProvenance(
+-                extraction_pipeline=None,  # Would need to load
+-                models={},
+-                prompt=None,
+-                execution=None,
+-            ),
+-        )
++        # Use the same conversion method as list_papers
++        return self._persistence_to_domain(persistence)
+ 
+     def list_papers(self, limit: Optional[int] = None, offset: int = 0) -> list[Paper]:
+         """List papers, optionally with pagination."""
+@@ -122,26 +106,46 @@ class PostgresPaperStorage(PaperStorageInterface):
+ 
+     def _persistence_to_domain(self, persistence: PaperPersistence) -> Paper:
+         """Convert persistence model to domain model."""
+-        from ..entity import PaperMetadata, ExtractionProvenance
++        from med_lit_schema.entity import PaperMetadata, ExtractionProvenance
++
++        # Handle both PaperPersistence model instances and Row objects from queries
++        if not hasattr(persistence, "model_dump"):
++            try:
++                # Try to access the 'Paper' attribute for Row objects
++                data = persistence.Paper
++            except AttributeError:
++                # Fallback for older data or different query structures
++                if hasattr(persistence, "_mapping"):
++                    data = persistence._mapping["Paper"]
++                else:
++                    # If it's a tuple/list, assume the first element is the entity
++                    data = persistence[0]
++        else:
++            data = persistence
++
++        # Deserialize metadata from JSON
++        metadata = PaperMetadata()
++        if data.metadata_json:
++            metadata = PaperMetadata.model_validate_json(data.metadata_json)
++
++        # Deserialize extraction_provenance from JSON
++        extraction_provenance = None
++        if data.extraction_provenance_json:
++            extraction_provenance = ExtractionProvenance.model_validate_json(data.extraction_provenance_json)
+ 
+         return Paper(
+-            paper_id=persistence.id,
+-            title=persistence.title,
+-            abstract=persistence.abstract or "",
+-            authors=persistence.authors.split(", ") if persistence.authors else [],
+-            publication_date=persistence.publication_date,
+-            journal=persistence.journal,
+-            doi=persistence.doi,
+-            pmid=persistence.pubmed_id,
++            paper_id=data.id,
++            title=data.title,
++            abstract=data.abstract or "",
++            authors=data.authors.split(", ") if data.authors else [],
++            publication_date=data.publication_date,
++            journal=data.journal,
++            doi=data.doi,
++            pmid=data.pubmed_id,
+             entities=[],  # Would need to load separately
+             relationships=[],  # Would need to load separately
+-            metadata=PaperMetadata(),
+-            extraction_provenance=ExtractionProvenance(
+-                extraction_pipeline=None,
+-                models={},
+-                prompt=None,
+-                execution=None,
+-            ),
++            metadata=metadata,
++            extraction_provenance=extraction_provenance,
+         )
+ 
+     @property
+@@ -159,9 +163,23 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
+ 
+     def add_relationship(self, relationship: BaseRelationship) -> None:
+         """Add or update a relationship in storage."""
++        from sqlalchemy.dialects.postgresql import insert as pg_insert
++
+         persistence = relationship_to_persistence(relationship)
+-        self.session.merge(persistence)
+-        self.session.commit()
++
++        # Convert to dict for insert
++        data = {c.name: getattr(persistence, c.name) for c in persistence.__table__.columns}
++
++        # Use PostgreSQL INSERT ... ON CONFLICT DO UPDATE
++        stmt = pg_insert(Relationship).values(**data)
++
++        # On conflict (subject_id, object_id, predicate), update all fields
++        stmt = stmt.on_conflict_do_update(
++            constraint="uq_relationship",
++            set_={k: v for k, v in data.items() if k != "id"},  # Update all except id
++        )
++
++        self.session.execute(stmt)
+ 
+     def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional[BaseRelationship]:
+         """Get a relationship by its canonical triple."""
+@@ -183,8 +201,12 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
+         limit: Optional[int] = None,
+     ) -> list[BaseRelationship]:
+         """Find relationships matching criteria."""
++
+         statement = select(Relationship)
+ 
++        # Always filter out NULL predicates (invalid data)
++        statement = statement.where(Relationship.predicate.isnot(None))
++
+         if subject_id:
+             statement = statement.where(Relationship.subject_id == subject_id)
+         if predicate:
+@@ -196,7 +218,25 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
+             statement = statement.limit(limit)
+ 
+         persistences = self.session.exec(statement).all()
+-        return [relationship_to_domain(p) for p in persistences]
++
++        # Convert to domain models, skipping any with NULL predicates
++        relationships = []
++        for p in persistences:
++            # Extract Relationship model from Row if needed
++            # session.exec() returns Row objects that wrap the model
++            if hasattr(p, "_mapping") and "Relationship" in p._mapping:
++                persistence_model = p._mapping["Relationship"]
++            else:
++                persistence_model = p
++
++            try:
++                relationships.append(relationship_to_domain(persistence_model))
++            except ValueError as e:
++                # Skip relationships with NULL predicates or other invalid data
++                if "NULL predicate" in str(e):
++                    continue
++                raise
++        return relationships
+ 
+     @property
+     def relationship_count(self) -> int:
+@@ -227,7 +267,6 @@ class PostgresEvidenceStorage(EvidenceStorageInterface):
+             metadata_=evidence.model_dump(),
+         )
+         self.session.add(persistence)
+-        self.session.commit()
+ 
+     def get_evidence_by_paper(self, paper_id: str) -> list[EvidenceItem]:
+         """Get all evidence items for a paper."""
+@@ -264,49 +303,41 @@ class PostgresEntityCollection(EntityCollectionInterface):
+         """Add a disease entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_gene(self, entity: "Gene") -> None:
+         """Add a gene entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_drug(self, entity: "Drug") -> None:
+         """Add a drug entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_protein(self, entity: "Protein") -> None:
+         """Add a protein entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_hypothesis(self, entity: "Hypothesis") -> None:
+         """Add a hypothesis entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_study_design(self, entity: "StudyDesign") -> None:
+         """Add a study design entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_statistical_method(self, entity: "StatisticalMethod") -> None:
+         """Add a statistical method entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def add_evidence_line(self, entity: "EvidenceLine") -> None:
+         """Add an evidence line entity to the collection."""
+         persistence = entity_to_persistence(entity)
+         self.session.merge(persistence)
+-        self.session.commit()
+ 
+     def get_by_id(self, entity_id: str) -> Optional["BaseMedicalEntity"]:
+         """Get entity by ID, searching across all types."""
+@@ -364,6 +395,15 @@ class PostgresEntityCollection(EntityCollectionInterface):
+ 
+         return entities_with_scores
+ 
++    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list["BaseMedicalEntity"]:
++        """List entities, optionally with pagination."""
++        statement = select(Entity).offset(offset)
++        if limit is not None:
++            statement = statement.limit(limit)
++
++        persistences = self.session.exec(statement).all()
++        return [entity_to_domain(p) for p in persistences]
++
+     @property
+     def entity_count(self) -> int:
+         """Total number of entities across all types."""
+@@ -399,21 +439,20 @@ class PostgresPipelineStorage(PipelineStorageInterface):
+     Uses PostgreSQL with pgvector for production storage.
+     """
+ 
+-    def __init__(self, database_url: str):
++    def __init__(self, session: Session):
+         """Initialize PostgreSQL storage.
+ 
+         Args:
+-            database_url: PostgreSQL connection string
++            session: an active sqlmodel session
+         """
+-        self.engine = create_engine(database_url)
+-        self.session = Session(self.engine)
++        self._session = session
+ 
+         # Initialize storage components
+-        self._papers = PostgresPaperStorage(self.session)
+-        self._relationships = PostgresRelationshipStorage(self.session)
+-        self._evidence = PostgresEvidenceStorage(self.session)
+-        self._relationship_embeddings = PostgresRelationshipEmbeddingStorage(self.session)
+-        self._entities = PostgresEntityCollection(self.session)
++        self._papers = PostgresPaperStorage(self._session)
++        self._relationships = PostgresRelationshipStorage(self._session)
++        self._evidence = PostgresEvidenceStorage(self._session)
++        self._relationship_embeddings = PostgresRelationshipEmbeddingStorage(self._session)
++        self._entities = PostgresEntityCollection(self._session)
+ 
+     @property
+     def entities(self) -> EntityCollectionInterface:
+@@ -440,7 +479,18 @@ class PostgresPipelineStorage(PipelineStorageInterface):
+         """Access to relationship embedding storage."""
+         return self._relationship_embeddings
+ 
++    def __enter__(self):
++        return self
++
++    def __exit__(self, exc_type, exc_val, exc_tb):
++        if exc_type is not None:
++            self._session.rollback()
++        else:
++            self._session.commit()
++        self._session.close()
++
+     def close(self) -> None:
+         """Close connections and clean up resources."""
+-        self.session.close()
+-        self.engine.dispose()
++        # The session is closed by __exit__ when used as a context manager.
++        # This method is here to satisfy the PipelineStorageInterface.
++        pass
+diff --git a/storage/backends/sqlite_entity_collection.py b/storage/backends/sqlite_entity_collection.py
+index 25b0ef6..bd4701d 100644
+--- a/storage/backends/sqlite_entity_collection.py
++++ b/storage/backends/sqlite_entity_collection.py
+@@ -7,10 +7,10 @@ This provides entity storage in SQLite with vector similarity search using sqlit
+ import json
+ import sqlite3
+ from typing import Optional, TYPE_CHECKING
++from med_lit_schema.entity import BaseMedicalEntity
+ 
+ if TYPE_CHECKING:
+     from med_lit_schema.entity import (
+-        BaseMedicalEntity,
+         Disease,
+         Gene,
+         Drug,
+@@ -113,7 +113,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+ 
+         self.conn.commit()
+ 
+-    def _add_entity(self, entity: "BaseMedicalEntity") -> None:
++    def _add_entity(self, entity: BaseMedicalEntity) -> None:
+         """Internal method to add any entity type."""
+         # Convert to persistence model to get flattened fields
+         persistence = to_persistence(entity)
+@@ -188,7 +188,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+         """Add an evidence line entity to the collection."""
+         self._add_entity(entity)
+ 
+-    def get_by_id(self, entity_id: str) -> Optional["BaseMedicalEntity"]:
++    def get_by_id(self, entity_id: str) -> Optional[BaseMedicalEntity]:
+         """Get entity by ID, searching across all types."""
+         cursor = self.conn.cursor()
+         cursor.execute("SELECT entity_json FROM entities WHERE id = ?", (entity_id,))
+@@ -249,7 +249,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+             return Gene.model_validate(data)
+         return None
+ 
+-    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
++    def find_by_embedding(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[BaseMedicalEntity, float]]:
+         """Find entities similar to query embedding using sqlite-vec."""
+         if not query_embedding:
+             return []
+@@ -283,8 +283,6 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+                 similarity = float(row[1])
+                 if similarity >= threshold:
+                     data = json.loads(row[0])
+-                    from med_lit_schema.entity import BaseMedicalEntity
+-
+                     # Reconstruct entity from JSON
+                     # This is simplified - full implementation would use mapper
+                     entity = BaseMedicalEntity.model_validate(data)
+@@ -298,7 +296,7 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+             # Fallback: simple cosine similarity in Python
+             return self._find_by_embedding_fallback(query_embedding, top_k, threshold)
+ 
+-    def _find_by_embedding_fallback(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple["BaseMedicalEntity", float]]:
++    def _find_by_embedding_fallback(self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85) -> list[tuple[BaseMedicalEntity, float]]:
+         """Fallback embedding search using Python cosine similarity."""
+         import math
+ 
+@@ -332,8 +330,6 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+                 similarity = cosine_similarity(query_embedding, embedding)
+                 if similarity >= threshold:
+                     data = json.loads(entity_json)
+-                    from med_lit_schema.entity import BaseMedicalEntity
+-
+                     entity = BaseMedicalEntity.model_validate(data)
+                     results.append((entity, similarity))
+ 
+@@ -341,6 +337,26 @@ class SQLiteEntityCollection(EntityCollectionInterface):
+         results.sort(key=lambda x: x[1], reverse=True)
+         return results[:top_k]
+ 
++    def list_entities(self, limit: Optional[int] = None, offset: int = 0) -> list[BaseMedicalEntity]:
++        """List entities, optionally with pagination."""
++        cursor = self.conn.cursor()
++
++        # Build query with pagination
++        query = "SELECT entity_json FROM entities"
++        if limit is not None:
++            query += f" LIMIT {limit} OFFSET {offset}"
++        else:
++            query += f" OFFSET {offset}"
++
++        cursor.execute(query)
++        results = []
++        for row in cursor.fetchall():
++            data = json.loads(row[0])
++            entity = BaseMedicalEntity.model_validate(data)
++            results.append(entity)
++
++        return results
++
+     @property
+     def entity_count(self) -> int:
+         """Total number of entities across all types."""
+diff --git a/storage/models/paper.py b/storage/models/paper.py
+index 640b679..d8fed85 100644
+--- a/storage/models/paper.py
++++ b/storage/models/paper.py
+@@ -2,6 +2,7 @@ from sqlmodel import Field, SQLModel, Column
+ from datetime import datetime
+ from typing import Optional
+ from sqlalchemy import text, DateTime
++from sqlalchemy.dialects.postgresql import JSONB
+ 
+ 
+ class Paper(SQLModel, table=True):
+@@ -19,6 +20,11 @@ class Paper(SQLModel, table=True):
+     entity_count: int = Field(default=0)  # Changed to int, default 0
+     relationship_count: int = Field(default=0)  # Changed to int, default 0
+ 
++    # Store extraction provenance as JSONB
++    extraction_provenance_json: Optional[str] = Field(default=None, sa_column=Column(JSONB, nullable=True))
++    # Store paper metadata as JSONB
++    metadata_json: Optional[str] = Field(default=None, sa_column=Column(JSONB, nullable=True))
++
+     created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")))
+     updated_at: datetime = Field(
+         default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))

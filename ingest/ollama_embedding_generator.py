@@ -13,16 +13,17 @@ from .embedding_interfaces import EmbeddingGeneratorInterface
 class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
     """Ollama-based embedding generator."""
 
-    def __init__(self, model_name: str, host: str = "http://localhost:11434"):
+    def __init__(self, model_name: str, host: str = "http://localhost:11434", timeout: float = 60.0):
         """
         Initialize the Ollama embedding generator.
 
         Args:
             model_name: Name of the Ollama model (e.g., "nomic-embed-text")
             host: URL of the Ollama host (e.g., "http://localhost:11434")
+            timeout: Timeout in seconds for HTTP requests (default: 60.0)
         """
         self._model_name = model_name
-        self._client = ollama.Client(host=host)
+        self._client = ollama.Client(host=host, timeout=timeout)
 
         # Determine embedding dimension by encoding a dummy string
         # This requires the model to be downloaded and available

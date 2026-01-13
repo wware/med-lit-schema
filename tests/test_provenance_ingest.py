@@ -16,6 +16,8 @@ from med_lit_schema.entity import (
     Drug,
     EntityType,
     EvidenceItem,
+    Paper,
+    PaperMetadata,
 )
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType
@@ -98,26 +100,13 @@ def create_fake_pmc_xml(
 
 
 @pytest.fixture
-def temp_db():
-    """Create a temporary database file for testing."""
-    from tempfile import NamedTemporaryFile
-
-    with NamedTemporaryFile(delete=False, suffix=".db") as tmp:
-        db_path = Path(tmp.name)
-
-    yield db_path
-
-    # Cleanup
-    if db_path.exists():
-        db_path.unlink()
-
-
-@pytest.fixture
-def storage(temp_db):
-    """Create SQLite storage with temporary database."""
-    storage = SQLitePipelineStorage(temp_db)
-    yield storage
-    storage.close()
+def tmp_storage():
+    """Create a temporary database and directory for testing."""
+    with TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test.db"
+        storage = SQLitePipelineStorage(db_path)
+        yield storage, Path(tmpdir)
+        storage.close()
 
 
 def test_xml_parsing_with_full_metadata():
@@ -184,8 +173,9 @@ def test_xml_parsing_minimal_metadata():
         assert len(paper.authors) == 2
 
 
-def test_paper_storage_after_parsing(storage):
+def test_paper_storage_after_parsing(tmp_storage):
     """Test storing parsed papers in the database."""
+    storage, _ = tmp_storage
     from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
@@ -233,8 +223,9 @@ def test_paper_storage_after_parsing(storage):
         assert len(retrieved2.authors) == 1
 
 
-def test_entity_extraction_and_storage(storage):
+def test_entity_extraction_and_storage(tmp_storage):
     """Test entity extraction and storage."""
+    storage, _ = tmp_storage
     # Create and store various entity types
     breast_cancer = Disease(
         entity_id="C0006142",
@@ -278,8 +269,9 @@ def test_entity_extraction_and_storage(storage):
     assert retrieved_gene.name == "BRCA1"
 
 
-def test_relationships_with_papers(storage):
+def test_relationships_with_papers(tmp_storage):
     """Test relationship storage and linking to papers."""
+    storage, _ = tmp_storage
     # Create relationships
     treats_rel = create_relationship(
         predicate=PredicateType.TREATS,
@@ -316,8 +308,9 @@ def test_relationships_with_papers(storage):
     assert len(breast_cancer_rels) == 2
 
 
-def test_evidence_linking(storage):
+def test_evidence_linking(tmp_storage):
     """Test evidence storage and linking to papers."""
+    storage, _ = tmp_storage
     # Create evidence
     evidence1 = EvidenceItem(
         paper_id="PMC999999",
@@ -348,8 +341,9 @@ def test_evidence_linking(storage):
     assert all(e.paper_id == "PMC999999" for e in evidence_list)
 
 
-def test_complete_provenance_flow(storage):
+def test_complete_provenance_flow(tmp_storage):
     """Test complete end-to-end provenance flow from XML to storage."""
+    storage, _ = tmp_storage
     from med_lit_schema.ingest.provenance_pipeline import parse_pmc_xml
 
     with TemporaryDirectory() as tmpdir:
@@ -413,3 +407,152 @@ def test_complete_provenance_flow(storage):
 
         retrieved_rel = storage.relationships.get_relationship("C0001", "associated_with", "C0001")
         assert "PMC111111" in retrieved_rel.source_papers
+
+
+# ============================================================================
+# Optional Provenance Tests (added for Z.diff regression testing)
+# ============================================================================
+
+
+def test_paper_without_provenance(tmp_storage):
+    """
+    Test that Paper can be created and stored without extraction_provenance.
+
+    The Paper model was updated in Z.diff to make extraction_provenance optional.
+    This test ensures the provenance ingest pipeline handles this correctly.
+    """
+    storage, xml_dir = tmp_storage
+
+    # Create paper without provenance
+    paper = Paper(
+        paper_id="PMC_NO_PROV",
+        title="Paper Without Provenance",
+        abstract="Test abstract",
+        authors=["Test, Author"],
+        publication_date="2024-01-01",
+        journal="Test Journal",
+        entities=[],
+        relationships=[],
+        metadata=PaperMetadata(pmc_id="PMC_NO_PROV"),
+        extraction_provenance=None,  # Explicitly None
+    )
+
+    # Should be able to store it
+    storage.papers.add_paper(paper)
+
+    # Should be able to retrieve it
+    retrieved = storage.papers.get_paper("PMC_NO_PROV")
+    assert retrieved is not None
+    assert retrieved.paper_id == "PMC_NO_PROV"
+    assert retrieved.extraction_provenance is None
+
+
+def test_paper_provenance_field_is_optional():
+    """
+    Test that extraction_provenance field is optional in Paper model.
+
+    This is a schema-level test to verify the field definition.
+    """
+    from med_lit_schema.entity import Paper
+
+    # Check field definition
+    schema = Paper.model_json_schema()
+
+    # extraction_provenance should not be in required fields
+    required = schema.get("required", [])
+    assert "extraction_provenance" not in required
+
+    # Field should be defined in properties
+    properties = schema.get("properties", {})
+    assert "extraction_provenance" in properties
+
+
+def test_provenance_ingest_mixed_papers():
+    """
+    Test ingesting multiple papers with mixed provenance (some with, some without).
+
+    This simulates a real-world scenario where some papers have provenance
+    tracking and others don't.
+    """
+    storage = SQLitePipelineStorage(":memory:")
+
+    # Paper 1: With provenance
+    from med_lit_schema.entity import ExtractionProvenance, ExtractionPipelineInfo, ExecutionInfo, PromptInfo
+    from datetime import datetime
+    import socket
+    import platform
+
+    pipeline_info = ExtractionPipelineInfo(name="test", version="1.0.0", git_commit="abc", git_commit_short="abc", git_branch="main", git_dirty=False, repo_url="https://test.com")
+
+    execution_info = ExecutionInfo(
+        timestamp=datetime.now().isoformat(),
+        hostname=socket.gethostname(),
+        python_version=platform.python_version(),
+        duration_seconds=10,
+    )
+
+    provenance = ExtractionProvenance(
+        extraction_pipeline=pipeline_info,
+        models={},
+        prompt=PromptInfo(version="v1", template="test", checksum=None),
+        execution=execution_info,
+        entity_resolution=None,
+    )
+
+    paper1 = Paper(
+        paper_id="PMC_WITH",
+        title="With Provenance",
+        abstract="Test",
+        authors=["Test"],
+        publication_date="2024-01-01",
+        journal="Test",
+        entities=[],
+        relationships=[],
+        metadata=PaperMetadata(),
+        extraction_provenance=provenance,
+    )
+
+    # Paper 2: Without provenance
+    paper2 = Paper(
+        paper_id="PMC_WITHOUT",
+        title="Without Provenance",
+        abstract="Test",
+        authors=["Test"],
+        publication_date="2024-01-01",
+        journal="Test",
+        entities=[],
+        relationships=[],
+        metadata=PaperMetadata(),
+        extraction_provenance=None,
+    )
+
+    # Store both
+    storage.papers.add_paper(paper1)
+    storage.papers.add_paper(paper2)
+
+    # Verify both are stored correctly
+    retrieved1 = storage.papers.get_paper("PMC_WITH")
+    assert retrieved1.extraction_provenance is not None
+
+    retrieved2 = storage.papers.get_paper("PMC_WITHOUT")
+    assert retrieved2.extraction_provenance is None
+
+    assert storage.papers.paper_count == 2
+
+    storage.close()
+
+
+# TODO: Add tests for provenance pipeline context manager support
+# The provenance pipeline was refactored to use context managers in Z.diff
+# Consider adding tests like:
+# - test_provenance_pipeline_uses_context_manager()
+# - test_provenance_pipeline_closes_storage_on_error()
+
+# TODO: Add tests for JSON output directory feature
+# The provenance pipeline gained --json-output-dir flag in Z.diff
+# Consider adding tests like:
+# - test_provenance_pipeline_saves_json_output()
+# - test_json_output_contains_all_paper_fields()
+
+# TODO: Add performance tests for large XML batches
+# Test provenance pipeline performance with 100+ XML files

@@ -337,3 +337,22 @@ def test_unknown_entity_type():
 
     with pytest.raises(ValueError, match="Unknown entity type"):
         to_domain(entity)
+
+
+# ============================================================================
+# Note: Row Object Handling Tests
+# ============================================================================
+# The mapper was updated in Z.diff to handle SQLAlchemy Row objects in addition
+# to Pydantic model instances. Comprehensive tests for Row handling are in:
+#   tests/test_mapper_row_handling.py
+#
+# Those tests cover:
+# - Handling Row objects with .Entity attribute
+# - Handling Row objects with ._mapping dict
+# - Handling tuple/list-like Row objects
+# - Relationship Row objects
+# - NULL predicate error handling
+# - Integration tests with actual storage queries
+#
+# TODO: Consider adding type annotations to all mapper functions
+# TODO: Add docstrings with Args/Returns for mapper functions

@@ -1320,6 +1320,26 @@ class EntityCollectionInterface(ABC):
         pass
 
     @abstractmethod
+    def add_symptom(self, entity: "Symptom") -> None:
+        """Add a symptom entity to the collection"""
+        pass
+
+    @abstractmethod
+    def add_procedure(self, entity: "Procedure") -> None:
+        """Add a procedure entity to the collection"""
+        pass
+
+    @abstractmethod
+    def add_biomarker(self, entity: "Biomarker") -> None:
+        """Add a biomarker entity to the collection"""
+        pass
+
+    @abstractmethod
+    def add_pathway(self, entity: "Pathway") -> None:
+        """Add a pathway entity to the collection"""
+        pass
+
+    @abstractmethod
     def get_by_id(self, entity_id: str) -> "BaseMedicalEntity | None":
         """Get entity by ID, searching across all types"""
         pass
@@ -1456,6 +1476,22 @@ class InMemoryEntityCollection(EntityCollectionInterface, BaseModel):
     def add_evidence_line(self, entity: EvidenceLine):
         """Add an evidence line entity to the collection"""
         self.evidence_lines[entity.entity_id] = entity
+
+    def add_symptom(self, entity: "Symptom"):
+        """Add a symptom entity to the collection"""
+        self.symptoms[entity.entity_id] = entity
+
+    def add_procedure(self, entity: "Procedure"):
+        """Add a procedure entity to the collection"""
+        self.procedures[entity.entity_id] = entity
+
+    def add_biomarker(self, entity: "Biomarker"):
+        """Add a biomarker entity to the collection"""
+        self.biomarkers[entity.entity_id] = entity
+
+    def add_pathway(self, entity: "Pathway"):
+        """Add a pathway entity to the collection"""
+        self.pathways[entity.entity_id] = entity
 
     def get_by_id(self, entity_id: str) -> BaseMedicalEntity | None:
         """Get entity by ID, searching across all types"""

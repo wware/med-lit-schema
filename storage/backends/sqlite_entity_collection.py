@@ -19,6 +19,10 @@ if TYPE_CHECKING:
         StudyDesign,
         StatisticalMethod,
         EvidenceLine,
+        Symptom,
+        Procedure,
+        Biomarker,
+        Pathway,
     )
 
 from med_lit_schema.entity import EntityCollectionInterface
@@ -186,6 +190,22 @@ class SQLiteEntityCollection(EntityCollectionInterface):
 
     def add_evidence_line(self, entity: "EvidenceLine") -> None:
         """Add an evidence line entity to the collection."""
+        self._add_entity(entity)
+
+    def add_symptom(self, entity: "Symptom") -> None:
+        """Add a symptom entity to the collection."""
+        self._add_entity(entity)
+
+    def add_procedure(self, entity: "Procedure") -> None:
+        """Add a procedure entity to the collection."""
+        self._add_entity(entity)
+
+    def add_biomarker(self, entity: "Biomarker") -> None:
+        """Add a biomarker entity to the collection."""
+        self._add_entity(entity)
+
+    def add_pathway(self, entity: "Pathway") -> None:
+        """Add a pathway entity to the collection."""
         self._add_entity(entity)
 
     def get_by_id(self, entity_id: str) -> Optional[BaseMedicalEntity]:
