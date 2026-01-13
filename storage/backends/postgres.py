@@ -56,9 +56,18 @@ class PostgresPaperStorage(PaperStorageInterface):
 
     def add_paper(self, paper: Paper) -> None:
         """Add or update a paper in storage."""
+        import json
+
+        # Serialize extraction_provenance and metadata to JSON
+        extraction_prov_json = None
+        if paper.extraction_provenance:
+            extraction_prov_json = paper.extraction_provenance.model_dump_json()
+
+        metadata_json = None
+        if paper.metadata:
+            metadata_json = paper.metadata.model_dump_json()
+
         # Convert domain model to persistence model
-        # Note: PaperPersistence is simplified - full Paper domain model has more fields
-        # that would need to be stored in a JSONB field or separate tables
         persistence = PaperPersistence(
             id=paper.paper_id,
             title=paper.title,
@@ -70,14 +79,13 @@ class PostgresPaperStorage(PaperStorageInterface):
             pubmed_id=paper.pmid,
             entity_count=len(paper.entities),
             relationship_count=len(paper.relationships),
+            extraction_provenance_json=extraction_prov_json,
+            metadata_json=metadata_json,
         )
 
         # Use merge to handle updates
         self.session.merge(persistence)
         self.session.commit()
-
-        # Note: Full Paper model also has metadata and extraction_provenance
-        # which would need to be stored separately or in a JSONB field
 
     def get_paper(self, paper_id: str) -> Optional[Paper]:
         """Get a paper by ID."""
@@ -85,30 +93,8 @@ class PostgresPaperStorage(PaperStorageInterface):
         if not persistence:
             return None
 
-        # Convert back to domain model
-        # Note: This is a simplified conversion - full implementation would
-        # need to load entities, relationships, metadata, and provenance separately
-        from ..entity import PaperMetadata, ExtractionProvenance
-
-        return Paper(
-            paper_id=persistence.id,
-            title=persistence.title,
-            abstract=persistence.abstract or "",
-            authors=persistence.authors.split(", ") if persistence.authors else [],
-            publication_date=persistence.publication_date,
-            journal=persistence.journal,
-            doi=persistence.doi,
-            pmid=persistence.pubmed_id,
-            entities=[],  # Would need to load separately
-            relationships=[],  # Would need to load separately
-            metadata=PaperMetadata(),  # Would need to load from separate storage
-            extraction_provenance=ExtractionProvenance(
-                extraction_pipeline=None,  # Would need to load
-                models={},
-                prompt=None,
-                execution=None,
-            ),
-        )
+        # Use the same conversion method as list_papers
+        return self._persistence_to_domain(persistence)
 
     def list_papers(self, limit: Optional[int] = None, offset: int = 0) -> list[Paper]:
         """List papers, optionally with pagination."""
@@ -122,26 +108,34 @@ class PostgresPaperStorage(PaperStorageInterface):
 
     def _persistence_to_domain(self, persistence: PaperPersistence) -> Paper:
         """Convert persistence model to domain model."""
-        from ..entity import PaperMetadata, ExtractionProvenance
+        import json
+        from med_lit_schema.entity import PaperMetadata, ExtractionProvenance
+
+        data = persistence.Paper
+
+        # Deserialize metadata from JSON
+        metadata = PaperMetadata()
+        if data.metadata_json:
+            metadata = PaperMetadata.model_validate_json(data.metadata_json)
+
+        # Deserialize extraction_provenance from JSON
+        extraction_provenance = None
+        if data.extraction_provenance_json:
+            extraction_provenance = ExtractionProvenance.model_validate_json(data.extraction_provenance_json)
 
         return Paper(
-            paper_id=persistence.id,
-            title=persistence.title,
-            abstract=persistence.abstract or "",
-            authors=persistence.authors.split(", ") if persistence.authors else [],
-            publication_date=persistence.publication_date,
-            journal=persistence.journal,
-            doi=persistence.doi,
-            pmid=persistence.pubmed_id,
+            paper_id=data.id,
+            title=data.title,
+            abstract=data.abstract or "",
+            authors=data.authors.split(", ") if data.authors else [],
+            publication_date=data.publication_date,
+            journal=data.journal,
+            doi=data.doi,
+            pmid=data.pubmed_id,
             entities=[],  # Would need to load separately
             relationships=[],  # Would need to load separately
-            metadata=PaperMetadata(),
-            extraction_provenance=ExtractionProvenance(
-                extraction_pipeline=None,
-                models={},
-                prompt=None,
-                execution=None,
-            ),
+            metadata=metadata,
+            extraction_provenance=extraction_provenance,
         )
 
     @property
@@ -159,8 +153,26 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
 
     def add_relationship(self, relationship: BaseRelationship) -> None:
         """Add or update a relationship in storage."""
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+
         persistence = relationship_to_persistence(relationship)
-        self.session.merge(persistence)
+
+        # Convert to dict for insert
+        data = {
+            c.name: getattr(persistence, c.name)
+            for c in persistence.__table__.columns
+        }
+
+        # Use PostgreSQL INSERT ... ON CONFLICT DO UPDATE
+        stmt = pg_insert(Relationship).values(**data)
+
+        # On conflict (subject_id, object_id, predicate), update all fields
+        stmt = stmt.on_conflict_do_update(
+            constraint='uq_relationship',
+            set_={k: v for k, v in data.items() if k != 'id'}  # Update all except id
+        )
+
+        self.session.execute(stmt)
         self.session.commit()
 
     def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional[BaseRelationship]:
@@ -183,7 +195,12 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         limit: Optional[int] = None,
     ) -> list[BaseRelationship]:
         """Find relationships matching criteria."""
+        from sqlalchemy import and_
+
         statement = select(Relationship)
+
+        # Always filter out NULL predicates (invalid data)
+        statement = statement.where(Relationship.predicate.isnot(None))
 
         if subject_id:
             statement = statement.where(Relationship.subject_id == subject_id)
@@ -196,7 +213,25 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
             statement = statement.limit(limit)
 
         persistences = self.session.exec(statement).all()
-        return [relationship_to_domain(p) for p in persistences]
+
+        # Convert to domain models, skipping any with NULL predicates
+        relationships = []
+        for p in persistences:
+            # Extract Relationship model from Row if needed
+            # session.exec() returns Row objects that wrap the model
+            if hasattr(p, '_mapping') and 'Relationship' in p._mapping:
+                persistence_model = p._mapping['Relationship']
+            else:
+                persistence_model = p
+
+            try:
+                relationships.append(relationship_to_domain(persistence_model))
+            except ValueError as e:
+                # Skip relationships with NULL predicates or other invalid data
+                if "NULL predicate" in str(e):
+                    continue
+                raise
+        return relationships
 
     @property
     def relationship_count(self) -> int:

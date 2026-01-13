@@ -350,10 +350,29 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
     Convert a persistence relationship back to a domain model.
     """
     domain_data = {}
-    persistence_data = persistence.model_dump()
+
+    # Handle both Relationship model instances and Row objects from queries
+    if hasattr(persistence, 'model_dump'):
+        # It's a Pydantic model instance
+        persistence_data = persistence.model_dump()
+        predicate_value = persistence.predicate
+    else:
+        # It's a Row object - access via bracket notation
+        from med_lit_schema.storage.models.relationship import Relationship as RelationshipModel
+        persistence_data = {}
+        for col in RelationshipModel.__table__.columns:
+            # Try bracket notation first (for Row objects), then getattr
+            try:
+                persistence_data[col.name] = persistence[col.name]
+            except (KeyError, TypeError):
+                persistence_data[col.name] = getattr(persistence, col.name, None)
+        predicate_value = persistence_data["predicate"]
+
+    # Skip relationships with NULL predicates (invalid data)
+    if predicate_value is None:
+        raise ValueError(f"Relationship has NULL predicate - skipping. ID: {persistence_data.get('id', 'unknown')}")
 
     # Find the correct predicate enum member
-    predicate_value = persistence.predicate
     try:
         predicate = PredicateType(predicate_value)
     except ValueError as e:
@@ -365,6 +384,10 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
     cls = create_relationship(predicate, "", "").__class__
 
     for key, field in cls.model_fields.items():
+        # Skip predicate - we've already converted it to enum
+        if key == "predicate":
+            continue
+
         if key in persistence_data:
             value = persistence_data[key]
             if field.annotation == list[str] and value and isinstance(value, str):

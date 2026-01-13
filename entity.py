@@ -581,7 +581,7 @@ class Paper(BaseModel):
 
     # ========== EXTRACTION PROVENANCE ==========
 
-    extraction_provenance: ExtractionProvenance = Field(..., description="Complete provenance of how extraction was performed")
+    extraction_provenance: Optional[ExtractionProvenance] = Field(None, description="Complete provenance of how extraction was performed")
 
     # ========== CONVENIENCE PROPERTIES ==========
 

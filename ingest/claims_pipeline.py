@@ -129,6 +129,7 @@ def extract_relationships_from_paragraph(
                     # Map predicate string to enum
                     predicate = PREDICATE_MAP.get(predicate_str)
                     if not predicate:
+                        print(f"WARNING: Unknown predicate '{predicate_str}' in pattern - skipping")
                         continue
 
                     # Base confidence on section type and pattern match
@@ -277,10 +278,11 @@ def main():
                 text = rel.evidence[0].text_span
             else:
                 # Fallback: construct text from relationship components
-                text = f"{rel.subject_id} {rel.predicate.value} {rel.object_id}"
+                # Note: predicate is already a string due to use_enum_values=True
+                text = f"{rel.subject_id} {rel.predicate} {rel.object_id}"
 
             texts_to_embed.append(text)
-            relationship_triples.append((rel.subject_id, rel.predicate.value, rel.object_id))
+            relationship_triples.append((rel.subject_id, rel.predicate, rel.object_id))
 
         if texts_to_embed:
             # Generate embeddings in batches

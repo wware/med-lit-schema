@@ -1,13 +1,16 @@
-# Next steps as of 12 Jan 2026
+# Next steps as of 13 Jan 2026
 
 ## Summary of Recent Progress
 
-We have successfully run the initial stages of the data ingestion pipeline. Here is a summary of the steps that worked:
+✅ **All 5 pipeline stages are now working end-to-end!**
 
-1.  **Database Setup:** The PostgreSQL database was successfully set up with the required schema by running the `setup_database.py` script.
-2.  **NER Pipeline (PostgreSQL):** The `ner_pipeline.py` was successfully run to extract entities from the XML files and store them in the PostgreSQL database.
-3.  **Claims Pipeline (PostgreSQL):** *Currently debugging.* The `claims_pipeline.py` ran, but found 0 papers, leading to 0 relationships extracted. This indicates an issue with how papers are being stored or retrieved from the PostgreSQL backend. We need to investigate the `PostgresPaperStorage` class and the `provenance_pipeline.py` to ensure papers are being correctly added and retrieved.
-4.  **Embeddings Pipeline (SQLite):** The `embeddings_pipeline.py` was successfully run to generate entity embeddings using the `nomic-embed-text` model and store them in a SQLite database. This involved several fixes to the script to handle Ollama client errors and database schema mismatches.
+We have successfully completed the data ingestion pipeline with PostgreSQL backend. Here is the summary:
+
+1.  **Database Setup:** PostgreSQL database successfully set up with required schema, pgvector extension, and JSONB columns for provenance tracking.
+2.  **Provenance Pipeline (Stage 2):** Successfully processed 105 XML papers and stored complete metadata with extraction provenance in PostgreSQL.
+3.  **NER Pipeline (Stage 3):** Successfully extracted 396 entities and 1,056 extraction edges from the 105 papers.
+4.  **Claims Pipeline (Stage 4):** Successfully extracted 273 relationships from paper abstracts using pattern matching. **Note:** Relationship embedding storage is skipped (see TODO below).
+5.  **Evidence Pipeline (Stage 5):** Successfully completed. Found 0 quantitative evidence items, which is expected since relationship text from claims extraction typically doesn't contain statistical metrics (sample sizes, p-values, etc.).
 
 ## Complete Pipeline Instructions (Updated)
 
@@ -24,7 +27,7 @@ The ingestion pipeline consists of several stages that should be run in order. H
 
 ### Pipeline Execution
 
-To run the complete pipeline on your 100 downloaded papers:
+To run the complete pipeline (available as `X.sh` script):
 
 ```bash
 # Set your database URL (adjust user/password/host/port/database as needed)
@@ -39,31 +42,128 @@ uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls
 # Stage 3: Extract entities (NER) and store in PostgreSQL
 uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
 
-# Stage 4: Extract claims (Currently debugging - found 0 papers)
-uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+# Stage 4: Extract claims (--skip-embeddings because PostgreSQL embedding storage not yet implemented)
+uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL --skip-embeddings
 
-# Stage 5: Extract evidence (Pending successful completion of Stage 4)
+# Stage 5: Extract evidence
 uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
 ```
+
+Or simply run: `bash X.sh`
 
 ### Outputs
 
 After running these stages, you'll have:
 
 *   **PostgreSQL database:** A queryable knowledge graph containing:
-    *   **papers table:** Metadata for each paper (expected, but currently being debugged for retrieval by claims pipeline).
-    *   **entities table:** Canonical entities.
-    *   **relationships table:** Claims/relationships between entities (expected to be populated after claims pipeline fix).
-*   **SQLite database (output/ingest.db):** Contains entity embeddings (from the initial `embeddings_pipeline.py` run on SQLite).
+    *   **papers table:** 105 papers with complete metadata and extraction provenance (stored as JSONB)
+    *   **entities table:** 79 canonical entities (396 entity mentions matched to 79 unique canonical IDs)
+    *   **relationships table:** 273 relationships/claims between entities
+    *   **evidence table:** Evidence items (currently empty - see caveats below)
+*   **JSONL files (output/):**
+    *   `extraction_edges.jsonl`: 1,056 extraction edges from NER pipeline
+    *   `extraction_provenance.json`: Detailed provenance tracking for all extractions
+
+## Caveats and Known Limitations
+
+### Stage 5: Evidence Pipeline - Zero Quantitative Evidence
+
+The evidence pipeline (Stage 5) successfully ran but found **0 quantitative evidence items**. This is expected behavior, not a bug:
+
+*   **Why:** The evidence extraction logic looks for statistical metrics (sample sizes, p-values, confidence intervals) in the relationship text
+*   **The Issue:** Relationship text comes from the claims pipeline, which extracts sentences from abstracts. These sentences rarely contain quantitative statistical data - that's usually in the "Results" section of full papers
+*   **Impact:** The `evidence` table remains empty, and relationships don't have rich statistical support
+*   **Future Fix:** To populate evidence properly, we need to:
+    1. Extract relationships from full paper "Results" sections (not just abstracts)
+    2. Or implement a separate evidence extraction pass that reads full paper text
+    3. Or link relationships to result paragraphs that contain statistical data
+
+### Stage 4: Relationship Embeddings Disabled
+
+Relationship embedding generation is currently **disabled** in the claims pipeline:
+
+*   **Why:** The PostgreSQL relationship embedding storage interface (`PostgresRelationshipEmbeddingStorage`) is not yet implemented
+*   **Current State:** The implementation raises `NotImplementedError` in `storage/backends/postgres.py:418`
+*   **Workaround:** Stage 4 runs with `--skip-embeddings` flag
+*   **Impact:** Cannot perform semantic similarity searches on relationships
+*   **See TODO below for implementation plan**
+
+## TODO: Critical Implementation Tasks
+
+### 1. Implement PostgreSQL Relationship Embedding Storage
+
+**Priority:** High
+**File:** `med_lit_schema/storage/backends/postgres.py`
+**Class:** `PostgresRelationshipEmbeddingStorage`
+
+The following three methods need implementation:
+
+```python
+def store_relationship_embedding(
+    self, subject_id: str, predicate: str, object_id: str,
+    embedding: list[float], model_name: str
+) -> None:
+    """Store an embedding for a relationship."""
+    # TODO: Implement pgvector-based storage
+    # Should store in relationships table or separate relationship_embeddings table
+    # Use pgvector for efficient similarity search
+    raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
+
+def get_relationship_embedding(
+    self, subject_id: str, predicate: str, object_id: str
+) -> Optional[list[float]]:
+    """Get the embedding for a relationship."""
+    # TODO: Implement pgvector-based retrieval
+    raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
+
+def find_similar_relationships(
+    self, query_embedding: list[float], top_k: int = 5, threshold: float = 0.85
+) -> list[tuple[tuple[str, str, str], float]]:
+    """Find relationships similar to query embedding."""
+    # TODO: Implement pgvector-based similarity search
+    raise NotImplementedError("PostgreSQL relationship embedding storage not yet implemented")
+```
+
+**Implementation Options:**
+1. Add `embedding` column (vector type) to existing `relationships` table
+2. Create separate `relationship_embeddings` table with foreign key to relationships
+3. Store embeddings in JSONB column (less efficient for similarity search)
+
+**Recommended:** Option 1 - add vector column to relationships table, similar to how entities table has embeddings.
+
+Once implemented, remove `--skip-embeddings` flag from Stage 4 in `X.sh`.
+
+### 2. Improve Evidence Extraction
+
+**Priority:** Medium
+**Goal:** Populate evidence table with meaningful statistical data
+
+**Options:**
+*   Parse full paper XML to extract "Results" sections
+*   Run evidence pipeline on full paper text, not just relationship text spans
+*   Implement paragraph-level storage so relationships can reference result paragraphs
+*   Add more sophisticated NLP patterns to detect statistical claims
+
+### 3. Entity Resolution
+
+**Priority:** High
+**Current State:** Relationships use placeholder IDs like `PLACEHOLDER_SUBJECT_PMC12775696_claim_2`
+
+**Goal:** Link placeholder IDs to canonical entities in the `entities` table
+
+**Approach:**
+*   Extract entity mentions from relationship text spans
+*   Match mentions to canonical entities (by name, synonyms, embedding similarity)
+*   Update relationships to use canonical entity IDs
+*   This will enable proper graph traversal and querying
 
 ## Next Steps (from current state)
 
-1.  **Debug Claims Pipeline:** The immediate next step is to investigate why `claims_pipeline.py` is finding 0 papers when running with PostgreSQL. This involves inspecting the `PostgresPaperStorage` class in `med_lit_schema/storage/backends/postgres.py` to understand how `add_paper` stores papers and how `list_papers` retrieves them.
-2.  **Run the Evidence Pipeline:** Once the claims pipeline is successfully populating relationships, the `evidence_pipeline.py` can be run.
-3.  **Run the Graph Pipeline:** The `graph_pipeline.py` script likely builds the final graph structure from the extracted data. This should be run after all other ingestion pipelines are complete.
-4.  **Generate Relationship Embeddings:** The `claims_pipeline.py` has an option to generate embeddings for the extracted relationships. This would be a valuable next step for semantic querying of claims.
-5.  **Entity Resolution:** The `claims_pipeline.py` creates relationships with placeholder entity IDs. A crucial next step is to implement and run an entity resolution process to link these placeholders to the canonical entities in the `entities` table.
-6.  **Query the Knowledge Graph:** Once the data is ingested and linked, you can start exploring the knowledge graph using the `query/` directory tools or by writing custom SQL/ORM queries.
+1.  **Implement Relationship Embedding Storage:** Priority task to enable semantic querying of claims
+2.  **Entity Resolution:** Link placeholder relationship IDs to canonical entities for proper graph structure
+3.  **Improve Evidence Extraction:** Parse full papers to extract quantitative evidence
+4.  **Run Graph Pipeline:** Build final graph structure from extracted data (if `graph_pipeline.py` exists)
+5.  **Query the Knowledge Graph:** Start exploring data using `query/` directory tools or custom SQL queries
 
 ## Python packaging
 

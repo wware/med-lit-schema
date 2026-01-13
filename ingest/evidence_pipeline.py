@@ -196,16 +196,19 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # Determine provenance DB path
+    # Determine provenance DB path (optional - only needed for SQLite fallback)
     if args.provenance_db:
         provenance_db_path = Path(args.provenance_db)
     else:
         provenance_db_path = output_dir / "provenance.db"
 
+    # Note: provenance.db is optional. Evidence text is extracted from
+    # relationships' existing evidence fields (from claims extraction).
+    # Only warn if missing, don't fail.
     if not provenance_db_path.exists():
-        print(f"Error: provenance.db not found at {provenance_db_path}")
-        print("Please run Stage 2 (provenance extraction) first")
-        return 1
+        print(f"Note: provenance.db not found at {provenance_db_path}")
+        print("Evidence extraction will use text from existing relationship evidence.")
+        print()
 
     # Initialize storage
     if args.storage == "sqlite":
