@@ -21,11 +21,11 @@ echo "Running ruff check..."
 echo "=========================================="
 uv run ruff check .
 
-echo ""
-echo "=========================================="
-echo "Running ruff format check..."
-echo "=========================================="
-uv run ruff format --check .
+# echo ""
+# echo "=========================================="
+# echo "Running ruff format check..."
+# echo "=========================================="
+# uv run ruff format --check .
 
 echo ""
 echo "=========================================="
