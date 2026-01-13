@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         BaseMedicalEntity,
     )
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import select
 from sqlmodel import Session
 
 from med_lit_schema.storage.interfaces import (
@@ -84,7 +84,6 @@ class PostgresPaperStorage(PaperStorageInterface):
 
         # Use merge to handle updates
         self.session.merge(persistence)
-        self.session.commit()
 
     def get_paper(self, paper_id: str) -> Optional[Paper]:
         """Get a paper by ID."""
@@ -181,7 +180,6 @@ class PostgresRelationshipStorage(RelationshipStorageInterface):
         )
 
         self.session.execute(stmt)
-        self.session.commit()
 
     def get_relationship(self, subject_id: str, predicate: str, object_id: str) -> Optional[BaseRelationship]:
         """Get a relationship by its canonical triple."""
@@ -269,7 +267,6 @@ class PostgresEvidenceStorage(EvidenceStorageInterface):
             metadata_=evidence.model_dump(),
         )
         self.session.add(persistence)
-        self.session.commit()
 
     def get_evidence_by_paper(self, paper_id: str) -> list[EvidenceItem]:
         """Get all evidence items for a paper."""
@@ -306,49 +303,41 @@ class PostgresEntityCollection(EntityCollectionInterface):
         """Add a disease entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_gene(self, entity: "Gene") -> None:
         """Add a gene entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_drug(self, entity: "Drug") -> None:
         """Add a drug entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_protein(self, entity: "Protein") -> None:
         """Add a protein entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_hypothesis(self, entity: "Hypothesis") -> None:
         """Add a hypothesis entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_study_design(self, entity: "StudyDesign") -> None:
         """Add a study design entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_statistical_method(self, entity: "StatisticalMethod") -> None:
         """Add a statistical method entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def add_evidence_line(self, entity: "EvidenceLine") -> None:
         """Add an evidence line entity to the collection."""
         persistence = entity_to_persistence(entity)
         self.session.merge(persistence)
-        self.session.commit()
 
     def get_by_id(self, entity_id: str) -> Optional["BaseMedicalEntity"]:
         """Get entity by ID, searching across all types."""
@@ -450,14 +439,13 @@ class PostgresPipelineStorage(PipelineStorageInterface):
     Uses PostgreSQL with pgvector for production storage.
     """
 
-    def __init__(self, database_url: str):
+    def __init__(self, session: Session):
         """Initialize PostgreSQL storage.
 
         Args:
-            database_url: PostgreSQL connection string
+            session: an active sqlmodel session
         """
-        self.engine = create_engine(database_url)
-        self.session = Session(self.engine)
+        self.session = session
 
         # Initialize storage components
         self._papers = PostgresPaperStorage(self.session)
@@ -494,4 +482,3 @@ class PostgresPipelineStorage(PipelineStorageInterface):
     def close(self) -> None:
         """Close connections and clean up resources."""
         self.session.close()
-        self.engine.dispose()

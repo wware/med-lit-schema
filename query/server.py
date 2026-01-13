@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-from .storage_factory import close_storage, get_storage
+from .storage_factory import close_storage, get_engine
 from .routers import rest_api
 from .routers.mcp_api import mcp_server
 from .routers import graphiql_custom
@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
     Application lifespan manager.
     Initializes storage on startup and closes it on shutdown.
     """
-    get_storage()  # Initialize storage
+    get_engine()  # Initialize storage
     yield
     close_storage()  # Close storage connections
 
