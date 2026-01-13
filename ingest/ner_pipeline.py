@@ -52,6 +52,9 @@ except ImportError:
     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
 
+from sqlalchemy import create_engine
+from sqlmodel import Session
+
 
 def get_git_info():
     """Get git information for provenance tracking."""
@@ -227,19 +230,6 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # Initialize storage based on choice
-    if args.storage == "sqlite":
-        db_path = output_dir / "ingest.db"
-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
-    elif args.storage == "postgres":
-        if not args.database_url:
-            print("Error: --database-url required for PostgreSQL storage")
-            return 1
-        storage = PostgresPipelineStorage(args.database_url)
-    else:
-        print(f"Error: Unknown storage backend: {args.storage}")
-        return 1
-
     # Get git info for provenance
     git_commit, git_commit_short, git_branch, git_dirty = get_git_info()
 
@@ -272,24 +262,21 @@ def main():
     ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
 
     # Process papers
-    print(f"\nProcessing XML files from {xml_dir}...")
-    xml_files = sorted(xml_dir.glob("PMC*.xml"))
-    print(f"Found {len(xml_files)} XML files\n")
-
-    total_entities_found = 0
-    total_entities_created = 0
-    all_extraction_edges = []
-    processed_count = 0
-
-    for xml_file in xml_files:
-        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
-        total_entities_found += entities_found
-        total_entities_created += entities_created
-        all_extraction_edges.extend(edges)
-        processed_count += 1
-
-        if processed_count % 10 == 0:
-            print(f"  Processed {processed_count}/{len(xml_files)} files...")
+    if args.storage == "sqlite":
+        db_path = output_dir / "ingest.db"
+        with SQLitePipelineStorage(db_path) as storage:
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
+    elif args.storage == "postgres":
+        if not args.database_url:
+            print("Error: --database-url required for PostgreSQL storage")
+            return 1
+        engine = create_engine(args.database_url)
+        session = Session(engine)
+        with PostgresPipelineStorage(session) as storage:
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
+    else:
+        print(f"Error: Unknown storage backend: {args.storage}")
+        return 1
 
     # Finalize provenance
     execution_end = datetime.now()
@@ -326,16 +313,35 @@ def main():
     print(f"ExtractionEdges: {len(all_extraction_edges)}")
     print(f"Duration: {execution_duration:.2f} seconds")
     print(f"\nStorage: {args.storage}")
-    print(f"Entity count: {storage.entities.entity_count}")
     print("\nOutputs:")
-    print(f"  - Storage: {storage}")
     print(f"  - {edges_path}")
     print(f"  - {provenance_path}")
     print(f"{'=' * 60}\n")
-
-    # Clean up
-    storage.close()
     return 0
+
+
+def process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info):
+    """Processes all XML files and extracts entities."""
+    print(f"\nProcessing XML files from {xml_dir}...")
+    xml_files = sorted(xml_dir.glob("PMC*.xml"))
+    print(f"Found {len(xml_files)} XML files\n")
+
+    total_entities_found = 0
+    total_entities_created = 0
+    all_extraction_edges = []
+    processed_count = 0
+
+    for xml_file in xml_files:
+        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
+        total_entities_found += entities_found
+        total_entities_created += entities_created
+        all_extraction_edges.extend(edges)
+        processed_count += 1
+
+        if processed_count % 10 == 0:
+            print(f"  Processed {processed_count}/{len(xml_files)} files...")
+
+    return total_entities_found, total_entities_created, all_extraction_edges, processed_count
 
 
 if __name__ == "__main__":

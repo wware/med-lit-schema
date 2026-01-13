@@ -445,14 +445,14 @@ class PostgresPipelineStorage(PipelineStorageInterface):
         Args:
             session: an active sqlmodel session
         """
-        self.session = session
+        self._session = session
 
         # Initialize storage components
-        self._papers = PostgresPaperStorage(self.session)
-        self._relationships = PostgresRelationshipStorage(self.session)
-        self._evidence = PostgresEvidenceStorage(self.session)
-        self._relationship_embeddings = PostgresRelationshipEmbeddingStorage(self.session)
-        self._entities = PostgresEntityCollection(self.session)
+        self._papers = PostgresPaperStorage(self._session)
+        self._relationships = PostgresRelationshipStorage(self._session)
+        self._evidence = PostgresEvidenceStorage(self._session)
+        self._relationship_embeddings = PostgresRelationshipEmbeddingStorage(self._session)
+        self._entities = PostgresEntityCollection(self._session)
 
     @property
     def entities(self) -> EntityCollectionInterface:
@@ -479,6 +479,18 @@ class PostgresPipelineStorage(PipelineStorageInterface):
         """Access to relationship embedding storage."""
         return self._relationship_embeddings
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            self._session.rollback()
+        else:
+            self._session.commit()
+        self._session.close()
+
     def close(self) -> None:
         """Close connections and clean up resources."""
-        self.session.close()
+        # The session is closed by __exit__ when used as a context manager.
+        # This method is here to satisfy the PipelineStorageInterface.
+        pass

@@ -35,6 +35,8 @@ except ImportError:
     from med_lit_schema.ingest.embedding_interfaces import EmbeddingGeneratorInterface
     from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
 
+from sqlalchemy import create_engine
+from sqlmodel import Session
 
 # ============================================================================
 # Configuration
@@ -203,19 +205,40 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # Initialize storage
+    # Process papers
     if args.storage == "sqlite":
         db_path = output_dir / "ingest.db"
-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
+        with SQLitePipelineStorage(db_path) as storage:
+            total_relationships = process_papers(storage, args)
     elif args.storage == "postgres":
         if not args.database_url:
             print("Error: --database-url required for PostgreSQL storage")
             return 1
-        storage = PostgresPipelineStorage(args.database_url)
+        engine = create_engine(args.database_url)
+        session = Session(engine)
+        with PostgresPipelineStorage(session) as storage:
+            total_relationships = process_papers(storage, args)
     else:
         print(f"Error: Unknown storage backend: {args.storage}")
         return 1
 
+    # Print summary
+    print("=" * 60)
+    print("Claims extraction complete!")
+    print(f"Total relationships: {total_relationships}")
+    print(f"Storage: {args.storage}")
+    print("=" * 60)
+
+    if total_relationships > 0:
+        print("\nNote: Relationships created with placeholder entity IDs.")
+        print("Entity resolution is needed to replace placeholder IDs with canonical entity IDs.")
+        print("Run entity resolution ingest to complete the relationships.")
+
+    return 0
+
+
+def process_papers(storage, args):
+    """Processes all papers and extracts relationships."""
     print("=" * 60)
     print("Stage 4: Claims Extraction Pipeline")
     print("=" * 60)
@@ -298,23 +321,7 @@ def main():
 
             print(f"Stored {stored_count} relationship embeddings")
             print()
-
-    # Clean up
-    storage.close()
-
-    # Print summary
-    print("=" * 60)
-    print("Claims extraction complete!")
-    print(f"Total relationships: {total_relationships}")
-    print(f"Storage: {args.storage}")
-    print("=" * 60)
-
-    if total_relationships > 0:
-        print("\nNote: Relationships created with placeholder entity IDs.")
-        print("Entity resolution is needed to replace placeholder IDs with canonical entity IDs.")
-        print("Run entity resolution ingest to complete the relationships.")
-
-    return 0
+    return total_relationships
 
 
 if __name__ == "__main__":

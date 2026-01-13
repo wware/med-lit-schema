@@ -41,6 +41,8 @@ except ImportError:
     from med_lit_schema.ingest.parser_interfaces import PaperParserInterface
     from med_lit_schema.ingest.pmc_parser import PMCXMLParser
 
+from sqlalchemy import create_engine
+from sqlmodel import Session
 from med_lit_schema.entity import Paper
 
 
@@ -123,19 +125,33 @@ def main():
         if not args.database_url:
             print("Error: --database-url required for PostgreSQL storage")
             return 1
-        storage = PostgresPipelineStorage(args.database_url)
+        engine = create_engine(args.database_url)
+        session = Session(engine)
+        # Use context manager for storage
+        with PostgresPipelineStorage(session) as storage:
+            process_files(input_dir, args.file_pattern, paper_parser, storage, json_output_dir)
+
     else:
         print(f"Error: Unknown storage backend: {args.storage}")
         return 1
 
-    # Process all input files
+    # Print summary
+    print("=" * 60)
+    print("Provenance extraction complete!")
+    print(f"Storage: {args.storage}")
+    print("=" * 60)
+
+    return 0
+
+
+def process_files(input_dir, file_pattern, paper_parser, storage, json_output_dir):
     print(f"\nUsing parser: {paper_parser.format_name}")
     print(f"Processing files from: {input_dir}")
     print()
 
     success_count = 0
     total_count = 0
-    for file_path, paper in paper_parser.parse_directory(input_dir, args.file_pattern):
+    for file_path, paper in paper_parser.parse_directory(input_dir, file_pattern):
         total_count += 1
         print(f"Processing {file_path.name}...")
 
@@ -159,19 +175,6 @@ def main():
 
         success_count += 1
         print()
-
-    # Clean up
-    storage.close()
-
-    # Print summary
-    print("=" * 60)
-    print("Provenance extraction complete!")
-    print(f"Successfully processed: {success_count}/{total_count} files")
-    print(f"Storage: {args.storage}")
-    # print(f"Paper count: {storage.papers.paper_count}")
-    print("=" * 60)
-
-    return 0
 
 
 if __name__ == "__main__":

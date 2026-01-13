@@ -84,7 +84,7 @@ fi
 echo ""
 echo "Setting up database schema..."
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/medlit"
-uv run python setup_database.py || echo "Warning: Database setup may have failed, but continuing..."
+uv run python setup_database.py --database-url $DATABASE_URL
 
 echo ""
 echo "=========================================="

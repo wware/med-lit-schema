@@ -29,6 +29,8 @@ except ImportError:
     from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
 
+from sqlalchemy import create_engine
+from sqlmodel import Session
 
 # ============================================================================
 # Evidence Extraction Functions
@@ -213,16 +215,32 @@ def main():
     # Initialize storage
     if args.storage == "sqlite":
         db_path = output_dir / "ingest.db"
-        storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
+        with SQLitePipelineStorage(db_path) as storage:
+            total_evidence = process_relationships(storage, provenance_db_path)
     elif args.storage == "postgres":
         if not args.database_url:
             print("Error: --database-url required for PostgreSQL storage")
             return 1
-        storage = PostgresPipelineStorage(args.database_url)
+        engine = create_engine(args.database_url)
+        session = Session(engine)
+        with PostgresPipelineStorage(session) as storage:
+            total_evidence = process_relationships(storage, provenance_db_path)
     else:
         print(f"Error: Unknown storage backend: {args.storage}")
         return 1
 
+    # Print summary
+    print("=" * 60)
+    print("Evidence aggregation complete!")
+    print(f"Total evidence items: {total_evidence}")
+    print(f"Storage: {args.storage}")
+    print("=" * 60)
+
+    return 0
+
+
+def process_relationships(storage, provenance_db_path):
+    """Processes all relationships and extracts evidence."""
     print("=" * 60)
     print("Stage 5: Evidence Aggregation Pipeline")
     print("=" * 60)
@@ -236,7 +254,6 @@ def main():
 
     if len(relationships) == 0:
         print("No relationships found. Please run Stage 4 (claims extraction) first.")
-        storage.close()
         return 0
 
     # Extract evidence
@@ -286,18 +303,7 @@ def main():
     print()
     print(f"Extracted {total_evidence} evidence items")
     print()
-
-    # Clean up
-    storage.close()
-
-    # Print summary
-    print("=" * 60)
-    print("Evidence aggregation complete!")
-    print(f"Total evidence items: {total_evidence}")
-    print(f"Storage: {args.storage}")
-    print("=" * 60)
-
-    return 0
+    return total_evidence
 
 
 if __name__ == "__main__":

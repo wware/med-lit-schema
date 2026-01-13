@@ -51,6 +51,47 @@ uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres
 
 Or simply run: `bash X.sh`
 
+### Database Reset Procedures
+
+To clear out the database for a fresh start, follow these instructions for your respective database type:
+
+#### PostgreSQL
+
+If you're using PostgreSQL (as configured in `X.sh`), you'll typically want to drop the existing database and recreate it.
+
+**Prerequisite**: Ensure you have the `postgresql-client` tools installed on your system. On Debian/Ubuntu, you can install them via:
+```bash
+sudo apt-get update
+sudo apt-get install postgresql-client
+```
+
+Once installed, use the following commands:
+
+1.  **Drop the existing database:**
+    ```bash
+    dropdb medlit
+    ```
+2.  **Create a new, empty database:**
+    ```bash
+    createdb medlit
+    ```
+3.  **Set up the schema:**
+    After recreating the database, you must run the setup script to re-initialize the tables and indexes:
+    ```bash
+    uv run python setup_database.py --database-url "postgresql://postgres:postgres@localhost:5432/medlit"
+    ```
+
+#### SQLite
+
+If you are using SQLite (e.g., `output/ingest.db`), resetting the database is simpler:
+
+1.  **Delete the database file:**
+    ```bash
+    rm output/ingest.db
+    ```
+    This command will permanently remove the SQLite database file.
+
+
 ### Outputs
 
 After running these stages, you'll have:
@@ -175,3 +216,12 @@ interested. And if not him, maybe other folks.
 
 I have some preliminary notes on how to do this. I want to make sure that when I'm ready, it's
 a smooth thing to do.
+
+## Future Considerations
+
+### Note on Evidence Extraction
+To get meaningful evidence for the extracted relationships, it's important to remember that the current pipeline is only processing abstracts. The simple regex-based evidence extraction logic is not finding quantitative data (sample sizes, p-values, etc.) in these abstracts.
+
+**To improve evidence extraction, we will need to:**
+1.  **Source full-text papers**, not just abstracts.
+2.  **Enhance the extraction logic**, as the current regexes may not be sufficient for the complexity of full-text articles. This might involve more advanced NLP techniques.
