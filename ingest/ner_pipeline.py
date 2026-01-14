@@ -18,7 +18,6 @@ import socket
 import platform
 import subprocess
 import uuid
-from typing import Optional
 
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
@@ -121,7 +120,7 @@ class OllamaNerExtractor:
             response = self._client.generate(
                 model=self.model,
                 prompt=prompt,
-                options={"temperature": 0.1}  # Low temperature for consistent extraction
+                options={"temperature": 0.1},  # Low temperature for consistent extraction
             )
 
             # Parse JSON response
@@ -140,11 +139,7 @@ class OllamaNerExtractor:
                 results = []
                 for ent in entities:
                     if isinstance(ent, dict) and "entity" in ent:
-                        results.append({
-                            "word": ent["entity"],
-                            "entity_group": "Disease",
-                            "score": float(ent.get("confidence", 0.85))
-                        })
+                        results.append({"word": ent["entity"], "entity_group": "Disease", "score": float(ent.get("confidence", 0.85))})
                 return results
 
         except json.JSONDecodeError:
@@ -235,11 +230,7 @@ def process_paper(
     # Paragraph extraction
     # -----------------------------
 
-    abstract_paragraphs = [
-        p.text.strip()
-        for p in root.findall(".//abstract//p")
-        if p.text and p.text.strip()
-    ]
+    abstract_paragraphs = [p.text.strip() for p in root.findall(".//abstract//p") if p.text and p.text.strip()]
 
     body_paragraphs = []
     for sec in root.findall(".//body//sec"):
@@ -267,10 +258,7 @@ def process_paper(
     entities_created = 0
     extraction_edges = []
 
-    STOPWORDS = {
-        "the", "and", "or", "but", "with", "from", "that", "this",
-        "these", "those", "their", "there"
-    }
+    STOPWORDS = {"the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"}
 
     for paragraph_text in paragraphs:
         ner_results = ner_pipeline(paragraph_text)
@@ -329,12 +317,14 @@ def process_paper(
                     source_type="paper",
                     source_id=pmc_id,
                     source_version=None,
-                    notes=json.dumps({
-                        "extraction_pipeline": ingest_info.name,
-                        "git_commit": ingest_info.git_commit_short,
-                        "model": model_info.name,
-                        "scope": "paragraph",
-                    }),
+                    notes=json.dumps(
+                        {
+                            "extraction_pipeline": ingest_info.name,
+                            "git_commit": ingest_info.git_commit_short,
+                            "model": model_info.name,
+                            "scope": "paragraph",
+                        }
+                    ),
                 )
 
                 edge = ExtractionEdge(
@@ -403,8 +393,11 @@ def main():
         print(f"Using Ollama at {args.ollama_host} for GPU-accelerated NER")
         print(f"Model: {model_name}")
         ollama_extractor = OllamaNerExtractor(host=args.ollama_host, model=model_name)
+
         # Create a callable wrapper that matches HuggingFace pipeline interface
-        ner_pipeline = lambda text: ollama_extractor.extract_entities(text)
+        def ner_pipeline(text):
+            return ollama_extractor.extract_entities(text)
+
     else:
         print(f"Loading NER model: {model_name}")
         tokenizer = AutoTokenizer.from_pretrained(model_name)

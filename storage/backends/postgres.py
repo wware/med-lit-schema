@@ -450,7 +450,7 @@ class PostgresEntityCollection(EntityCollectionInterface):
         """List entities, optionally with pagination."""
         statement = select(Entity).offset(offset).limit(limit)
         rows = self.session.exec(statement).all()
-        return [to_domain(e) for e in rows]
+        return [entity_to_domain(e) for e in rows]
 
     @property
     def entity_count(self) -> int:

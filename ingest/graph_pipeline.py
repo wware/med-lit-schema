@@ -86,14 +86,14 @@ def compute_graph_stats(storage: PipelineStorageInterface) -> GraphStats:
     # For large datasets, this could be optimized with a direct SQL query
     entity_types: dict[str, int] = {}
     for entity in storage.entities.list_entities(limit=None):
-        entity_type = entity.entity_type.value if hasattr(entity.entity_type, 'value') else str(entity.entity_type)
+        entity_type = entity.entity_type.value if hasattr(entity.entity_type, "value") else str(entity.entity_type)
         entity_types[entity_type] = entity_types.get(entity_type, 0) + 1
     stats.entity_types = entity_types
 
     # Count predicate types
     predicate_types: dict[str, int] = {}
     for relationship in storage.relationships.list_relationships(limit=None):
-        predicate = relationship.predicate.value if hasattr(relationship.predicate, 'value') else str(relationship.predicate)
+        predicate = relationship.predicate.value if hasattr(relationship.predicate, "value") else str(relationship.predicate)
         predicate_types[predicate] = predicate_types.get(predicate, 0) + 1
     stats.predicate_types = predicate_types
 
@@ -135,22 +135,34 @@ def create_graph_indexes(session: Session, storage_type: str) -> None:
         # PostgreSQL-specific indexes
         try:
             # Index for relationship traversal (subject -> object)
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_subject
                 ON relationships(subject_id)
-            """))
+            """
+                )
+            )
 
             # Index for relationship traversal (object -> subject)
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_object
                 ON relationships(object_id)
-            """))
+            """
+                )
+            )
 
             # Composite index for predicate queries
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_predicate
                 ON relationships(predicate)
-            """))
+            """
+                )
+            )
 
             session.commit()
             print("  Created PostgreSQL indexes")
@@ -161,20 +173,32 @@ def create_graph_indexes(session: Session, storage_type: str) -> None:
     elif storage_type == "sqlite":
         # SQLite-specific indexes
         try:
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_subject
                 ON relationships(subject_id)
-            """))
+            """
+                )
+            )
 
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_object
                 ON relationships(object_id)
-            """))
+            """
+                )
+            )
 
-            session.execute(text("""
+            session.execute(
+                text(
+                    """
                 CREATE INDEX IF NOT EXISTS idx_relationships_predicate
                 ON relationships(predicate)
-            """))
+            """
+                )
+            )
 
             session.commit()
             print("  Created SQLite indexes")
@@ -213,7 +237,7 @@ def main():
             print(f"Error: Database not found at {db_path}")
             print("Please run previous stages first")
             return 1
-        
+
         storage: PipelineStorageInterface = SQLitePipelineStorage(db_path)
         engine = create_engine(f"sqlite:///{db_path}")
         session = Session(engine)

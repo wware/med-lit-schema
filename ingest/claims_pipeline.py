@@ -284,10 +284,7 @@ def process_papers(storage, args):
         embedding_generator: EmbeddingGeneratorInterface
         if args.ollama_host:
             print(f"Using Ollama at {args.ollama_host} for GPU-accelerated embeddings")
-            embedding_generator = OllamaEmbeddingGenerator(
-                model_name=args.ollama_model,
-                host=args.ollama_host
-            )
+            embedding_generator = OllamaEmbeddingGenerator(model_name=args.ollama_model, host=args.ollama_host)
         else:
             embedding_generator = SentenceTransformerEmbeddingGenerator(model_name=args.embedding_model)
         print(f"Using embedding model: {embedding_generator.model_name}")

@@ -7,6 +7,7 @@ This module bridges the gap between:
 """
 
 import json
+from typing import get_origin, get_args
 
 from .entity import (
     BaseMedicalEntity,
@@ -406,14 +407,32 @@ def relationship_to_domain(persistence: Relationship) -> BaseRelationship:
     for key, field in cls.model_fields.items():
         if key in persistence_data:
             value = persistence_data[key]
-            if field.annotation == list[str] and value and isinstance(value, str):
-                domain_data[key] = json.loads(value)
+            # Check if field is list[str] type using proper type introspection
+            field_origin = get_origin(field.annotation)
+            field_args = get_args(field.annotation)
+            is_list_str = field_origin is list and len(field_args) == 1 and field_args[0] is str
+
+            if is_list_str:
+                if value is None:
+                    domain_data[key] = []
+                elif isinstance(value, str):
+                    if value.strip():  # Non-empty string
+                        domain_data[key] = json.loads(value)
+                    else:  # Empty string
+                        domain_data[key] = []
+                elif isinstance(value, list):
+                    domain_data[key] = value  # Already a list
+                else:
+                    domain_data[key] = []
             else:
                 domain_data[key] = value
 
     if issubclass(cls, BaseMedicalRelationship):
         if domain_data.get("evidence_count") is None:
             domain_data["evidence_count"] = 0
+        # Ensure source_papers is always a list, not None
+        if domain_data.get("source_papers") is None:
+            domain_data["source_papers"] = []
 
     domain_data["predicate"] = predicate
     return cls(**domain_data)

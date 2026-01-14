@@ -55,6 +55,80 @@ The ingest process consists of seven stages that should be run in sequence:
 
 ## Quick Start
 
+### Quick Reference
+
+| Scenario | Command |
+|----------|---------|
+| **Process existing papers with Lambda Labs GPU** | `export OLLAMA_HOST=http://<LAMBDA_IP>:11434`<br>`bash ingest/pipeline.sh --skip-download --no-ollama` |
+| **Full pipeline with local Ollama** | `bash ingest/pipeline.sh` |
+| **SQLite (testing)** | `bash ingest/pipeline.sh --storage sqlite` |
+| **Custom PostgreSQL URL** | `bash ingest/pipeline.sh --database-url postgresql://...` |
+
+**Command-line Options:**
+- `--skip-download` - Skip Stage 0 (download) - use when papers already exist
+- `--no-ollama` - Exclude Ollama from Docker Compose - use with Lambda Labs GPU
+- `--storage sqlite|postgres` - Choose storage backend (default: postgres)
+- `--database-url URL` - PostgreSQL connection string
+- `--xml-dir DIR` - Directory containing PMC XML files (default: `ingest/pmc_xmls`)
+- `--output-dir DIR` - Output directory (default: `output`)
+
+**Environment Variables:**
+- `OLLAMA_HOST` - Set to `http://<LAMBDA_IP>:11434` for Lambda Labs GPU (or leave unset for local)
+- `DB_URL` - PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/medlit`)
+
+### Complete Workflow: Processing Existing Papers with Docker Compose + Lambda Labs GPU
+
+**Scenario:** You have papers already downloaded in `ingest/pmc_xmls/` and want to process them using Docker Compose (PostgreSQL) and a Lambda Labs GPU instance.
+
+**1. Set up Lambda Labs GPU instance** (see [CLOUD_OLLAMA.md](CLOUD_OLLAMA.md) for detailed setup):
+
+```bash
+# After setting up Lambda Labs instance, set the Ollama host
+export OLLAMA_HOST=http://<LAMBDA_IP>:11434
+
+# Verify connection
+curl $OLLAMA_HOST/api/tags
+```
+
+**2. Run the complete pipeline:**
+
+```bash
+# The pipeline.sh script will:
+# - Start Docker Compose (postgres, redis) but NOT ollama (--no-ollama)
+# - Skip Stage 0 download (--skip-download)
+# - Use OLLAMA_HOST environment variable for GPU acceleration
+bash ingest/pipeline.sh --skip-download --no-ollama
+```
+
+That's it! The script handles:
+- Starting Docker Compose services (PostgreSQL & Redis only)
+- Waiting for PostgreSQL to be ready
+- Setting up the database schema
+- Running all stages (2-6) with GPU acceleration via Lambda Labs
+- Using existing papers from `ingest/pmc_xmls/`
+
+**Alternative: Run stages individually** (if you need more control):
+
+```bash
+# Start Docker Compose manually
+docker compose up -d postgres redis
+
+# Wait for PostgreSQL
+until docker exec med-lit-postgres pg_isready -U postgres; do sleep 2; done
+
+# Setup database
+export DB_URL="postgresql://postgres:postgres@localhost:5432/medlit"
+uv run python setup_database.py --database-url $DB_URL
+
+# Run stages
+export OLLAMA_HOST=http://<LAMBDA_IP>:11434
+uv run python ingest/provenance_pipeline.py --input-dir ingest/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL --ollama-host $OLLAMA_HOST
+uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL --skip-embeddings --ollama-host $OLLAMA_HOST
+uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+uv run python ingest/graph_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+```
+
 ### Using SQLite (Testing/Development)
 
 ```python
