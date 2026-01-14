@@ -135,13 +135,16 @@ curl $OLLAMA_HOST/api/tags
 rm -rf ./data/entity_db
 
 # Run ingestion with GPU acceleration!
-cd ingestion/
-docker compose up -d postgres
-docker compose run ingest \
-  python ingest_papers.py \
-  --query "metformin diabetes" \
-  --limit 10 \
-  --model llama3.1:8b
+cd /home/wware/med-lit-schema
+export OLLAMA_HOST=http://<LAMBDA_IP>:11434
+
+# Download (Stage 0)
+uv run python ingest/download_pipeline.py \
+  --pmc-id-file ingest/sample_pmc_ids.txt \
+  --output-dir ingest/pmc_xmls
+
+# Run full pipeline against PostgreSQL (Stages 1-6)
+uv run bash ingest/pipeline.sh
 ```
 
 Update your `docker-compose.yml` if you're using one, to read `OLLAMA_HOST` from environment.
@@ -197,10 +200,9 @@ export OLLAMA_HOST=http://<EC2_PUBLIC_IP>:11434
 curl $OLLAMA_HOST/api/tags
 
 # Run ingestion pointing to remote server
-cd /home/wware/med-lit-graph
-python ingestion/ingest_papers.py \
-  --query "metformin diabetes" \
-  --limit 10
+cd /home/wware/med-lit-schema
+export OLLAMA_HOST=http://<EC2_PUBLIC_IP>:11434
+uv run bash ingest/pipeline.sh
 ```
 
 ### Automated Setup (Terraform)
@@ -328,7 +330,7 @@ ingest:
 
 ### Alternative: Use a Lighter Embedding Model
 
-If BioBERT is too slow, consider switching to a lighter model in `ingest_papers.py`:
+If BioBERT is too slow, consider switching to a lighter model in `ingest/claims_pipeline.py` or `ingest/embeddings_pipeline.py`:
 
 ```python
 # Option 1: Lighter general-purpose model (~80MB, very fast)

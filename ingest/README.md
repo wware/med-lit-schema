@@ -12,27 +12,46 @@ The ingest process uses ABC-style storage interfaces, allowing you to choose you
 
 ## Ingest Stages
 
-The ingest process consists of four main stages:
+The ingest process consists of seven stages that should be run in sequence:
 
-1. **`ner_pipeline.py`** - Entity extraction using BioBERT NER
+0. **`download_pipeline.py`** - Download PMC XML files
+   - Downloads PubMed Central XML files from NCBI E-utilities API
+   - Stores XML files locally for processing
+   - Supports downloading by PMC ID list, PubMed search, or file
+   - Handles rate limiting and error recovery automatically
+   - **Note**: Currently downloads full-text XML only (abstract-only option planned)
+
+1. **`ner_pipeline.py`** - Entity extraction using BioBERT NER or Ollama LLM
    - Extracts biomedical entities from paper text
    - Resolves entity mentions to canonical IDs (UMLS, HGNC, RxNorm, etc.)
    - Stores entities with embeddings for similarity search
+   - Supports GPU acceleration via Ollama (`--ollama-host`)
 
 2. **`provenance_pipeline.py`** - Paper metadata and document structure
-   - Parses PMC XML files
+   - Parses PMC XML files from local directory
    - Extracts paper metadata (title, authors, journal, dates)
    - Extracts document structure (sections, paragraphs)
 
-3. **`claims_pipeline.py`** - Relationship extraction
+3. **`embeddings_pipeline.py`** - Standalone embeddings generation (optional)
+   - Generates semantic embeddings for entities and relationships
+   - Can be run independently after provenance extraction
+   - Supports Ollama for GPU acceleration
+
+4. **`claims_pipeline.py`** - Relationship extraction
    - Extracts semantic relationships from paragraphs
    - Uses pattern matching to identify relationships (CAUSES, TREATS, etc.)
-   - Optionally generates embeddings for relationship similarity search
+   - Optionally generates embeddings for relationship similarity search (can also use Stage 3)
+   - Supports Ollama for GPU-accelerated embeddings
 
-4. **`evidence_pipeline.py`** - Evidence metrics extraction
+5. **`evidence_pipeline.py`** - Evidence metrics extraction
    - Extracts quantitative evidence (sample sizes, p-values, percentages)
    - Links evidence to relationships
    - Calculates evidence strength
+
+6. **`graph_pipeline.py`** - Knowledge graph construction
+   - Builds knowledge graph from extracted data using SQLModel
+   - Creates graph structure from entities, relationships, papers, and evidence
+   - Supports both SQLite and PostgreSQL storage backends
 
 ## Quick Start
 
@@ -66,18 +85,74 @@ storage = PostgresPipelineStorage("postgresql://user:pass@localhost/dbname")
 ### Running Ingest Stages
 
 ```bash
+# Stage 0: Download PMC XML files
+python ingest/download_pipeline.py \
+    --pmc-id-file ingest/sample_pmc_ids.txt \
+    --output-dir ingest/pmc_xmls
+
+# Or download via PubMed search:
+python ingest/download_pipeline.py \
+    --search "BRCA1 AND breast cancer AND 2020:2024[pdat]" \
+    --max-results 50 \
+    --output-dir ingest/pmc_xmls
+
 # Stage 1: Extract entities
-python ingest/ner_pipeline.py --storage sqlite --output-dir output
+python ingest/ner_pipeline.py \
+    --xml-dir ingest/pmc_xmls \
+    --storage sqlite \
+    --output-dir output
 
 # Stage 2: Extract paper metadata
-python ingest/provenance_pipeline.py --storage sqlite --output-dir output
+python ingest/provenance_pipeline.py \
+    --input-dir ingest/pmc_xmls \
+    --storage sqlite \
+    --output-dir output
 
-# Stage 3: Extract relationships
-python ingest/claims_pipeline.py --storage sqlite --output-dir output
+# Stage 3: Generate embeddings (optional, standalone)
+python ingest/embeddings_pipeline.py \
+    --output-dir output \
+    --storage sqlite
 
-# Stage 4: Extract evidence
-python ingest/evidence_pipeline.py --storage sqlite --output-dir output
+# Stage 4: Extract relationships
+python ingest/claims_pipeline.py \
+    --output-dir output \
+    --storage sqlite
+
+# Stage 5: Extract evidence
+python ingest/evidence_pipeline.py \
+    --output-dir output \
+    --storage sqlite
+
+# Stage 6: Build knowledge graph
+python ingest/graph_pipeline.py \
+    --output-dir output \
+    --storage sqlite
 ```
+
+### Using Ollama for GPU Acceleration
+
+The pipeline supports offloading heavy computation to a remote GPU server via Ollama:
+
+```bash
+# Set Ollama host (local or cloud)
+export OLLAMA_HOST=http://localhost:11434  # Local
+# or
+export OLLAMA_HOST=http://<LAMBDA_IP>:11434  # Cloud GPU
+
+# Run stages with GPU acceleration
+python ingest/ner_pipeline.py \
+    --xml-dir ingest/pmc_xmls \
+    --storage sqlite \
+    --output-dir output \
+    --ollama-host "${OLLAMA_HOST:-http://localhost:11434}"
+
+python ingest/claims_pipeline.py \
+    --output-dir output \
+    --storage sqlite \
+    --ollama-host "${OLLAMA_HOST:-http://localhost:11434}"
+```
+
+See [CLOUD_OLLAMA.md](CLOUD_OLLAMA.md) for cloud GPU setup instructions.
 
 ## Storage Interfaces
 
@@ -313,7 +388,114 @@ embedding = generator.generate_embedding("Some text")
 embeddings = generator.generate_embeddings_batch(["Text 1", "Text 2"], batch_size=32)
 ```
 
-The claims ingest automatically generates embeddings for relationships when run without `--skip-embeddings`.
+**Note:** Embeddings can be generated in two ways:
+- **Standalone (Stage 3)**: Run `embeddings_pipeline.py` separately for batch embedding generation
+- **Inline (Stage 4)**: Claims pipeline can generate embeddings automatically (use `--skip-embeddings` to disable)
+
+For PostgreSQL storage, relationship embeddings are not yet fully implemented - use `--skip-embeddings` with claims pipeline until PostgreSQL embedding storage is complete.
+
+## Stage 0: Download Pipeline Details
+
+### Why a Separate Download Stage?
+
+Having a dedicated download stage provides several benefits:
+
+1. **Separation of Concerns**: Downloading is independent from processing
+2. **Resumable**: Can restart processing without re-downloading
+3. **Local Archive**: Build a local corpus of papers for offline work
+4. **Rate Limiting**: Handles NCBI API rate limits transparently
+5. **Error Recovery**: Failed downloads can be retried independently
+
+### Input Options
+
+**Option 1: Direct PMC IDs**
+```bash
+python ingest/download_pipeline.py \
+    --pmc-ids PMC123456 PMC234567 PMC345678 \
+    --output-dir ingest/pmc_xmls
+```
+
+**Option 2: PMC ID File**
+```bash
+python ingest/download_pipeline.py \
+    --pmc-id-file ingest/sample_pmc_ids.txt \
+    --output-dir ingest/pmc_xmls
+```
+
+**Option 3: PubMed Search**
+```bash
+python ingest/download_pipeline.py \
+    --search "olaparib AND BRCA1" \
+    --max-results 100 \
+    --output-dir ingest/pmc_xmls
+```
+
+**PubMed Search Tips:**
+- Use standard PubMed query syntax
+- Add date filters: `"breast cancer 2020:2024[pdat]"`
+- Combine terms with AND/OR: `"BRCA1 AND (breast OR ovarian)"`
+- Filter by article type: `"review[ptyp]"`
+- See [PubMed Help](https://pubmed.ncbi.nlm.nih.gov/help/) for query syntax
+
+### Advanced Options
+
+**NCBI API Key** (increases rate limit from 3 to 10 requests/second):
+```bash
+python ingest/download_pipeline.py \
+    --pmc-id-file ingest/sample_pmc_ids.txt \
+    --api-key YOUR_API_KEY_HERE \
+    --output-dir ingest/pmc_xmls
+```
+
+Get a free API key: https://www.ncbi.nlm.nih.gov/account/
+
+**Resume Interrupted Downloads:**
+```bash
+python ingest/download_pipeline.py \
+    --pmc-id-file ingest/sample_pmc_ids.txt \
+    --skip-existing \
+    --output-dir ingest/pmc_xmls
+```
+
+### Rate Limiting
+
+The pipeline respects NCBI's rate limits automatically:
+- **Without API key**: 3 requests/second (~90 seconds for 100 papers)
+- **With API key**: 10 requests/second (~30 seconds for 100 papers)
+
+### Output
+
+Downloaded XML files are saved to the specified output directory:
+```
+ingest/pmc_xmls/
+├── PMC123456.xml
+├── PMC234567.xml
+└── PMC345678.xml
+```
+
+Each file contains the complete PMC XML for one paper, ready for processing by subsequent stages.
+
+### Error Handling
+
+The pipeline handles common errors gracefully:
+- **404 Not Found**: Paper doesn't exist or isn't in PMC
+- **429 Rate Limited**: Automatic retry with backoff
+- **Network errors**: Automatic retry (up to 3 attempts)
+- **Invalid XML**: Reports error and continues with next paper
+
+### Command-Line Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--pmc-ids` | Space-separated list of PMC IDs | `--pmc-ids PMC123 PMC456` |
+| `--pmc-id-file` | File with PMC IDs (one per line) | `--pmc-id-file ids.txt` |
+| `--search` | PubMed search query | `--search "cancer therapy"` |
+| `--output-dir` | Where to save XML files | `--output-dir pmc_xmls` |
+| `--max-results` | Max search results (default: 100) | `--max-results 500` |
+| `--api-key` | NCBI API key (optional) | `--api-key YOUR_KEY` |
+| `--skip-existing` | Skip already downloaded files | `--skip-existing` |
+
+**Note**: Currently downloads full-text XML only. Abstract-only downloads are planned for a future release.
 
 ## Testing
 

@@ -48,7 +48,6 @@ docs/
 
 # Data and output directories
 output/
-ingest/download/
 query/.ipynb_checkpoints/
 
 # Jupyter

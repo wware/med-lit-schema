@@ -9,7 +9,7 @@ The ingest process uses ABC-style storage interfaces that support both SQLite (f
 The `SQLitePipelineStorage` supports `:memory:` for in-memory databases, making it ideal for testing:
 
 ```python
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 
 # In-memory database (no file created)
 storage = SQLitePipelineStorage(":memory:")
@@ -78,7 +78,7 @@ Create test files in `tests/` directory:
 ```python
 # tests/test_pipeline_storage.py
 import pytest
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 from med_lit_schema.entity import Disease, EntityType
 
 def test_entity_storage():
@@ -138,7 +138,7 @@ Here's a complete example that tests the full ingest:
 #!/usr/bin/env -S uv run python
 """Test ingest with fake papers."""
 
-from med_lit_schema.pipeline.sqlite_storage import SQLitePipelineStorage
+from med_lit_schema.storage.backends.sqlite import SQLitePipelineStorage
 from med_lit_schema.entity import Paper, Disease, EntityType
 from med_lit_schema.relationship import create_relationship
 from med_lit_schema.base import PredicateType

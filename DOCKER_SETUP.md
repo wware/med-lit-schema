@@ -7,7 +7,7 @@ and running the ingestion pipeline.
 
 - Docker and docker-compose installed
 - `uv` installed for running Python commands
-- PMC XML files in `ingest/download/pmc_xmls/` directory
+- PMC XML files in `ingest/pmc_xmls/` directory
 
 ## Step 1: Start the Docker Stack
 
@@ -57,7 +57,7 @@ Now run the 5-stage pipeline from NEXT_STEPS.md:
 
 ```bash
 uv run python ingest/provenance_pipeline.py \
-  --input-dir ingest/download/pmc_xmls \
+  --input-dir ingest/pmc_xmls \
   --output-dir output
 ```
 
@@ -79,7 +79,7 @@ Generates embeddings for entities and paragraphs using local Ollama (via localho
 
 ```bash
 uv run python ingest/ner_pipeline.py \
-  --xml-dir ingest/download/pmc_xmls \
+  --xml-dir ingest/pmc_xmls \
   --output-dir output \
   --storage postgres \
   --database-url $DB_URL

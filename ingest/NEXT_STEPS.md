@@ -14,42 +14,71 @@ We have successfully completed the data ingestion pipeline with PostgreSQL backe
 
 ## Complete Pipeline Instructions (Updated)
 
-The ingestion pipeline consists of several stages that should be run in order. Here are the verified commands to run the pipeline so far:
+The ingestion pipeline consists of seven stages that should be run in order. Here are the verified commands to run the pipeline:
 
 ### Prerequisites
 
-1.  **PostgreSQL Database**: Set up a PostgreSQL database and ensure it is running.
-2.  **Ollama**: Make sure Ollama is running with the `nomic-embed-text` model:
+1.  **PostgreSQL Database**: Set up a PostgreSQL database and ensure it is running (optional - SQLite also supported).
+2.  **Ollama** (optional): For GPU acceleration, make sure Ollama is running with required models:
     ```bash
     docker compose exec ollama ollama pull nomic-embed-text
+    docker compose exec ollama ollama pull llama3.1:8b
     # And ensure ollama service is running via: docker compose up -d ollama
     ```
 
 ### Pipeline Execution
 
-To run the complete pipeline (available as `X.sh` script):
+To run the complete pipeline with PostgreSQL:
 
 ```bash
 # Set your database URL (adjust user/password/host/port/database as needed)
 export DB_URL="postgresql://postgres:postgres@localhost:5432/medlit"
 
+# Stage 0: Download PMC XML files (if not already downloaded)
+uv run python ingest/download_pipeline.py \
+    --pmc-id-file ingest/sample_pmc_ids.txt \
+    --output-dir ingest/pmc_xmls
+
 # Stage 1: Setup PostgreSQL Database (creates tables)
 uv run python setup_database.py --database-url $DB_URL
 
 # Stage 2: Run Provenance Pipeline (to populate papers table in PostgreSQL)
-uv run python ingest/provenance_pipeline.py --input-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+uv run python ingest/provenance_pipeline.py \
+    --input-dir ingest/pmc_xmls \
+    --output-dir output \
+    --storage postgres \
+    --database-url $DB_URL
 
 # Stage 3: Extract entities (NER) and store in PostgreSQL
-uv run python ingest/ner_pipeline.py --xml-dir ingest/download/pmc_xmls --output-dir output --storage postgres --database-url $DB_URL
+uv run python ingest/ner_pipeline.py \
+    --xml-dir ingest/pmc_xmls \
+    --output-dir output \
+    --storage postgres \
+    --database-url $DB_URL \
+    --ollama-host "${OLLAMA_HOST:-http://localhost:11434}"
 
 # Stage 4: Extract claims (--skip-embeddings because PostgreSQL embedding storage not yet implemented)
-uv run python ingest/claims_pipeline.py --output-dir output --storage postgres --database-url $DB_URL --skip-embeddings
+uv run python ingest/claims_pipeline.py \
+    --output-dir output \
+    --storage postgres \
+    --database-url $DB_URL \
+    --skip-embeddings \
+    --ollama-host "${OLLAMA_HOST:-http://localhost:11434}"
 
 # Stage 5: Extract evidence
-uv run python ingest/evidence_pipeline.py --output-dir output --storage postgres --database-url $DB_URL
+uv run python ingest/evidence_pipeline.py \
+    --output-dir output \
+    --storage postgres \
+    --database-url $DB_URL
+
+# Stage 6: Build knowledge graph
+uv run python ingest/graph_pipeline.py \
+    --output-dir output \
+    --storage postgres \
+    --database-url $DB_URL
 ```
 
-Or simply run: `bash X.sh`
+Or use the convenience script: `bash ingest/pipeline.sh`
 
 ### Database Reset Procedures
 
@@ -119,14 +148,15 @@ The evidence pipeline (Stage 5) successfully ran but found **0 quantitative evid
     2. Or implement a separate evidence extraction pass that reads full paper text
     3. Or link relationships to result paragraphs that contain statistical data
 
-### Stage 4: Relationship Embeddings Disabled
+### Stage 4: Relationship Embeddings Disabled for PostgreSQL
 
-Relationship embedding generation is currently **disabled** in the claims pipeline:
+Relationship embedding generation is currently **disabled** for PostgreSQL in the claims pipeline:
 
 *   **Why:** The PostgreSQL relationship embedding storage interface (`PostgresRelationshipEmbeddingStorage`) is not yet implemented
 *   **Current State:** The implementation raises `NotImplementedError` in `storage/backends/postgres.py:418`
-*   **Workaround:** Stage 4 runs with `--skip-embeddings` flag
-*   **Impact:** Cannot perform semantic similarity searches on relationships
+*   **Workaround:** Stage 4 runs with `--skip-embeddings` flag for PostgreSQL
+*   **SQLite:** Relationship embeddings work fine with SQLite storage
+*   **Impact:** Cannot perform semantic similarity searches on relationships in PostgreSQL
 *   **See TODO below for implementation plan**
 
 ## TODO: Critical Implementation Tasks
@@ -200,10 +230,10 @@ Once implemented, remove `--skip-embeddings` flag from Stage 4 in `X.sh`.
 
 ## Next Steps (from current state)
 
-1.  **Implement Relationship Embedding Storage:** Priority task to enable semantic querying of claims
+1.  **Implement Relationship Embedding Storage:** Priority task to enable semantic querying of claims in PostgreSQL
 2.  **Entity Resolution:** Link placeholder relationship IDs to canonical entities for proper graph structure
 3.  **Improve Evidence Extraction:** Parse full papers to extract quantitative evidence
-4.  **Run Graph Pipeline:** Build final graph structure from extracted data (if `graph_pipeline.py` exists)
+4.  **Run Graph Pipeline (Stage 6):** Build final graph structure from extracted data using SQLModel
 5.  **Query the Knowledge Graph:** Start exploring data using `query/` directory tools or custom SQL queries
 
 ## Python packaging

@@ -176,6 +176,8 @@ def fetch_pmc_xml(
         "db": "pmc",
         "id": numeric_id,
         "retmode": "xml",
+        # TODO: Add --abstract-only flag to support rettype="abstract" for abstract-only downloads
+        # Currently always downloads full-text XML
     }
 
     if api_key:
