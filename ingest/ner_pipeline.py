@@ -18,9 +18,11 @@ import socket
 import platform
 import subprocess
 import uuid
+from typing import Optional
 
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
+import ollama
 
 # Import new schema
 # Try relative imports first (when run as module), fall back to absolute
@@ -54,6 +56,104 @@ except ImportError:
 
 from sqlalchemy import create_engine
 from sqlmodel import Session
+
+
+# ============================================================================
+# Ollama-based NER Extractor
+# ============================================================================
+
+OLLAMA_NER_PROMPT = """Extract all disease and medical condition entities from the following text.
+Return ONLY a JSON array of objects with "entity" (the disease name) and "confidence" (0.0-1.0) fields.
+Do not include any explanation, just the JSON array.
+
+Example output:
+[{"entity": "diabetes", "confidence": 0.95}, {"entity": "hypertension", "confidence": 0.90}]
+
+If no diseases are found, return an empty array: []
+
+Text to analyze:
+{text}
+
+JSON output:"""
+
+
+class OllamaNerExtractor:
+    """
+    Ollama-based Named Entity Recognition extractor.
+
+    Uses an LLM to extract disease entities from text via prompting.
+    This provides GPU acceleration when connected to a remote Ollama server.
+    """
+
+    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3.1:8b", timeout: float = 120.0):
+        """
+        Initialize the Ollama NER extractor.
+
+        Args:
+
+            host: Ollama server URL
+            model: LLM model to use for extraction
+            timeout: Request timeout in seconds
+        """
+        self.host = host
+        self.model = model
+        self._client = ollama.Client(host=host, timeout=timeout)
+
+    def extract_entities(self, text: str) -> list[dict]:
+        """
+        Extract disease entities from text using LLM.
+
+        Args:
+
+            text: Text to extract entities from
+
+        Returns:
+
+            List of dicts with 'word', 'entity_group', and 'score' keys
+            (matching HuggingFace NER pipeline output format)
+        """
+        if not text or len(text.strip()) < 10:
+            return []
+
+        prompt = OLLAMA_NER_PROMPT.format(text=text[:2000])  # Limit text length
+
+        try:
+            response = self._client.generate(
+                model=self.model,
+                prompt=prompt,
+                options={"temperature": 0.1}  # Low temperature for consistent extraction
+            )
+
+            # Parse JSON response
+            response_text = response.get("response", "").strip()
+
+            # Try to extract JSON from the response
+            # Sometimes LLMs add extra text around the JSON
+            json_start = response_text.find("[")
+            json_end = response_text.rfind("]") + 1
+
+            if json_start >= 0 and json_end > json_start:
+                json_str = response_text[json_start:json_end]
+                entities = json.loads(json_str)
+
+                # Convert to HuggingFace NER pipeline format
+                results = []
+                for ent in entities:
+                    if isinstance(ent, dict) and "entity" in ent:
+                        results.append({
+                            "word": ent["entity"],
+                            "entity_group": "Disease",
+                            "score": float(ent.get("confidence", 0.85))
+                        })
+                return results
+
+        except json.JSONDecodeError:
+            # If JSON parsing fails, return empty list
+            pass
+        except Exception as e:
+            print(f"    Warning: Ollama NER extraction failed: {e}")
+
+        return []
 
 
 def get_git_info():
@@ -223,6 +323,8 @@ def main():
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
     parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
     parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
+    parser.add_argument("--ollama-host", type=str, default=None, help="Ollama host URL (e.g., http://localhost:11434). If provided, uses Ollama LLM for NER instead of BioBERT.")
+    parser.add_argument("--ollama-model", type=str, default="llama3.1:8b", help="Ollama model to use for NER (default: llama3.1:8b)")
 
     args = parser.parse_args()
 
@@ -244,22 +346,35 @@ def main():
         repo_url="https://github.com/wware/med-lit-graph",
     )
 
-    # Model info
-    model_name = "ugaray96/biobert_ncbi_disease_ner"
-    model_info = ModelInfo(name=model_name, provider="huggingface", temperature=None, version=None)
+    # Model info - depends on whether using Ollama or BioBERT
+    if args.ollama_host:
+        model_name = args.ollama_model
+        model_info = ModelInfo(name=model_name, provider="ollama", temperature=0.1, version=None)
+        prompt_template = "ollama_ner_disease"
+    else:
+        model_name = "ugaray96/biobert_ncbi_disease_ner"
+        model_info = ModelInfo(name=model_name, provider="huggingface", temperature=None, version=None)
+        prompt_template = "ner_biobert_ncbi_disease"
 
     # Prompt info
-    prompt_info = PromptInfo(version="v1", template="ner_biobert_ncbi_disease", checksum=None)
+    prompt_info = PromptInfo(version="v1", template=prompt_template, checksum=None)
 
     # Execution info
     execution_start = datetime.now()
     execution_info = ExecutionInfo(timestamp=execution_start.isoformat(), hostname=socket.gethostname(), python_version=platform.python_version(), duration_seconds=None)
 
-    # Setup NER ingest
-    print(f"Loading NER model: {model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForTokenClassification.from_pretrained(model_name)
-    ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+    # Setup NER extractor - either Ollama (GPU) or BioBERT (CPU)
+    if args.ollama_host:
+        print(f"Using Ollama at {args.ollama_host} for GPU-accelerated NER")
+        print(f"Model: {model_name}")
+        ollama_extractor = OllamaNerExtractor(host=args.ollama_host, model=model_name)
+        # Create a callable wrapper that matches HuggingFace pipeline interface
+        ner_pipeline = lambda text: ollama_extractor.extract_entities(text)
+    else:
+        print(f"Loading NER model: {model_name}")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForTokenClassification.from_pretrained(model_name)
+        ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
 
     # Process papers
     if args.storage == "sqlite":

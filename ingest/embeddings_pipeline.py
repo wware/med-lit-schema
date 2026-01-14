@@ -220,7 +220,7 @@ def load_embedding(embedding_bytes: bytes) -> np.ndarray:
 # ============================================================================
 
 
-def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32) -> int:
+def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT_MODEL, batch_size: int = 32, ollama_host: str = "http://localhost:11434") -> int:
     """
     Generate embeddings for all entities in entities.db.
 
@@ -233,7 +233,7 @@ def generate_entity_embeddings(entities_db_path: Path, model_name: str = DEFAULT
         Number of entity embeddings created
     """
     print(f"Loading embedding model: {model_name}")
-    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name)
+    embedding_generator = OllamaEmbeddingGenerator(model_name=model_name, host=ollama_host)
 
     # Use the dynamically determined embedding dimension
     global EMBEDDING_DIM

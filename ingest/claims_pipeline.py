@@ -24,6 +24,7 @@ try:
     from ..storage.backends.postgres import PostgresPipelineStorage
     from .embedding_interfaces import EmbeddingGeneratorInterface
     from .embedding_generators import SentenceTransformerEmbeddingGenerator
+    from .ollama_embedding_generator import OllamaEmbeddingGenerator
 except ImportError:
     # Absolute imports for standalone execution
     from med_lit_schema.base import PredicateType
@@ -34,6 +35,7 @@ except ImportError:
     from med_lit_schema.storage.backends.postgres import PostgresPipelineStorage
     from med_lit_schema.ingest.embedding_interfaces import EmbeddingGeneratorInterface
     from med_lit_schema.ingest.embedding_generators import SentenceTransformerEmbeddingGenerator
+    from med_lit_schema.ingest.ollama_embedding_generator import OllamaEmbeddingGenerator
 
 from sqlalchemy import create_engine
 from sqlmodel import Session
@@ -199,6 +201,8 @@ def main():
     parser.add_argument("--skip-embeddings", action="store_true", help="Skip embedding generation")
     parser.add_argument("--embedding-model", type=str, default=DEFAULT_MODEL, help="Embedding model to use (default: sentence-transformers/all-mpnet-base-v2)")
     parser.add_argument("--embedding-batch-size", type=int, default=32, help="Batch size for embedding generation")
+    parser.add_argument("--ollama-host", type=str, default=None, help="Ollama host URL (e.g., http://localhost:11434). If provided, uses Ollama for embeddings instead of SentenceTransformers.")
+    parser.add_argument("--ollama-model", type=str, default="nomic-embed-text", help="Ollama embedding model to use (default: nomic-embed-text)")
 
     args = parser.parse_args()
 
@@ -276,8 +280,16 @@ def process_papers(storage, args):
         print("Generating relationship embeddings...")
         print("-" * 60)
 
-        # Initialize embedding generator
-        embedding_generator: EmbeddingGeneratorInterface = SentenceTransformerEmbeddingGenerator(model_name=args.embedding_model)
+        # Initialize embedding generator based on whether Ollama is configured
+        embedding_generator: EmbeddingGeneratorInterface
+        if args.ollama_host:
+            print(f"Using Ollama at {args.ollama_host} for GPU-accelerated embeddings")
+            embedding_generator = OllamaEmbeddingGenerator(
+                model_name=args.ollama_model,
+                host=args.ollama_host
+            )
+        else:
+            embedding_generator = SentenceTransformerEmbeddingGenerator(model_name=args.embedding_model)
         print(f"Using embedding model: {embedding_generator.model_name}")
         print(f"Embedding dimension: {embedding_generator.embedding_dim}")
         print()
