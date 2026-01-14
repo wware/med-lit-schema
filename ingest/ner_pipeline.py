@@ -18,6 +18,7 @@ import socket
 import platform
 import subprocess
 import uuid
+from itertools import combinations
 
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
@@ -84,7 +85,7 @@ class OllamaNerExtractor:
     This provides GPU acceleration when connected to a remote Ollama server.
     """
 
-    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3.1:8b", timeout: float = 120.0):
+    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3.1:8b", timeout: float = 300.0):
         """
         Initialize the Ollama NER extractor.
 
@@ -114,7 +115,9 @@ class OllamaNerExtractor:
         if not text or len(text.strip()) < 10:
             return []
 
-        prompt = OLLAMA_NER_PROMPT.format(text=text[:2000])  # Limit text length
+        # Use larger text chunks (8000 chars) for better efficiency
+        # The LLM can handle this easily, and it reduces API calls significantly
+        prompt = OLLAMA_NER_PROMPT.format(text=text[:8000])
 
         try:
             response = self._client.generate(
@@ -146,7 +149,11 @@ class OllamaNerExtractor:
             # If JSON parsing fails, return empty list
             pass
         except Exception as e:
-            print(f"    Warning: Ollama NER extraction failed: {e}")
+            # Check if it's a timeout specifically
+            if "timeout" in str(e).lower() or "timed out" in str(e).lower():
+                print(f"    Warning: Ollama NER extraction timed out (chunk may be too large or server overloaded): {e}")
+            else:
+                print(f"    Warning: Ollama NER extraction failed: {e}")
 
         return []
 
@@ -260,8 +267,31 @@ def process_paper(
 
     STOPWORDS = {"the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"}
 
-    for paragraph_text in paragraphs:
-        ner_results = ner_pipeline(paragraph_text)
+    # Batch paragraphs into larger chunks to reduce API calls
+    # Target: ~8000-10000 chars per chunk (much more efficient than 2000)
+    CHUNK_SIZE = 8000
+    paragraph_chunks = []
+    current_chunk = []
+    current_length = 0
+
+    for para in paragraphs:
+        para_len = len(para)
+        if current_length + para_len > CHUNK_SIZE and current_chunk:
+            # Save current chunk and start new one
+            paragraph_chunks.append("\n\n".join(current_chunk))
+            current_chunk = [para]
+            current_length = para_len
+        else:
+            current_chunk.append(para)
+            current_length += para_len + 2  # +2 for "\n\n" separator
+
+    # Add final chunk
+    if current_chunk:
+        paragraph_chunks.append("\n\n".join(current_chunk))
+
+    # Process chunks (much fewer API calls than individual paragraphs)
+    for chunk_text in paragraph_chunks:
+        ner_results = ner_pipeline(chunk_text)
 
         # Track entities found in this paragraph only
         paragraph_entities: list[tuple[EntityReference, float]] = []
@@ -305,38 +335,46 @@ def process_paper(
             paragraph_entities.append((entity_ref, confidence))
 
         # -----------------------------
-        # Build co-occurrence edges (paragraph-local)
+        # Build co-occurrence edges (chunk-local)
         # -----------------------------
 
-        for i in range(len(paragraph_entities)):
-            subj_ref, conf_i = paragraph_entities[i]
-            for j in range(i + 1, len(paragraph_entities)):
-                obj_ref, conf_j = paragraph_entities[j]
+        # Use combinations to create edges between all entity pairs in this chunk
+        # Filter: only create edges for high-confidence entity pairs and skip self-edges
+        MIN_EDGE_CONFIDENCE = 0.9  # Both entities must have high confidence
+        for (subj_ref, conf_i), (obj_ref, conf_j) in combinations(paragraph_entities, 2):
+            # Skip self-edges (same entity)
+            if subj_ref.id == obj_ref.id:
+                continue
 
-                provenance = Provenance(
-                    source_type="paper",
-                    source_id=pmc_id,
-                    source_version=None,
-                    notes=json.dumps(
-                        {
-                            "extraction_pipeline": ingest_info.name,
-                            "git_commit": ingest_info.git_commit_short,
-                            "model": model_info.name,
-                            "scope": "paragraph",
-                        }
-                    ),
-                )
+            # Only create edges for high-confidence entity pairs
+            edge_confidence = min(conf_i, conf_j)
+            if edge_confidence < MIN_EDGE_CONFIDENCE:
+                continue
 
-                edge = ExtractionEdge(
-                    id=uuid.uuid4(),
-                    subject=subj_ref,
-                    object=obj_ref,
-                    provenance=provenance,
-                    extractor=model_info,
-                    confidence=min(conf_i, conf_j),
-                )
+            provenance = Provenance(
+                source_type="paper",
+                source_id=pmc_id,
+                source_version=None,
+                notes=json.dumps(
+                    {
+                        "extraction_pipeline": ingest_info.name,
+                        "git_commit": ingest_info.git_commit_short,
+                        "model": model_info.name,
+                        "scope": "chunk",  # Updated: now processing chunks, not individual paragraphs
+                    }
+                ),
+            )
 
-                extraction_edges.append(edge)
+            edge = ExtractionEdge(
+                id=uuid.uuid4(),
+                subject=subj_ref,
+                object=obj_ref,
+                provenance=provenance,
+                extractor=model_info,
+                confidence=edge_confidence,
+            )
+
+            extraction_edges.append(edge)
 
     return entities_found, entities_created, extraction_edges
 

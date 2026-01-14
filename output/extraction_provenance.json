@@ -2,34 +2,34 @@
   "extraction_pipeline": {
     "name": "pmc_ner_ingest",
     "version": "1.0.0",
-    "git_commit": "ae4a32a5ba962c27841615b15d9e0b5f8d444e70",
-    "git_commit_short": "ae4a32a",
+    "git_commit": "8876b17bb037471d093dccbab45c270312964cc3",
+    "git_commit_short": "8876b17",
     "git_branch": "main",
-    "git_dirty": false,
+    "git_dirty": true,
     "repo_url": "https://github.com/wware/med-lit-graph"
   },
   "models": {
     "ner": {
-      "name": "ugaray96/biobert_ncbi_disease_ner",
-      "provider": "huggingface",
-      "temperature": null,
+      "name": "llama3.1:8b",
+      "provider": "ollama",
+      "temperature": 0.1,
       "version": null
     }
   },
   "prompt": {
     "version": "v1",
-    "template": "ner_biobert_ncbi_disease",
+    "template": "ollama_ner_disease",
     "checksum": null
   },
   "execution": {
-    "timestamp": "2026-01-13T17:56:03.849606",
+    "timestamp": "2026-01-14T14:14:57.846292",
     "hostname": "wware-Inspiron-5570",
     "python_version": "3.13.3",
-    "duration_seconds": 1531.279056
+    "duration_seconds": 1353.205114
   },
   "entity_resolution": {
-    "canonical_entities_matched": 5943,
-    "new_entities_created": 258,
+    "canonical_entities_matched": 641,
+    "new_entities_created": 661,
     "similarity_threshold": 0.0,
     "embedding_model": "none"
   }
