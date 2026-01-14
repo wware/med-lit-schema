@@ -66,7 +66,7 @@ Return ONLY a JSON array of objects with "entity" (the disease name) and "confid
 Do not include any explanation, just the JSON array.
 
 Example output:
-[{"entity": "diabetes", "confidence": 0.95}, {"entity": "hypertension", "confidence": 0.90}]
+[{{"entity": "diabetes", "confidence": 0.95}}, {{"entity": "hypertension", "confidence": 0.90}}]
 
 If no diseases are found, return an empty array: []
 

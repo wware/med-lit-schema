@@ -345,20 +345,20 @@ To create your own storage backend:
 1. **Implement `PipelineStorageInterface`**:
    ```python
    from med_lit_schema.pipeline.storage_interfaces import PipelineStorageInterface
-   
+
    class MyCustomStorage(PipelineStorageInterface):
        def __init__(self, connection_string: str):
            # Initialize your storage backend
            self._entities = MyEntityCollection(connection_string)
            self._papers = MyPaperStorage(connection_string)
            # ... implement other sub-interfaces
-       
+
        @property
        def entities(self) -> EntityCollectionInterface:
            return self._entities
-       
+
        # Implement other properties...
-       
+
        def close(self) -> None:
            # Clean up connections
            pass

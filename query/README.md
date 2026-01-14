@@ -404,7 +404,7 @@ class QueryResults:
     count: int                      # Number of results
     query_time_ms: float            # Query execution time
     query_sql: Optional[str]        # SQL that was executed
-    
+
     def to_dataframe()  # Convert to pandas DataFrame
     def to_json()       # Convert to JSON string
 ```

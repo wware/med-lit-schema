@@ -88,7 +88,7 @@ The `find_relationships()` method with optional filters is designed for graph qu
   ```python
   storage.relationships.find_relationships(subject_id="C0006142")
   ```
-  
+
 - **Corresponding Cypher**:
   ```cypher
   MATCH (s {entity_id: "C0006142"})-[r]->(o) RETURN r, o
@@ -98,7 +98,7 @@ The `find_relationships()` method with optional filters is designed for graph qu
   ```python
   storage.relationships.find_relationships(predicate="TREATS")
   ```
-  
+
 - **Corresponding Cypher**:
   ```cypher
   MATCH (s)-[r:TREATS]->(o) RETURN r, s, o
@@ -134,44 +134,44 @@ from typing import Optional
 
 class Neo4jPipelineStorage(PipelineStorageInterface):
     """Neo4j implementation of ingest storage."""
-    
+
     def __init__(self, uri: str, user: str, password: str):
         """Initialize Neo4j connection.
-        
+
         Args:
             uri: Neo4j connection URI (e.g., "bolt://localhost:7687")
             user: Database username
             password: Database password
         """
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
-        
+
         # Initialize sub-interfaces
         self._entities = Neo4jEntityCollection(self.driver)
         self._relationships = Neo4jRelationshipStorage(self.driver)
         self._papers = Neo4jPaperStorage(self.driver)
         self._evidence = Neo4jEvidenceStorage(self.driver)
         self._relationship_embeddings = Neo4jRelationshipEmbeddingStorage(self.driver)
-    
+
     @property
     def entities(self) -> EntityCollectionInterface:
         return self._entities
-    
+
     @property
     def relationships(self) -> RelationshipStorageInterface:
         return self._relationships
-    
+
     @property
     def papers(self) -> PaperStorageInterface:
         return self._papers
-    
+
     @property
     def evidence(self) -> EvidenceStorageInterface:
         return self._evidence
-    
+
     @property
     def relationship_embeddings(self):
         return self._relationship_embeddings
-    
+
     def close(self) -> None:
         """Close Neo4j driver connection."""
         self.driver.close()
@@ -179,10 +179,10 @@ class Neo4jPipelineStorage(PipelineStorageInterface):
 
 class Neo4jRelationshipStorage(RelationshipStorageInterface):
     """Neo4j implementation of relationship storage."""
-    
+
     def __init__(self, driver):
         self.driver = driver
-    
+
     def add_relationship(self, relationship: "BaseRelationship") -> None:
         """Add or update a relationship as a Neo4j edge."""
         with self.driver.session() as session:
@@ -202,7 +202,7 @@ class Neo4jRelationshipStorage(RelationshipStorageInterface):
                 source=relationship.source,
                 metadata=relationship.model_dump_json()
             )
-    
+
     def get_relationship(
         self, subject_id: str, predicate: str, object_id: str
     ) -> Optional["BaseRelationship"]:
@@ -222,7 +222,7 @@ class Neo4jRelationshipStorage(RelationshipStorageInterface):
                 # Convert Neo4j relationship to domain model
                 return self._parse_relationship(record["r"])
             return None
-    
+
     def find_relationships(
         self,
         subject_id: Optional[str] = None,
@@ -234,7 +234,7 @@ class Neo4jRelationshipStorage(RelationshipStorageInterface):
         # Build Cypher query dynamically based on filters
         conditions = []
         params = {}
-        
+
         if subject_id:
             conditions.append("s.entity_id = $subject_id")
             params["subject_id"] = subject_id
@@ -244,28 +244,28 @@ class Neo4jRelationshipStorage(RelationshipStorageInterface):
         if object_id:
             conditions.append("o.entity_id = $object_id")
             params["object_id"] = object_id
-        
+
         where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
         limit_clause = f"LIMIT {limit}" if limit else ""
-        
+
         query = f"""
         MATCH (s)-[r:RELATIONSHIP]->(o)
         {where_clause}
         RETURN r
         {limit_clause}
         """
-        
+
         with self.driver.session() as session:
             result = session.run(query, **params)
             return [self._parse_relationship(record["r"]) for record in result]
-    
+
     @property
     def relationship_count(self) -> int:
         """Count total relationships."""
         with self.driver.session() as session:
             result = session.run("MATCH ()-[r:RELATIONSHIP]->() RETURN count(r) as count")
             return result.single()["count"]
-    
+
     def _parse_relationship(self, neo4j_rel):
         """Convert Neo4j relationship to domain model."""
         # Implementation would parse the relationship data
@@ -305,7 +305,7 @@ Complex analytical queries become straightforward:
 MATCH (drug:Entity {entity_type: 'DRUG'})-[treats:RELATIONSHIP {predicate: 'TREATS'}]->(disease:Entity {entity_id: 'C0006142'})
 MATCH (paper:Paper)-[evidence:SUPPORTS]->(treats)
 WHERE evidence.confidence > 0.8 AND evidence.sample_size > 100
-RETURN drug.name, 
+RETURN drug.name,
        COUNT(paper) as paper_count,
        AVG(evidence.confidence) as avg_confidence
 ORDER BY paper_count DESC
@@ -314,7 +314,7 @@ ORDER BY paper_count DESC
 **Example: Find genes connected to a disease through multiple relationship types**
 ```cypher
 MATCH path = (gene:Entity {entity_type: 'GENE'})-[*1..3]-(disease:Entity {entity_id: 'C0006142'})
-RETURN gene.name, 
+RETURN gene.name,
        [rel in relationships(path) | rel.predicate] as connection_types,
        length(path) as distance
 ORDER BY distance
