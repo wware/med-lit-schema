@@ -57,12 +57,16 @@ The ingest process consists of seven stages that should be run in sequence:
 
 ### Quick Reference
 
+The `pipeline.sh` script is a **command generator** - it emits shell commands to stdout rather than executing them directly. This allows you to preview, edit, or save the pipeline before running.
+
 | Scenario | Command |
 |----------|---------|
-| **Process existing papers with Lambda Labs GPU** | `export OLLAMA_HOST=http://<LAMBDA_IP>:11434`<br>`bash ingest/pipeline.sh --skip-download --no-ollama` |
-| **Full pipeline with local Ollama** | `bash ingest/pipeline.sh` |
-| **SQLite (testing)** | `bash ingest/pipeline.sh --storage sqlite` |
-| **Custom PostgreSQL URL** | `bash ingest/pipeline.sh --database-url postgresql://...` |
+| **Preview commands** | `bash ingest/pipeline.sh --storage sqlite` |
+| **Run directly** | `bash ingest/pipeline.sh --storage sqlite \| bash` |
+| **Save for editing** | `bash ingest/pipeline.sh --storage sqlite > run.sh` |
+| **Process existing papers with Lambda Labs GPU** | `export OLLAMA_HOST=http://<LAMBDA_IP>:11434`<br>`bash ingest/pipeline.sh --skip-download --no-ollama \| bash` |
+| **Full pipeline with local Ollama** | `bash ingest/pipeline.sh \| bash` |
+| **Custom PostgreSQL URL** | `bash ingest/pipeline.sh --database-url postgresql://... \| bash` |
 
 **Command-line Options:**
 - `--skip-download` - Skip Stage 0 (download) - use when papers already exist
@@ -93,18 +97,23 @@ curl $OLLAMA_HOST/api/tags
 **2. Run the complete pipeline:**
 
 ```bash
-# The pipeline.sh script will:
-# - Start Docker Compose (postgres, redis) but NOT ollama (--no-ollama)
-# - Skip Stage 0 download (--skip-download)
-# - Use OLLAMA_HOST environment variable for GPU acceleration
+# Preview the commands first (optional)
 bash ingest/pipeline.sh --skip-download --no-ollama
+
+# Run the pipeline
+bash ingest/pipeline.sh --skip-download --no-ollama | bash
+
+# Or save to a file for editing
+bash ingest/pipeline.sh --skip-download --no-ollama > my_pipeline.sh
+# Edit my_pipeline.sh to skip stages, modify parameters, etc.
+bash my_pipeline.sh
 ```
 
-That's it! The script handles:
+The generated script handles:
 - Starting Docker Compose services (PostgreSQL & Redis only)
-- Waiting for PostgreSQL to be ready
+- Waiting for PostgreSQL to be ready (via `wait_for_postgres.py`)
 - Setting up the database schema
-- Running all stages (2-6) with GPU acceleration via Lambda Labs
+- Running all stages with GPU acceleration via Lambda Labs
 - Using existing papers from `ingest/pmc_xmls/`
 
 **Alternative: Run stages individually** (if you need more control):
@@ -114,10 +123,10 @@ That's it! The script handles:
 docker compose up -d postgres redis
 
 # Wait for PostgreSQL
-until docker exec med-lit-postgres pg_isready -U postgres; do sleep 2; done
+export DB_URL="postgresql://postgres:postgres@localhost:5432/medlit"
+uv run python ingest/wait_for_postgres.py --database-url $DB_URL
 
 # Setup database
-export DB_URL="postgresql://postgres:postgres@localhost:5432/medlit"
 uv run python setup_database.py --database-url $DB_URL
 
 # Run stages

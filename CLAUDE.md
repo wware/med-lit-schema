@@ -1,89 +1,100 @@
-# Websites
+# CLAUDE.md
 
-Website projects should be presumed (unless otherwise specified) to target
-eventual AWS deployment.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-They should be prototyped with docker-compose.
+## Project Overview
 
-Websites should be architected with clear APIs, accessed by static resources.
-This separates concerns and improves testability.
+Medical Knowledge Graph Schema - a Python library for building and querying a medical literature knowledge graph. Extracts entities and relationships from PubMed/PMC papers with full provenance tracking.
 
-When feasible, website projects should be self-documenting (e.g. FastAPI's
-"/docs" endpoint).
+## Commands
 
-# Python projects
-
-Prefer `uv` for setting up virtualenvs and running commands. Try to stick to
-a pretty recent Python version, 3.12 or 3.13 (currently).
-
-Python projects should use pydantic models and immutable data (tuple,
-frozenset, frozendict, pydantic model with frozen option) to improve clarity
-and reliability.
-
-Variable and class names should be descriptive and meaningful.
-
-Fields in pydantic models should have meaningful description strings.
-
-Feel free to liberally document code using Markdown-formatted multi-line
-strings at the top level. These are easy to search and query, and also to
-format into nice documentation.
-
-## Docstring Formatting
-
-Docstrings should use a Markdown-friendly format with blank lines to improve
-readability when rendered. This diverges slightly from strict Google-style
-docstrings for better Markdown rendering.
-
-**Pattern to follow:**
-
-1. Start with a brief description (one or more sentences)
-2. Add a blank line after the description
-3. Add "Attributes:" section header
-4. Add a blank line after "Attributes:"
-5. List attributes with proper indentation
-6. Add a blank line after the attributes list
-7. Add "Example:" section header (if applicable)
-8. Add a blank line after "Example:"
-9. Include example code block
-
-**Example:**
-
-```python
-class MyClass(BaseModel):
-    """
-    Brief description of the class.
-
-    Additional context or explanation can go here.
-
-    Attributes:
-
-        field1: Description of field1
-        field2: Description of field2
-        field3: Description of field3
-
-    Example:
-
-        >>> instance = MyClass(
-        ...     field1="value1",
-        ...     field2="value2"
-        ... )
-    """
+### Development Setup
+```bash
+uv sync                    # Install dependencies
+uv run pytest              # Run all tests
+uv run pytest -x           # Stop on first failure
+uv run pytest tests/test_mapper.py  # Run single test file
+uv run pytest -k "test_disease"     # Run tests matching pattern
 ```
 
-The blank lines between sections help Markdown renderers (Sphinx, MkDocs,
-GitHub) create proper spacing and improve readability. This pattern should be
-applied consistently across all docstrings in the codebase.
+### Linting
+```bash
+uv run black . --check     # Check formatting (line-length 200)
+uv run ruff check .        # Lint check
+uv run black .             # Auto-format
+```
 
-## Pytest
+### Database Setup
+```bash
+docker compose up -d postgres redis  # Start PostgreSQL + Redis
+uv run python setup_database.py --database-url postgresql://postgres:postgres@localhost:5432/medlit
+```
 
-Pytest should be used to verify functionality.
+### API Server
+```bash
+docker compose up api                    # Run API server via Docker
+uv run uvicorn query.server:app --port 8000  # Run API directly
+```
+API docs at `http://localhost:8000/docs`, GraphQL at `/graphiql`
 
-Tests should be created as early as feasible. It is a good idea to write tests
-ahead of the code they are testing.
+### Ingestion Pipeline
+```bash
+# Full pipeline with Docker Compose
+bash ingest/pipeline.sh --storage postgres
 
-Tests should be well documented, well architected, and clear.
+# Individual stages
+uv run python ingest/download_pipeline.py --search "BRCA1" --output-dir ingest/pmc_xmls
+uv run python ingest/provenance_pipeline.py --input-dir ingest/pmc_xmls --output-dir output --storage sqlite
+uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --storage sqlite
+uv run python ingest/claims_pipeline.py --output-dir output --storage sqlite
+uv run python ingest/evidence_pipeline.py --output-dir output --storage sqlite
+uv run python ingest/graph_pipeline.py --output-dir output --storage sqlite
+```
 
-Test suite should be run frequently during development to provide guidance.
+## Architecture
 
-To the extent possible, tests should be written that do not inhibit refactoring.
+### Domain/Persistence Separation
 
+The codebase separates domain logic from database concerns:
+
+1. **Domain Models** (`entity.py`, `relationship.py`, `base.py`) - Pure Pydantic models with rich inheritance (Disease, Gene, Drug inherit from BaseMedicalEntity). Use for business logic, API responses, and ingestion.
+
+2. **Persistence Models** (`storage/models/`) - SQLModel classes using single-table inheritance. All entity types in one `Entity` table with type discriminator. JSON serialization for arrays/embeddings.
+
+3. **Mapper** (`mapper.py`) - Converts between domain and persistence models via `to_persistence()` and `to_domain()`.
+
+### Key Directories
+
+- **Root Python files**: Core domain models and mapper
+- **`storage/`**: Storage interfaces and backend implementations (SQLite, PostgreSQL)
+- **`ingest/`**: Pipeline stages for processing PMC papers (download → NER → claims → evidence → graph)
+- **`query/`**: FastAPI server with REST, GraphQL, and MCP endpoints; Python query client
+- **`tests/`**: Pytest test suite
+
+### Storage Backends
+
+- **SQLite** (`storage/backends/sqlite.py`): Development/testing. Optional sqlite-vec for vectors.
+- **PostgreSQL** (`storage/backends/postgres.py`): Production. Uses pgvector for embedding search.
+
+Both implement `PipelineStorageInterface` from `storage/interfaces.py`.
+
+### Entity Resolution
+
+All entities use canonical IDs from medical ontologies (UMLS, HGNC, RxNorm, UniProt) to unify mentions across papers. The `InMemoryEntityCollection` (aliased as `EntityCollection`) maintains the authoritative entity registry.
+
+## Code Conventions
+
+- Always use `uv run python` instead of `python` directly
+- Always use `uv add <package>` instead of `pip install`
+- Use descriptive variable and class names
+- Pydantic fields should have meaningful `description` strings
+- Prefer immutable data (tuple, frozenset, frozen Pydantic models)
+- Line length: 200 characters (configured in pyproject.toml)
+- Docstrings: Use Markdown-friendly format with blank lines between sections
+
+## Key Design Principles
+
+1. **Provenance First**: All relationships MUST include evidence with paper_id, section_type, paragraph_idx, study_type
+2. **Evidence Quality Weighting**: Confidence scores auto-calculated from study type (RCT=1.0, meta_analysis=0.95, etc.)
+3. **Standards-Based IDs**: UMLS for diseases, HGNC for genes, RxNorm for drugs, UniProt for proteins
+4. **Pydantic Validation**: Runtime validation prevents invalid medical data from entering the system

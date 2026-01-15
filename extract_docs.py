@@ -201,7 +201,8 @@ def extract_docs(source_path: Path) -> str:
     boundary_width = max(len(path_str) + 8, 50)
     boundary = "*" * boundary_width
 
-    lines = [boundary, boundary, f"**  {path_str}  **", boundary, boundary, f"# {source_path.name}\n"]
+    # lines = [boundary, boundary, f"**  {path_str}  **", boundary, boundary, f"# {source_path.name}\n"]
+    lines = [f"# {path_str}"]
 
     for section in extractor.sections:
         doc_type, signature, content, fields = section

@@ -598,10 +598,14 @@ def main():
     parser.add_argument("--batch-size", type=int, default=32, help="Batch size for encoding")
     parser.add_argument("--entities-only", action="store_true", help="Generate only entity embeddings")
     parser.add_argument("--paragraphs-only", action="store_true", help="Generate only paragraph embeddings")
-    parser.add_argument("--ollama-host", type=str, default="http://localhost:11434", help="Ollama server URL")
+    parser.add_argument("--ollama-host", type=str, default=None, help="Ollama server URL (defaults to OLLAMA_HOST env var or http://localhost:11434)")
     parser.add_argument("--xml-dir", type=str, default="ingest/pmc_xmls", help="Directory containing XML files for paragraph extraction")
 
     args = parser.parse_args()
+
+    # Use OLLAMA_HOST environment variable as fallback if --ollama-host not provided
+    import os
+    ollama_host = args.ollama_host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
     output_dir = Path(args.output_dir)
 
@@ -640,7 +644,7 @@ def main():
             else:
                 print("Generating entity embeddings...")
                 print("-" * 60)
-                count = generate_entity_embeddings(entities_db_path, model_name=args.model, batch_size=args.batch_size, ollama_host=args.ollama_host)
+                count = generate_entity_embeddings(entities_db_path, model_name=args.model, batch_size=args.batch_size, ollama_host=ollama_host)
                 total_embeddings += count
                 print()
 
@@ -657,7 +661,7 @@ def main():
             else:
                 storage = SQLitePipelineStorage(entities_db_path)
                 try:
-                    count = generate_paragraph_embeddings(storage=storage, model_name=args.model, batch_size=args.batch_size, ollama_host=args.ollama_host, xml_dir=xml_dir)
+                    count = generate_paragraph_embeddings(storage=storage, model_name=args.model, batch_size=args.batch_size, ollama_host=ollama_host, xml_dir=xml_dir)
                     total_embeddings += count
                 finally:
                     storage.close()
@@ -669,7 +673,7 @@ def main():
                 engine = create_engine(args.database_url)
                 with Session(engine) as session:
                     storage = PostgresPipelineStorage(session)
-                    count = generate_paragraph_embeddings(storage=storage, model_name=args.model, batch_size=args.batch_size, ollama_host=args.ollama_host, xml_dir=xml_dir)
+                    count = generate_paragraph_embeddings(storage=storage, model_name=args.model, batch_size=args.batch_size, ollama_host=ollama_host, xml_dir=xml_dir)
                     total_embeddings += count
         print()
 

@@ -25,13 +25,32 @@ class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
         self._model_name = model_name
         self._client = ollama.Client(host=host, timeout=timeout)
 
+        # Known embedding dimensions for common models (fallback if connection fails)
+        KNOWN_DIMENSIONS = {
+            "nomic-embed-text": 768,
+            "nomic-embed-text-v1": 768,
+            "all-minilm": 384,
+            "all-mpnet-base-v2": 768,
+        }
+
         # Determine embedding dimension by encoding a dummy string
         # This requires the model to be downloaded and available
         try:
             dummy_embedding = self._client.embed(model=self._model_name, input="dummy text")
             self._embedding_dim = len(dummy_embedding["embeddings"][0])
         except Exception as e:
-            raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. Ensure the model is pulled and Ollama is running. Error: {e}")
+            # Fallback to known dimensions if connection fails
+            if model_name in KNOWN_DIMENSIONS:
+                self._embedding_dim = KNOWN_DIMENSIONS[model_name]
+                print(f"Warning: Could not connect to Ollama at {host} to determine embedding dimension.")
+                print(f"Using known dimension {self._embedding_dim} for model '{model_name}'.")
+                print(f"Connection error: {e}")
+            else:
+                raise RuntimeError(
+                    f"Failed to get embedding dimension from Ollama model '{model_name}'. "
+                    f"Ensure the model is pulled and Ollama is running at {host}. "
+                    f"Error: {e}"
+                )
 
     def generate_embedding(self, text: str) -> List[float]:
         """Generate a single embedding for text."""
