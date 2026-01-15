@@ -45,7 +45,9 @@ bash ingest/pipeline.sh --storage postgres
 # Individual stages
 uv run python ingest/download_pipeline.py --search "BRCA1" --output-dir ingest/pmc_xmls
 uv run python ingest/provenance_pipeline.py --input-dir ingest/pmc_xmls --output-dir output --storage sqlite
-uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --storage sqlite
+uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --storage sqlite  # Uses biobert-fast with 4 workers by default
+uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --ner-backend ollama --ollama-host http://localhost:11434  # LLM-based
+uv run python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output --workers 1  # Single-threaded for debugging
 uv run python ingest/claims_pipeline.py --output-dir output --storage sqlite
 uv run python ingest/evidence_pipeline.py --output-dir output --storage sqlite
 uv run python ingest/graph_pipeline.py --output-dir output --storage sqlite

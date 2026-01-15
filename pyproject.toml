@@ -66,6 +66,12 @@ query = [
     "matplotlib>=3.7.0",
     "plotly>=5.18.0",
 ]
+scispacy = [
+    # Optional: scispacy for fast spaCy-based NER (has dependency issues on Python 3.13+)
+    # Install with: uv pip install scispacy
+    # Then: uv pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_ner_bc5cdr_md-0.5.4.tar.gz
+    "scispacy>=0.5.4",
+]
 
 [project.urls]
 Homepage = "https://github.com/wware/med-lit-schema"

@@ -21,11 +21,15 @@ The ingest process consists of seven stages that should be run in sequence:
    - Handles rate limiting and error recovery automatically
    - **Note**: Currently downloads full-text XML only (abstract-only option planned)
 
-1. **`ner_pipeline.py`** - Entity extraction using BioBERT NER or Ollama LLM
-   - Extracts biomedical entities from paper text
-   - Resolves entity mentions to canonical IDs (UMLS, HGNC, RxNorm, etc.)
-   - Stores entities with embeddings for similarity search
-   - Supports GPU acceleration via Ollama (`--ollama-host`)
+1. **`ner_pipeline.py`** - Entity extraction with multiple backend options
+   - Extracts biomedical entities (diseases) from paper text
+   - Resolves entity mentions to canonical IDs
+   - **NER backends** (`--ner-backend`):
+     - `biobert-fast` (default) - Fast HuggingFace model (`d4data/biomedical-ner-all`)
+     - `spacy` - Fastest, uses scispaCy `en_ner_bc5cdr_md` (requires optional deps)
+     - `ollama` - LLM-based extraction via Ollama server
+     - `biobert` - Original BioBERT model (slowest)
+   - **Multiprocessing** (`--workers N`) - Parallel paper processing (default: 4 workers)
 
 2. **`provenance_pipeline.py`** - Paper metadata and document structure
    - Parses PMC XML files from local directory
@@ -179,11 +183,19 @@ python ingest/download_pipeline.py \
     --max-results 50 \
     --output-dir ingest/pmc_xmls
 
-# Stage 1: Extract entities
+# Stage 1: Extract entities (default: biobert-fast with 4 workers)
 python ingest/ner_pipeline.py \
     --xml-dir ingest/pmc_xmls \
     --storage sqlite \
     --output-dir output
+
+# Stage 1 alternatives:
+# Single-threaded for debugging:
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --workers 1 --output-dir output
+# With Ollama LLM:
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --ner-backend ollama --ollama-host http://localhost:11434 --output-dir output
+# With scispaCy (fastest, requires: uv pip install scispacy && uv pip install <model_url>):
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --ner-backend spacy --output-dir output
 
 # Stage 2: Extract paper metadata
 python ingest/provenance_pipeline.py \
@@ -212,9 +224,32 @@ python ingest/graph_pipeline.py \
     --storage sqlite
 ```
 
-### Using Ollama for GPU Acceleration
+### NER Backend Options
 
-The pipeline supports offloading heavy computation to a remote GPU server via Ollama:
+The NER pipeline now supports multiple backends with different speed/accuracy tradeoffs:
+
+| Backend | Speed | Accuracy | Notes |
+|---------|-------|----------|-------|
+| `biobert-fast` | Fast | Good | Default. Uses `d4data/biomedical-ner-all` |
+| `spacy` | Fastest | Good | Requires scispaCy (has install issues on Python 3.13+) |
+| `ollama` | Varies | Good | LLM-based, can use GPU via remote server |
+| `biobert` | Slowest | Best | Original BioBERT model |
+
+```bash
+# Fast CPU processing (default)
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --output-dir output
+
+# Parallel processing with 8 workers
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --workers 8 --output-dir output
+
+# Using Ollama (optional, for GPU acceleration)
+python ingest/ner_pipeline.py --xml-dir ingest/pmc_xmls --ner-backend ollama \
+    --ollama-host http://localhost:11434 --output-dir output
+```
+
+### Using Ollama for GPU Acceleration (Optional)
+
+Ollama is now **optional** - the default `biobert-fast` backend runs efficiently on CPU. However, if you have access to a GPU server, Ollama can still accelerate NER and embeddings:
 
 ```bash
 # Set Ollama host (local or cloud)
@@ -222,13 +257,15 @@ export OLLAMA_HOST=http://localhost:11434  # Local
 # or
 export OLLAMA_HOST=http://<LAMBDA_IP>:11434  # Cloud GPU
 
-# Run stages with GPU acceleration
+# Run NER with Ollama backend
 python ingest/ner_pipeline.py \
     --xml-dir ingest/pmc_xmls \
     --storage sqlite \
     --output-dir output \
+    --ner-backend ollama \
     --ollama-host "${OLLAMA_HOST:-http://localhost:11434}"
 
+# Claims pipeline still benefits from Ollama for embeddings
 python ingest/claims_pipeline.py \
     --output-dir output \
     --storage sqlite \

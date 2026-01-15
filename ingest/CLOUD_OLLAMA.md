@@ -1,5 +1,10 @@
 # GPU-Accelerated AI for LLM Inference
 
+> **Note:** As of the latest update, Ollama/LLM-based NER is **optional**. The NER pipeline now defaults to `biobert-fast`, a fast token classification model that runs well on CPU. You only need cloud GPU if:
+> - You want to use LLM-based NER (`--ner-backend ollama`)
+> - You're processing a very large number of papers and want maximum throughput
+> - You need GPU-accelerated embeddings for the claims pipeline
+
 Like me, you may get tired of paying subscription fees to use online LLMs. Especially when you're told that you've reached the usage limit and should "switch to another model" or some such nonsense. The temptation at that point is to run a model locally using Ollama, but your local machine probably doesn't have a GPU if you're not a gamer. Then you dream of picking up a cheap GPU box on eBay and running it locally, and that's not a bad idea but it takes time and money that you may not want to spend right now.
 
 There is an alternative: cloud GPU services like Lambda Labs, RunPod, and others. This guide focuses on Lambda Labs for instant GPU access without quota requests, plus AWS EC2 as an alternative.
@@ -34,9 +39,17 @@ CPU-only torch saves:
 | Stage | File | With `--ollama-host` | Without (CPU fallback) |
 |-------|------|---------------------|------------------------|
 | 2 | `provenance_pipeline.py` | N/A (XML parsing only) | N/A |
-| 3 | `ner_pipeline.py` | Ollama LLM (llama3.1:8b) | BioBERT (local CPU) |
+| 3 | `ner_pipeline.py` | `--ner-backend ollama` uses LLM | `biobert-fast` (default), `spacy`, or `biobert` |
 | 4 | `claims_pipeline.py` | Ollama embeddings (nomic-embed-text) | SentenceTransformers (local CPU) |
 | 5 | `evidence_pipeline.py` | N/A (regex only) | N/A |
+
+**NER Backend Options (Stage 3):**
+- `biobert-fast` (default) - Fast HuggingFace model, good CPU performance
+- `spacy` - Fastest, uses scispaCy (requires optional install)
+- `ollama` - LLM-based, benefits from GPU
+- `biobert` - Original model, slowest
+
+Use `--workers N` for multiprocessing (default: 4 workers).
 
 ### Usage
 

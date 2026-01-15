@@ -151,19 +151,29 @@ echo "# Stage 1: Entity Extraction (NER)"
 echo "# ============================================================================"
 echo ""
 echo "echo 'Stage 1: Extracting biomedical entities...'"
+
+# Use smaller model for local docker-compose Ollama, default for external
+if [ "$NO_OLLAMA" = true ]; then
+    NER_MODEL="llama3.1:8b"
+else
+    NER_MODEL="llama3.2:1b"
+fi
+
 if [ "$STORAGE" = "postgres" ]; then
     echo "uv run python ingest/ner_pipeline.py \\"
     echo "    --xml-dir \"$XML_DIR\" \\"
     echo "    --output-dir \"$OUTPUT_DIR\" \\"
     echo "    --storage postgres \\"
     echo "    --database-url \"$DB_URL\" \\"
-    echo "    --ollama-host \"$OLLAMA_HOST_RESOLVED\""
+    echo "    --ollama-host \"$OLLAMA_HOST_RESOLVED\" \\"
+    echo "    --ollama-model \"$NER_MODEL\""
 else
     echo "uv run python ingest/ner_pipeline.py \\"
     echo "    --xml-dir \"$XML_DIR\" \\"
     echo "    --output-dir \"$OUTPUT_DIR\" \\"
     echo "    --storage sqlite \\"
-    echo "    --ollama-host \"$OLLAMA_HOST_RESOLVED\""
+    echo "    --ollama-host \"$OLLAMA_HOST_RESOLVED\" \\"
+    echo "    --ollama-model \"$NER_MODEL\""
 fi
 echo ""
 

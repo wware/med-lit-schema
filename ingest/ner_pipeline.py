@@ -20,9 +20,19 @@ import subprocess
 import uuid
 from itertools import combinations
 
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing
+
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
 import ollama
+
+# spaCy import is optional - scispacy has dependency issues on Python 3.13+
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
 
 # Import new schema
 # Try relative imports first (when run as module), fall back to absolute
@@ -158,6 +168,166 @@ class OllamaNerExtractor:
         return []
 
 
+# ============================================================================
+# spaCy-based NER Extractor (scispaCy models)
+# ============================================================================
+
+
+class SpacyNerExtractor:
+    """
+    spaCy-based Named Entity Recognition extractor using scispaCy models.
+
+    Uses en_ner_bc5cdr_md model trained on BioCreative V CDR corpus for
+    DISEASE and CHEMICAL entity recognition. Much faster than transformer
+    or LLM-based approaches on CPU.
+
+    Note: Requires scispacy which has dependency issues on Python 3.13+.
+    If unavailable, use --ner-backend=biobert-fast as an alternative.
+    """
+
+    def __init__(self, model_name: str = "en_ner_bc5cdr_md"):
+        """
+        Initialize the spaCy NER extractor.
+
+        Args:
+
+            model_name: scispaCy model to load (default: en_ner_bc5cdr_md)
+
+        Raises:
+
+            ImportError: If spaCy/scispacy is not available
+        """
+        if not SPACY_AVAILABLE:
+            raise ImportError(
+                "spaCy is not available. Install with: uv add scispacy\n"
+                "Note: scispacy has dependency issues on Python 3.13+. "
+                "Consider using --ner-backend=biobert-fast instead."
+            )
+        self.model_name = model_name
+        self.nlp = spacy.load(model_name)
+
+    def extract_entities(self, text: str) -> list[dict]:
+        """
+        Extract disease entities from text using spaCy NER.
+
+        Args:
+
+            text: Text to extract entities from
+
+        Returns:
+
+            List of dicts with 'word', 'entity_group', and 'score' keys
+            (matching HuggingFace NER pipeline output format)
+        """
+        if not text or len(text.strip()) < 10:
+            return []
+
+        doc = self.nlp(text)
+        results = []
+
+        for ent in doc.ents:
+            # BC5CDR model returns DISEASE and CHEMICAL labels
+            # Map to our expected format, only keep DISEASE for now
+            if ent.label_ == "DISEASE":
+                results.append({
+                    "word": ent.text,
+                    "entity_group": "Disease",
+                    "score": 0.90,  # spaCy doesn't provide confidence scores by default
+                })
+
+        return results
+
+
+# ============================================================================
+# Fast HuggingFace NER Extractor (lighter alternative to BioBERT)
+# ============================================================================
+
+
+class FastBioBertExtractor:
+    """
+    Faster HuggingFace-based biomedical NER using a lighter model.
+
+    Uses d4data/biomedical-ner-all which is multi-entity (diseases, chemicals,
+    genes, etc.) and faster than the full BioBERT models while still being
+    specialized for biomedical text.
+    """
+
+    def __init__(self, model_name: str = "d4data/biomedical-ner-all"):
+        """
+        Initialize the fast BioBERT NER extractor.
+
+        Args:
+
+            model_name: HuggingFace model to use
+        """
+        self.model_name = model_name
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForTokenClassification.from_pretrained(model_name)
+        self._pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+
+    def extract_entities(self, text: str) -> list[dict]:
+        """
+        Extract disease entities from text.
+
+        Args:
+
+            text: Text to extract entities from
+
+        Returns:
+
+            List of dicts with 'word', 'entity_group', and 'score' keys
+        """
+        if not text or len(text.strip()) < 10:
+            return []
+
+        results = []
+        # Process in chunks to avoid tokenizer limits
+        chunk_size = 512 * 4  # ~4x token limit in chars as rough estimate
+
+        for i in range(0, len(text), chunk_size):
+            chunk = text[i:i + chunk_size]
+            try:
+                ner_results = self._pipeline(chunk)
+                for ent in ner_results:
+                    label = ent.get("entity_group", "")
+                    # d4data model uses labels like "Disease_disorder"
+                    if "disease" in label.lower() or "disorder" in label.lower():
+                        results.append({
+                            "word": ent["word"],
+                            "entity_group": "Disease",
+                            "score": float(ent.get("score", 0.85)),
+                        })
+            except Exception as e:
+                print(f"    Warning: NER extraction failed for chunk: {e}")
+
+        return results
+
+
+# Global variable for multiprocessing worker - holds the NER extractor
+_worker_ner_extractor = None
+
+
+def _init_worker(backend: str, model_name: str, ollama_host: str = None):
+    """
+    Initialize NER extractor in worker process.
+
+    Called once per worker to load the model, avoiding repeated model loading.
+    """
+    global _worker_ner_extractor
+
+    if backend == "spacy":
+        _worker_ner_extractor = SpacyNerExtractor(model_name)
+    elif backend == "ollama":
+        _worker_ner_extractor = OllamaNerExtractor(host=ollama_host, model=model_name)
+    elif backend == "biobert-fast":
+        _worker_ner_extractor = FastBioBertExtractor(model_name)
+    else:
+        # BioBERT / HuggingFace (original slow model)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForTokenClassification.from_pretrained(model_name)
+        _worker_ner_extractor = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+
+
 def get_git_info():
     """Get git information for provenance tracking."""
     try:
@@ -215,27 +385,22 @@ def get_or_create_entity(
     return canonical_entity_id, True
 
 
-def process_paper(
-    xml_path: Path,
-    storage: PipelineStorageInterface,
-    ner_pipeline,
-    ingest_info: ExtractionPipelineInfo,
-    model_info: ModelInfo,
-) -> tuple[int, int, list]:
+def extract_paragraphs_from_xml(xml_path: Path) -> tuple[str, list[str], bool]:
     """
-    Process a single PMC XML file and extract entities at paragraph level.
+    Extract paragraphs from a PMC XML file.
 
-    - Runs NER per paragraph (avoids truncation)
-    - Builds co-occurrence edges within paragraphs only
-    - Emits warning if only abstracts are ingested
+    Args:
+
+        xml_path: Path to PMC XML file
+
+    Returns:
+
+        tuple: (pmc_id, paragraphs, abstract_only) where abstract_only is True
+               if no body text was found
     """
     pmc_id = xml_path.stem
     tree = etree.parse(str(xml_path))
     root = tree.getroot()
-
-    # -----------------------------
-    # Paragraph extraction
-    # -----------------------------
 
     abstract_paragraphs = [p.text.strip() for p in root.findall(".//abstract//p") if p.text and p.text.strip()]
 
@@ -249,52 +414,82 @@ def process_paper(
             if p.text and p.text.strip():
                 body_paragraphs.append(p.text.strip())
 
-    if not abstract_paragraphs and not body_paragraphs:
-        return 0, 0, []
-
-    if abstract_paragraphs and not body_paragraphs:
-        print(f"⚠️  WARNING: {pmc_id} contains abstract only (no body text found)")
-
     paragraphs = abstract_paragraphs + body_paragraphs
+    abstract_only = bool(abstract_paragraphs and not body_paragraphs)
 
-    # -----------------------------
-    # Entity extraction
-    # -----------------------------
+    return pmc_id, paragraphs, abstract_only
 
-    entities_found = 0
-    entities_created = 0
-    extraction_edges = []
 
-    STOPWORDS = {"the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"}
+def chunk_paragraphs(paragraphs: list[str], chunk_size: int = 8000) -> list[str]:
+    """
+    Batch paragraphs into larger chunks to reduce NER calls.
 
-    # Batch paragraphs into larger chunks to reduce API calls
-    # Target: ~8000-10000 chars per chunk (much more efficient than 2000)
-    CHUNK_SIZE = 8000
-    paragraph_chunks = []
+    Args:
+
+        paragraphs: List of paragraph texts
+        chunk_size: Target chunk size in characters
+
+    Returns:
+
+        List of text chunks
+    """
+    chunks = []
     current_chunk = []
     current_length = 0
 
     for para in paragraphs:
         para_len = len(para)
-        if current_length + para_len > CHUNK_SIZE and current_chunk:
-            # Save current chunk and start new one
-            paragraph_chunks.append("\n\n".join(current_chunk))
+        if current_length + para_len > chunk_size and current_chunk:
+            chunks.append("\n\n".join(current_chunk))
             current_chunk = [para]
             current_length = para_len
         else:
             current_chunk.append(para)
-            current_length += para_len + 2  # +2 for "\n\n" separator
+            current_length += para_len + 2
 
-    # Add final chunk
     if current_chunk:
-        paragraph_chunks.append("\n\n".join(current_chunk))
+        chunks.append("\n\n".join(current_chunk))
 
-    # Process chunks (much fewer API calls than individual paragraphs)
-    for chunk_text in paragraph_chunks:
-        ner_results = ner_pipeline(chunk_text)
+    return chunks
 
-        # Track entities found in this paragraph only
-        paragraph_entities: list[tuple[EntityReference, float]] = []
+
+# Stopwords for entity filtering
+STOPWORDS = frozenset({"the", "and", "or", "but", "with", "from", "that", "this", "these", "those", "their", "there"})
+
+
+def extract_entities_from_paper(
+    xml_path: Path,
+    ner_extractor,
+) -> tuple[str, list[dict], bool]:
+    """
+    Extract raw entity mentions from a PMC XML file.
+
+    This is a pure function suitable for multiprocessing - no storage access.
+
+    Args:
+
+        xml_path: Path to PMC XML file
+        ner_extractor: NER extractor with extract_entities() method, or HuggingFace pipeline
+
+    Returns:
+
+        tuple: (pmc_id, entity_mentions, abstract_only)
+               entity_mentions is a list of dicts with 'name', 'confidence' keys
+    """
+    pmc_id, paragraphs, abstract_only = extract_paragraphs_from_xml(xml_path)
+
+    if not paragraphs:
+        return pmc_id, [], abstract_only
+
+    chunks = chunk_paragraphs(paragraphs)
+    entity_mentions = []
+
+    for chunk_text in chunks:
+        # Handle both extractor classes and HuggingFace pipelines
+        if hasattr(ner_extractor, 'extract_entities'):
+            ner_results = ner_extractor.extract_entities(chunk_text)
+        else:
+            ner_results = ner_extractor(chunk_text)
 
         for ent in ner_results:
             label = ent.get("entity_group", ent.get("entity", "O"))
@@ -314,67 +509,147 @@ def process_paper(
             if confidence < 0.85:
                 continue
 
-            canonical_entity_id, was_created = get_or_create_entity(
-                storage=storage,
-                name=name,
-                entity_type=label,
-                source=pmc_id,
-                confidence=confidence,
-            )
+            entity_mentions.append({"name": name, "confidence": confidence})
 
-            if was_created:
-                entities_created += 1
-            entities_found += 1
+    return pmc_id, entity_mentions, abstract_only
 
-            entity_ref = EntityReference(
-                id=canonical_entity_id,
-                name=name,
-                type=EntityType.DISEASE,
-            )
 
-            paragraph_entities.append((entity_ref, confidence))
+def process_paper_worker(xml_path_str: str) -> tuple[str, list[dict], bool]:
+    """
+    Worker function for multiprocessing.
 
-        # -----------------------------
-        # Build co-occurrence edges (chunk-local)
-        # -----------------------------
+    Uses global _worker_ner_extractor initialized by _init_worker().
 
-        # Use combinations to create edges between all entity pairs in this chunk
-        # Filter: only create edges for high-confidence entity pairs and skip self-edges
-        MIN_EDGE_CONFIDENCE = 0.9  # Both entities must have high confidence
-        for (subj_ref, conf_i), (obj_ref, conf_j) in combinations(paragraph_entities, 2):
-            # Skip self-edges (same entity)
-            if subj_ref.id == obj_ref.id:
-                continue
+    Args:
 
-            # Only create edges for high-confidence entity pairs
-            edge_confidence = min(conf_i, conf_j)
-            if edge_confidence < MIN_EDGE_CONFIDENCE:
-                continue
+        xml_path_str: String path to XML file (strings required for pickling)
 
-            provenance = Provenance(
-                source_type="paper",
-                source_id=pmc_id,
-                source_version=None,
-                notes=json.dumps(
-                    {
-                        "extraction_pipeline": ingest_info.name,
-                        "git_commit": ingest_info.git_commit_short,
-                        "model": model_info.name,
-                        "scope": "chunk",  # Updated: now processing chunks, not individual paragraphs
-                    }
-                ),
-            )
+    Returns:
 
-            edge = ExtractionEdge(
-                id=uuid.uuid4(),
-                subject=subj_ref,
-                object=obj_ref,
-                provenance=provenance,
-                extractor=model_info,
-                confidence=edge_confidence,
-            )
+        tuple: (pmc_id, entity_mentions, abstract_only)
+    """
+    global _worker_ner_extractor
+    return extract_entities_from_paper(Path(xml_path_str), _worker_ner_extractor)
 
-            extraction_edges.append(edge)
+
+def process_paper(
+    xml_path: Path,
+    storage: PipelineStorageInterface,
+    ner_extractor,
+    ingest_info: ExtractionPipelineInfo,
+    model_info: ModelInfo,
+) -> tuple[int, int, list]:
+    """
+    Process a single PMC XML file and extract entities.
+
+    This version is for single-threaded processing with storage access.
+
+    Args:
+
+        xml_path: Path to PMC XML file
+        storage: Pipeline storage interface
+        ner_extractor: NER extractor
+        ingest_info: Pipeline info for provenance
+        model_info: Model info for provenance
+
+    Returns:
+
+        tuple: (entities_found, entities_created, extraction_edges)
+    """
+    pmc_id, entity_mentions, abstract_only = extract_entities_from_paper(xml_path, ner_extractor)
+
+    if abstract_only:
+        print(f"⚠️  WARNING: {pmc_id} contains abstract only (no body text found)")
+
+    if not entity_mentions:
+        return 0, 0, []
+
+    return process_entity_mentions(pmc_id, entity_mentions, storage, ingest_info, model_info)
+
+
+def process_entity_mentions(
+    pmc_id: str,
+    entity_mentions: list[dict],
+    storage: PipelineStorageInterface,
+    ingest_info: ExtractionPipelineInfo,
+    model_info: ModelInfo,
+) -> tuple[int, int, list]:
+    """
+    Process extracted entity mentions: resolve to canonical entities and build edges.
+
+    Args:
+
+        pmc_id: PMC ID of the paper
+        entity_mentions: List of dicts with 'name', 'confidence' keys
+        storage: Pipeline storage interface
+        ingest_info: Pipeline info for provenance
+        model_info: Model info for provenance
+
+    Returns:
+
+        tuple: (entities_found, entities_created, extraction_edges)
+    """
+    entities_found = 0
+    entities_created = 0
+    extraction_edges = []
+
+    # Resolve entities and track for edge building
+    resolved_entities: list[tuple[EntityReference, float]] = []
+
+    for mention in entity_mentions:
+        name = mention["name"]
+        confidence = mention["confidence"]
+
+        canonical_entity_id, was_created = get_or_create_entity(
+            storage=storage,
+            name=name,
+            entity_type="Disease",
+            source=pmc_id,
+            confidence=confidence,
+        )
+
+        if was_created:
+            entities_created += 1
+        entities_found += 1
+
+        entity_ref = EntityReference(
+            id=canonical_entity_id,
+            name=name,
+            type=EntityType.DISEASE,
+        )
+        resolved_entities.append((entity_ref, confidence))
+
+    # Build co-occurrence edges
+    MIN_EDGE_CONFIDENCE = 0.9
+    for (subj_ref, conf_i), (obj_ref, conf_j) in combinations(resolved_entities, 2):
+        if subj_ref.id == obj_ref.id:
+            continue
+
+        edge_confidence = min(conf_i, conf_j)
+        if edge_confidence < MIN_EDGE_CONFIDENCE:
+            continue
+
+        provenance = Provenance(
+            source_type="paper",
+            source_id=pmc_id,
+            source_version=None,
+            notes=json.dumps({
+                "extraction_pipeline": ingest_info.name,
+                "git_commit": ingest_info.git_commit_short,
+                "model": model_info.name,
+                "scope": "paper",
+            }),
+        )
+
+        edge = ExtractionEdge(
+            id=uuid.uuid4(),
+            subject=subj_ref,
+            object=obj_ref,
+            provenance=provenance,
+            extractor=model_info,
+            confidence=edge_confidence,
+        )
+        extraction_edges.append(edge)
 
     return entities_found, entities_created, extraction_edges
 
@@ -386,8 +661,11 @@ def main():
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
     parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
     parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
-    parser.add_argument("--ollama-host", type=str, default=None, help="Ollama host URL (e.g., http://localhost:11434). If provided, uses Ollama LLM for NER instead of BioBERT.")
+    parser.add_argument("--ner-backend", type=str, choices=["spacy", "ollama", "biobert", "biobert-fast"], default="biobert-fast", help="NER backend: spacy (fastest, needs scispacy), biobert-fast (good CPU speed, default), ollama (LLM-based), biobert (original, slow)")
+    parser.add_argument("--spacy-model", type=str, default="en_ner_bc5cdr_md", help="spaCy model for NER (default: en_ner_bc5cdr_md)")
+    parser.add_argument("--ollama-host", type=str, default="http://localhost:11434", help="Ollama host URL (default: http://localhost:11434)")
     parser.add_argument("--ollama-model", type=str, default="llama3.1:8b", help="Ollama model to use for NER (default: llama3.1:8b)")
+    parser.add_argument("--workers", type=int, default=4, help="Number of worker processes for parallel processing (default: 4, use 1 for single-threaded)")
 
     args = parser.parse_args()
 
@@ -409,12 +687,20 @@ def main():
         repo_url="https://github.com/wware/med-lit-graph",
     )
 
-    # Model info - depends on whether using Ollama or BioBERT
-    if args.ollama_host:
+    # Model info - depends on NER backend
+    if args.ner_backend == "spacy":
+        model_name = args.spacy_model
+        model_info = ModelInfo(name=model_name, provider="scispacy", temperature=None, version=None)
+        prompt_template = "ner_scispacy_bc5cdr"
+    elif args.ner_backend == "ollama":
         model_name = args.ollama_model
         model_info = ModelInfo(name=model_name, provider="ollama", temperature=0.1, version=None)
         prompt_template = "ollama_ner_disease"
-    else:
+    elif args.ner_backend == "biobert-fast":
+        model_name = "d4data/biomedical-ner-all"
+        model_info = ModelInfo(name=model_name, provider="huggingface", temperature=None, version=None)
+        prompt_template = "ner_biobert_fast"
+    else:  # biobert (original)
         model_name = "ugaray96/biobert_ncbi_disease_ner"
         model_info = ModelInfo(name=model_name, provider="huggingface", temperature=None, version=None)
         prompt_template = "ner_biobert_ncbi_disease"
@@ -426,27 +712,43 @@ def main():
     execution_start = datetime.now()
     execution_info = ExecutionInfo(timestamp=execution_start.isoformat(), hostname=socket.gethostname(), python_version=platform.python_version(), duration_seconds=None)
 
-    # Setup NER extractor - either Ollama (GPU) or BioBERT (CPU)
-    if args.ollama_host:
-        print(f"Using Ollama at {args.ollama_host} for GPU-accelerated NER")
-        print(f"Model: {model_name}")
-        ollama_extractor = OllamaNerExtractor(host=args.ollama_host, model=model_name)
-
-        # Create a callable wrapper that matches HuggingFace pipeline interface
-        def ner_pipeline(text):
-            return ollama_extractor.extract_entities(text)
-
+    # Setup NER extractor based on backend
+    ner_extractor = None  # Will be None if using multiprocessing
+    if args.workers == 1:
+        # Single-threaded: load model in main process
+        if args.ner_backend == "spacy":
+            print(f"Loading spaCy model: {model_name}")
+            ner_extractor = SpacyNerExtractor(model_name)
+        elif args.ner_backend == "ollama":
+            print(f"Using Ollama at {args.ollama_host} for NER")
+            print(f"Model: {model_name}")
+            ner_extractor = OllamaNerExtractor(host=args.ollama_host, model=model_name)
+        elif args.ner_backend == "biobert-fast":
+            print(f"Loading fast BioBERT model: {model_name}")
+            ner_extractor = FastBioBertExtractor(model_name)
+        else:  # biobert (original)
+            print(f"Loading BioBERT model: {model_name}")
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            model = AutoModelForTokenClassification.from_pretrained(model_name)
+            ner_extractor = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
     else:
-        print(f"Loading NER model: {model_name}")
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForTokenClassification.from_pretrained(model_name)
-        ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+        print(f"Using {args.workers} worker processes with {args.ner_backend} backend")
+        print(f"Model: {model_name}")
 
     # Process papers
+    worker_config = {
+        "backend": args.ner_backend,
+        "model_name": model_name,
+        "ollama_host": args.ollama_host if args.ner_backend == "ollama" else None,
+        "num_workers": args.workers,
+    }
+
     if args.storage == "sqlite":
         db_path = output_dir / "ingest.db"
         with SQLitePipelineStorage(db_path) as storage:
-            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(
+                xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config
+            )
     elif args.storage == "postgres":
         if not args.database_url:
             print("Error: --database-url required for PostgreSQL storage")
@@ -454,7 +756,9 @@ def main():
         engine = create_engine(args.database_url)
         session = Session(engine)
         with PostgresPipelineStorage(session) as storage:
-            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info)
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(
+                xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config
+            )
     else:
         print(f"Error: Unknown storage backend: {args.storage}")
         return 1
@@ -501,8 +805,25 @@ def main():
     return 0
 
 
-def process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info):
-    """Processes all XML files and extracts entities."""
+def process_papers(xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config):
+    """
+    Process all XML files and extract entities.
+
+    Supports both single-threaded and multiprocessing modes.
+
+    Args:
+
+        xml_dir: Directory containing PMC XML files
+        storage: Pipeline storage interface
+        ner_extractor: NER extractor (None if using multiprocessing)
+        ingest_info: Pipeline info for provenance
+        model_info: Model info for provenance
+        worker_config: Dict with 'backend', 'model_name', 'ollama_host', 'num_workers'
+
+    Returns:
+
+        tuple: (total_entities_found, total_entities_created, all_extraction_edges, processed_count)
+    """
     print(f"\nProcessing XML files from {xml_dir}...")
     xml_files = sorted(xml_dir.glob("PMC*.xml"))
     print(f"Found {len(xml_files)} XML files\n")
@@ -512,15 +833,61 @@ def process_papers(xml_dir, storage, ner_pipeline, ingest_info, model_info):
     all_extraction_edges = []
     processed_count = 0
 
-    for xml_file in xml_files:
-        entities_found, entities_created, edges = process_paper(xml_file, storage, ner_pipeline, ingest_info, model_info)
-        total_entities_found += entities_found
-        total_entities_created += entities_created
-        all_extraction_edges.extend(edges)
-        processed_count += 1
+    num_workers = worker_config["num_workers"]
 
-        if processed_count % 10 == 0:
-            print(f"  Processed {processed_count}/{len(xml_files)} files...")
+    if num_workers == 1:
+        # Single-threaded mode
+        for xml_file in xml_files:
+            entities_found, entities_created, edges = process_paper(xml_file, storage, ner_extractor, ingest_info, model_info)
+            total_entities_found += entities_found
+            total_entities_created += entities_created
+            all_extraction_edges.extend(edges)
+            processed_count += 1
+
+            if processed_count % 10 == 0:
+                print(f"  Processed {processed_count}/{len(xml_files)} files...")
+    else:
+        # Multiprocessing mode
+        # Workers extract entities, main process handles storage
+        xml_paths = [str(f) for f in xml_files]
+
+        print(f"Starting extraction with {num_workers} workers...")
+
+        with ProcessPoolExecutor(
+            max_workers=num_workers,
+            initializer=_init_worker,
+            initargs=(worker_config["backend"], worker_config["model_name"], worker_config["ollama_host"]),
+        ) as executor:
+            # Submit all tasks
+            future_to_path = {executor.submit(process_paper_worker, path): path for path in xml_paths}
+
+            # Process results as they complete
+            for future in as_completed(future_to_path):
+                path = future_to_path[future]
+                try:
+                    pmc_id, entity_mentions, abstract_only = future.result()
+
+                    if abstract_only:
+                        print(f"⚠️  WARNING: {pmc_id} contains abstract only (no body text found)")
+
+                    if entity_mentions:
+                        entities_found, entities_created, edges = process_entity_mentions(
+                            pmc_id, entity_mentions, storage, ingest_info, model_info
+                        )
+                        total_entities_found += entities_found
+                        total_entities_created += entities_created
+                        all_extraction_edges.extend(edges)
+
+                    processed_count += 1
+
+                    if processed_count % 10 == 0:
+                        print(f"  Processed {processed_count}/{len(xml_files)} files...")
+
+                except Exception as e:
+                    print(f"  Error processing {path}: {e}")
+                    processed_count += 1
+
+        print(f"  Extraction complete. Processing {processed_count} results...")
 
     return total_entities_found, total_entities_created, all_extraction_edges, processed_count
 

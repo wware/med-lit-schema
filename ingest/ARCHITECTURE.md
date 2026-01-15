@@ -26,7 +26,7 @@ bash my_run.sh
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
 │  PubMed API │───▶│ Stage 1:     │───▶│ Stage 2:    │───▶│ PostgreSQL   │
 │  (XML)      │    │ NER Pipeline │    │ Provenance  │    │ (Structured) │
-└─────────────┘    │ (LLM)        │    │ Pipeline    │    └──────────────┘
+└─────────────┘    │ (multi-proc) │    │ Pipeline    │    └──────────────┘
                    └──────────────┘    └─────────────┘
                           │                    │
                           ▼                    ▼
@@ -36,11 +36,25 @@ bash my_run.sh
                    └──────────────┘    └─────────────┘
 ```
 
+### NER Backend Options
+
+Stage 1 supports multiple NER backends via `--ner-backend`:
+
+| Backend | Model | Type | Speed |
+|---------|-------|------|-------|
+| `biobert-fast` | `d4data/biomedical-ner-all` | Token classification | Fast (default) |
+| `spacy` | `en_ner_bc5cdr_md` | spaCy NER | Fastest |
+| `ollama` | `llama3.1:8b` (configurable) | LLM extraction | Varies (GPU helps) |
+| `biobert` | `ugaray96/biobert_ncbi_disease_ner` | Token classification | Slow |
+
+Multiprocessing (`--workers N`) parallelizes paper processing across CPU cores.
+
 ## Success Criteria
 
 ### Stage 1 (NER Pipeline - Entity & Edge Extraction)
 **Input:** PMC XML files
 **Output:** `output/extraction_edges.jsonl`
+**Backends:** `biobert-fast` (default), `spacy`, `ollama`, `biobert`
 
 ✅ **Success Conditions:**
 1. Each line is valid JSON with required fields: `id`, `subject`, `object`, `provenance`, `extractor`, `confidence`
@@ -56,7 +70,7 @@ bash my_run.sh
 2. Missing required fields
 3. Invalid entity types
 4. Empty output for valid input
-5. LLM timeout without retry
+5. NER model/Ollama timeout without retry
 
 ### Stage 2 (Provenance Pipeline)
 **Input:** PMC XML files
