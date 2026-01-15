@@ -46,11 +46,7 @@ class OllamaEmbeddingGenerator(EmbeddingGeneratorInterface):
                 print(f"Using known dimension {self._embedding_dim} for model '{model_name}'.")
                 print(f"Connection error: {e}")
             else:
-                raise RuntimeError(
-                    f"Failed to get embedding dimension from Ollama model '{model_name}'. "
-                    f"Ensure the model is pulled and Ollama is running at {host}. "
-                    f"Error: {e}"
-                )
+                raise RuntimeError(f"Failed to get embedding dimension from Ollama model '{model_name}'. Ensure the model is pulled and Ollama is running at {host}. Error: {e}")
 
     def generate_embedding(self, text: str) -> List[float]:
         """Generate a single embedding for text."""

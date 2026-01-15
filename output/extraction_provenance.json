@@ -2,33 +2,33 @@
   "extraction_pipeline": {
     "name": "pmc_ner_ingest",
     "version": "1.0.0",
-    "git_commit": "637887eb38f99b231d24b9ab97c5b1f79814148b",
-    "git_commit_short": "637887e",
+    "git_commit": "8f136e8e6c90512b47be60bc765fc24298d5ae6b",
+    "git_commit_short": "8f136e8",
     "git_branch": "PLOD",
     "git_dirty": true,
     "repo_url": "https://github.com/wware/med-lit-graph"
   },
   "models": {
     "ner": {
-      "name": "llama3.1:1b",
-      "provider": "ollama",
-      "temperature": 0.1,
+      "name": "d4data/biomedical-ner-all",
+      "provider": "huggingface",
+      "temperature": null,
       "version": null
     }
   },
   "prompt": {
     "version": "v1",
-    "template": "ollama_ner_disease",
+    "template": "ner_biobert_fast",
     "checksum": null
   },
   "execution": {
-    "timestamp": "2026-01-15T10:07:56.438361",
+    "timestamp": "2026-01-15T15:21:04.635526",
     "hostname": "wware-Inspiron-5570",
     "python_version": "3.13.3",
-    "duration_seconds": 0.309635
+    "duration_seconds": 178.096715
   },
   "entity_resolution": {
-    "canonical_entities_matched": 0,
+    "canonical_entities_matched": 1289,
     "new_entities_created": 0,
     "similarity_threshold": 0.0,
     "embedding_model": "none"

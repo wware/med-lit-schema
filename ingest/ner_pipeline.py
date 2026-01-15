@@ -21,7 +21,6 @@ import uuid
 from itertools import combinations
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
-import multiprocessing
 
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from lxml import etree
@@ -30,6 +29,7 @@ import ollama
 # spaCy import is optional - scispacy has dependency issues on Python 3.13+
 try:
     import spacy
+
     SPACY_AVAILABLE = True
 except ImportError:
     SPACY_AVAILABLE = False
@@ -198,11 +198,7 @@ class SpacyNerExtractor:
             ImportError: If spaCy/scispacy is not available
         """
         if not SPACY_AVAILABLE:
-            raise ImportError(
-                "spaCy is not available. Install with: uv add scispacy\n"
-                "Note: scispacy has dependency issues on Python 3.13+. "
-                "Consider using --ner-backend=biobert-fast instead."
-            )
+            raise ImportError("spaCy is not available. Install with: uv add scispacy\nNote: scispacy has dependency issues on Python 3.13+. Consider using --ner-backend=biobert-fast instead.")
         self.model_name = model_name
         self.nlp = spacy.load(model_name)
 
@@ -229,11 +225,13 @@ class SpacyNerExtractor:
             # BC5CDR model returns DISEASE and CHEMICAL labels
             # Map to our expected format, only keep DISEASE for now
             if ent.label_ == "DISEASE":
-                results.append({
-                    "word": ent.text,
-                    "entity_group": "Disease",
-                    "score": 0.90,  # spaCy doesn't provide confidence scores by default
-                })
+                results.append(
+                    {
+                        "word": ent.text,
+                        "entity_group": "Disease",
+                        "score": 0.90,  # spaCy doesn't provide confidence scores by default
+                    }
+                )
 
         return results
 
@@ -285,18 +283,20 @@ class FastBioBertExtractor:
         chunk_size = 512 * 4  # ~4x token limit in chars as rough estimate
 
         for i in range(0, len(text), chunk_size):
-            chunk = text[i:i + chunk_size]
+            chunk = text[i : i + chunk_size]
             try:
                 ner_results = self._pipeline(chunk)
                 for ent in ner_results:
                     label = ent.get("entity_group", "")
                     # d4data model uses labels like "Disease_disorder"
                     if "disease" in label.lower() or "disorder" in label.lower():
-                        results.append({
-                            "word": ent["word"],
-                            "entity_group": "Disease",
-                            "score": float(ent.get("score", 0.85)),
-                        })
+                        results.append(
+                            {
+                                "word": ent["word"],
+                                "entity_group": "Disease",
+                                "score": float(ent.get("score", 0.85)),
+                            }
+                        )
             except Exception as e:
                 print(f"    Warning: NER extraction failed for chunk: {e}")
 
@@ -486,7 +486,7 @@ def extract_entities_from_paper(
 
     for chunk_text in chunks:
         # Handle both extractor classes and HuggingFace pipelines
-        if hasattr(ner_extractor, 'extract_entities'):
+        if hasattr(ner_extractor, "extract_entities"):
             ner_results = ner_extractor.extract_entities(chunk_text)
         else:
             ner_results = ner_extractor(chunk_text)
@@ -528,7 +528,6 @@ def process_paper_worker(xml_path_str: str) -> tuple[str, list[dict], bool]:
 
         tuple: (pmc_id, entity_mentions, abstract_only)
     """
-    global _worker_ner_extractor
     return extract_entities_from_paper(Path(xml_path_str), _worker_ner_extractor)
 
 
@@ -633,12 +632,14 @@ def process_entity_mentions(
             source_type="paper",
             source_id=pmc_id,
             source_version=None,
-            notes=json.dumps({
-                "extraction_pipeline": ingest_info.name,
-                "git_commit": ingest_info.git_commit_short,
-                "model": model_info.name,
-                "scope": "paper",
-            }),
+            notes=json.dumps(
+                {
+                    "extraction_pipeline": ingest_info.name,
+                    "git_commit": ingest_info.git_commit_short,
+                    "model": model_info.name,
+                    "scope": "paper",
+                }
+            ),
         )
 
         edge = ExtractionEdge(
@@ -661,7 +662,13 @@ def main():
     parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
     parser.add_argument("--storage", type=str, choices=["sqlite", "postgres"], default="sqlite", help="Storage backend to use")
     parser.add_argument("--database-url", type=str, default=None, help="Database URL for PostgreSQL (required if --storage=postgres)")
-    parser.add_argument("--ner-backend", type=str, choices=["spacy", "ollama", "biobert", "biobert-fast"], default="biobert-fast", help="NER backend: spacy (fastest, needs scispacy), biobert-fast (good CPU speed, default), ollama (LLM-based), biobert (original, slow)")
+    parser.add_argument(
+        "--ner-backend",
+        type=str,
+        choices=["spacy", "ollama", "biobert", "biobert-fast"],
+        default="biobert-fast",
+        help="NER backend: spacy (fastest, needs scispacy), biobert-fast (good CPU speed, default), ollama (LLM-based), biobert (original, slow)",
+    )
     parser.add_argument("--spacy-model", type=str, default="en_ner_bc5cdr_md", help="spaCy model for NER (default: en_ner_bc5cdr_md)")
     parser.add_argument("--ollama-host", type=str, default="http://localhost:11434", help="Ollama host URL (default: http://localhost:11434)")
     parser.add_argument("--ollama-model", type=str, default="llama3.1:8b", help="Ollama model to use for NER (default: llama3.1:8b)")
@@ -746,9 +753,9 @@ def main():
     if args.storage == "sqlite":
         db_path = output_dir / "ingest.db"
         with SQLitePipelineStorage(db_path) as storage:
-            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(
-                xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config
-            )
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config)
+            # Export entities from storage
+            all_entities = storage.entities.list_entities()
     elif args.storage == "postgres":
         if not args.database_url:
             print("Error: --database-url required for PostgreSQL storage")
@@ -756,9 +763,9 @@ def main():
         engine = create_engine(args.database_url)
         session = Session(engine)
         with PostgresPipelineStorage(session) as storage:
-            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(
-                xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config
-            )
+            total_entities_found, total_entities_created, all_extraction_edges, processed_count = process_papers(xml_dir, storage, ner_extractor, ingest_info, model_info, worker_config)
+            # Export entities from storage
+            all_entities = storage.entities.list_entities()
     else:
         print(f"Error: Unknown storage backend: {args.storage}")
         return 1
@@ -782,6 +789,33 @@ def main():
             edge_dict["id"] = str(edge_dict["id"])
             f.write(json.dumps(edge_dict) + "\n")
 
+    # Write entities to JSONL
+    entities_path = output_dir / "entities.jsonl"
+    with open(entities_path, "w") as f:
+        for entity in all_entities:
+            entity_dict = {
+                "entity_id": entity.entity_id,
+                "name": entity.name,
+                "type": entity.entity_type.value if hasattr(entity.entity_type, "value") else str(entity.entity_type),
+                "synonyms": list(entity.synonyms) if entity.synonyms else [],
+                "provenance": {
+                    "pipeline_info": {
+                        "name": ingest_info.name,
+                        "version": ingest_info.version,
+                        "git_commit": ingest_info.git_commit_short,
+                    },
+                    "model_info": {
+                        "name": model_info.name,
+                        "provider": model_info.provider,
+                    },
+                    "execution_info": {
+                        "timestamp": execution_info.timestamp,
+                        "hostname": execution_info.hostname,
+                    },
+                },
+            }
+            f.write(json.dumps(entity_dict) + "\n")
+
     # Write extraction provenance
     provenance_path = output_dir / "extraction_provenance.json"
     with open(provenance_path, "w") as f:
@@ -796,10 +830,12 @@ def main():
     print(f"  - New canonical entities: {total_entities_created}")
     print(f"  - Matched to existing: {total_entities_found - total_entities_created}")
     print(f"ExtractionEdges: {len(all_extraction_edges)}")
+    print(f"Entities exported: {len(all_entities)}")
     print(f"Duration: {execution_duration:.2f} seconds")
     print(f"\nStorage: {args.storage}")
     print("\nOutputs:")
     print(f"  - {edges_path}")
+    print(f"  - {entities_path}")
     print(f"  - {provenance_path}")
     print(f"{'=' * 60}\n")
     return 0
@@ -871,9 +907,7 @@ def process_papers(xml_dir, storage, ner_extractor, ingest_info, model_info, wor
                         print(f"⚠️  WARNING: {pmc_id} contains abstract only (no body text found)")
 
                     if entity_mentions:
-                        entities_found, entities_created, edges = process_entity_mentions(
-                            pmc_id, entity_mentions, storage, ingest_info, model_info
-                        )
+                        entities_found, entities_created, edges = process_entity_mentions(pmc_id, entity_mentions, storage, ingest_info, model_info)
                         total_entities_found += entities_found
                         total_entities_created += entities_created
                         all_extraction_edges.extend(edges)

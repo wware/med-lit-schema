@@ -605,6 +605,7 @@ def main():
 
     # Use OLLAMA_HOST environment variable as fallback if --ollama-host not provided
     import os
+
     ollama_host = args.ollama_host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
     output_dir = Path(args.output_dir)

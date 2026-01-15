@@ -150,8 +150,9 @@ class TestOllamaGeneratorWithMock:
         mock_client_class.return_value = mock_client
 
         # Should raise RuntimeError with helpful message
+        # Use unknown-model to avoid fallback to KNOWN_DIMENSIONS
         with pytest.raises(RuntimeError, match="Failed to get embedding dimension"):
-            OllamaEmbeddingGenerator(model_name="nomic-embed-text")
+            OllamaEmbeddingGenerator(model_name="unknown-model")
 
     @pytest.mark.skipif(not OLLAMA_AVAILABLE, reason="ollama package not installed")
     @patch("med_lit_schema.ingest.ollama_embedding_generator.ollama.Client")
@@ -309,8 +310,9 @@ class TestOllamaGeneratorErrorHandling:
         mock_client.embed.side_effect = ConnectionError("Connection refused")
         mock_client_class.return_value = mock_client
 
+        # Use unknown-model to avoid fallback to KNOWN_DIMENSIONS
         with pytest.raises(RuntimeError, match="Failed to get embedding dimension"):
-            OllamaEmbeddingGenerator(model_name="nomic-embed-text")
+            OllamaEmbeddingGenerator(model_name="unknown-model")
 
     @pytest.mark.skipif(not OLLAMA_AVAILABLE, reason="ollama package not installed")
     @patch("med_lit_schema.ingest.ollama_embedding_generator.ollama.Client")
@@ -321,5 +323,6 @@ class TestOllamaGeneratorErrorHandling:
         mock_client.embed.return_value = {"invalid_key": "value"}
         mock_client_class.return_value = mock_client
 
+        # Use unknown-model to avoid fallback to KNOWN_DIMENSIONS
         with pytest.raises((KeyError, RuntimeError)):
-            OllamaEmbeddingGenerator(model_name="nomic-embed-text")
+            OllamaEmbeddingGenerator(model_name="unknown-model")

@@ -2231,7 +2231,6 @@ dependencies = [
     { name = "pandas" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
-    { name = "scispacy" },
     { name = "seaborn" },
     { name = "sentence-transformers" },
     { name = "sqlmodel" },
@@ -2253,6 +2252,9 @@ query = [
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "plotly" },
+]
+scispacy = [
+    { name = "scispacy" },
 ]
 
 [package.dev-dependencies]
@@ -2281,7 +2283,7 @@ requires-dist = [
     { name = "psycopg2-binary", specifier = ">=2.9.0" },
     { name = "pydantic", specifier = ">=2.10.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
-    { name = "scispacy", specifier = ">=0.5.4" },
+    { name = "scispacy", marker = "extra == 'scispacy'", specifier = ">=0.5.4" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "sentence-transformers", specifier = ">=5.2.0" },
     { name = "sqlmodel", specifier = ">=0.0.31" },
@@ -2292,7 +2294,7 @@ requires-dist = [
     { name = "twine", specifier = ">=6.2.0" },
     { name = "uvicorn", specifier = ">=0.39.0" },
 ]
-provides-extras = ["dev", "query"]
+provides-extras = ["dev", "query", "scispacy"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -217,9 +217,10 @@ class TestPipelineContextManagers:
         params = list(sig.parameters.keys())
         assert "xml_dir" in params
         assert "storage" in params
-        assert "ner_pipeline" in params
+        assert "ner_extractor" in params
         assert "ingest_info" in params
         assert "model_info" in params
+        assert "worker_config" in params
 
     def test_provenance_pipeline_process_files_helper(self):
         """Test that provenance pipeline process_files helper is callable."""
