@@ -8,6 +8,7 @@ formatted signatures for classes, methods, and functions.
 
 import ast
 import glob
+import os
 import sys
 from pathlib import Path
 from typing import List, Tuple
@@ -223,6 +224,28 @@ def extract_docs(source_path: Path) -> str:
     return "\n".join(lines)
 
 
+def all():
+    for path in os.popen("git ls-files | sort").readlines():
+        path = path.rstrip()
+        if ("Dockerfile" in path or
+            path.endswith(".md") or
+            path.endswith(".yml") or
+            path.endswith(".sh")):
+            print("# " + path)
+            print()
+            for line in open(path).readlines():
+                print("    " + line.rstrip())
+            print()
+        elif path.endswith(".py"):
+            if path.endswith("/extract_docs.py"):
+                continue
+            print("# " + path)
+            print()
+            for line in extract_docs(Path(path)).split("\n"):
+                print("    " + line)
+            print()
+
+
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <python_file_or_pattern> [<pattern2> ...]")
@@ -231,6 +254,10 @@ def main():
         print(f"  {sys.argv[0]} *.py")
         print(f"  {sys.argv[0]} entity.py base.py")
         sys.exit(1)
+
+    if "--all" in sys.argv[1:]:
+        all()
+        sys.exit(0)
 
     # Collect all matching files
     all_files = []
