@@ -111,6 +111,10 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.14.10",
 ]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+]
 
 [tool.uv]
 # Configure PyTorch CPU-only index with unsafe-best-match to prioritize PyPI for most packages

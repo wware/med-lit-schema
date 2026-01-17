@@ -11,8 +11,17 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY uv.lock ./
 
-# Install dependencies
-RUN uv sync --frozen --no-dev
+# Install dependencies (including mkdocs for doc build)
+RUN uv sync --frozen
+
+# Copy mkdocs config and docs for building
+# RUN uv add mkdocs
+RUN uv run pip install mkdocs pymdown-extensions --force
+COPY mkdocs.yml ./
+COPY docs ./docs
+
+# Build MkDocs static site
+RUN uv run mkdocs build
 
 # Final stage
 FROM python:3.13-slim
@@ -28,6 +37,9 @@ WORKDIR /app
 
 # Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
+
+# Copy built MkDocs site from builder
+COPY --from=builder /app/site /app/site
 
 # Copy application code
 COPY . .

@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
@@ -50,3 +52,10 @@ async def health_check():
     Health check endpoint to verify that the server is running.
     """
     return {"status": "ok"}
+
+
+# Mount MkDocs static site at /mkdocs if available
+# Built during Docker image creation via: mkdocs build
+_mkdocs_site = Path(__file__).parent.parent / "site"
+if _mkdocs_site.exists():
+    app.mount("/mkdocs", StaticFiles(directory=_mkdocs_site, html=True), name="mkdocs")

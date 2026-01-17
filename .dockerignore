@@ -43,8 +43,8 @@ docker-compose.yml
 .dockerignore
 
 # Documentation
-*.md
-docs/
+#*.md
+#docs/
 
 # Data and output directories
 output/

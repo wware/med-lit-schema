@@ -1,0 +1,42 @@
+site_name: Medical Knowledge Graph Schema
+site_description: Documentation for the medical literature knowledge graph library
+repo_url: https://github.com/wware/med-lit-schema
+repo_name: wware/med-lit-schema
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+
+  - User Guide:
+    - user-guide/index.md
+    - Quickstart: user-guide/quickstart.md
+    - Core Concepts: user-guide/concepts.md
+    - Querying: user-guide/querying.md
+    - Storage Options: user-guide/storage.md
+
+  - Developer Guide:
+    - developer-guide/index.md
+    - Architecture: developer-guide/architecture.md
+    - Ingestion Pipeline: developer-guide/ingestion.md
+    - Testing: developer-guide/testing.md
+    - Docker Setup: developer-guide/docker.md
+
+  - Research Notes:
+    - research-notes/index.md
+    - Epistemology & Design: research-notes/epistemology.md
+    - Next Steps: research-notes/next-steps.md
+
