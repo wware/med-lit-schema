@@ -2,9 +2,9 @@
   "extraction_pipeline": {
     "name": "pmc_ner_ingest",
     "version": "1.0.0",
-    "git_commit": "8f136e8e6c90512b47be60bc765fc24298d5ae6b",
-    "git_commit_short": "8f136e8",
-    "git_branch": "PLOD",
+    "git_commit": "3ae86a93f9d58b9a7768168394f60a81b57ddf07",
+    "git_commit_short": "3ae86a9",
+    "git_branch": "plod",
     "git_dirty": true,
     "repo_url": "https://github.com/wware/med-lit-graph"
   },
@@ -22,14 +22,14 @@
     "checksum": null
   },
   "execution": {
-    "timestamp": "2026-01-15T15:21:04.635526",
+    "timestamp": "2026-01-17T22:41:37.154609",
     "hostname": "wware-Inspiron-5570",
     "python_version": "3.13.3",
-    "duration_seconds": 178.096715
+    "duration_seconds": 12.552148
   },
   "entity_resolution": {
-    "canonical_entities_matched": 1289,
-    "new_entities_created": 0,
+    "canonical_entities_matched": 7,
+    "new_entities_created": 10,
     "similarity_threshold": 0.0,
     "embedding_model": "none"
   }

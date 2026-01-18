@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: med-lit-api
+    stdin_open: true
+    tty: true
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/medlit
       # Optional: Redis connection for future caching
@@ -28,6 +30,8 @@ services:
 
   postgres:
     image: pgvector/pgvector:pg16
+    # user: "${UID}:${GID}"
+    user: "1000:1000"
     container_name: med-lit-postgres
     environment:
       POSTGRES_USER: postgres
@@ -38,7 +42,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      # - postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
       # Optional: mount initialization scripts
       # - ./init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
@@ -134,8 +139,8 @@ services:
       - tools
 
 volumes:
-  postgres-data:
-    driver: local
+  #postgres-data:
+  #  driver: local
   redis-data:
     driver: local
   pgadmin-data:

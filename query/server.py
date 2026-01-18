@@ -1,15 +1,17 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-from .storage_factory import close_storage, get_engine
+from .storage_factory import close_storage, get_engine, get_storage
 from .routers import rest_api
 from .routers.mcp_api import mcp_server
 from .routers import graphiql_custom
 from .graphql_schema import Query
+from med_lit_schema.storage.interfaces import PipelineStorageInterface
+
 
 
 @asynccontextmanager
@@ -33,10 +35,23 @@ app = FastAPI(
 # Mount REST API
 app.include_router(rest_api.router)
 
-# Mount GraphQL API (without built-in GraphiQL)
+# Create a context getter that uses your dependency
+async def get_context(
+    storage: PipelineStorageInterface = Depends(get_storage),
+):
+    return {
+        "storage": storage,
+    }
+
+# Mount GraphQL with context (no built-in GraphiQL)
 graphql_schema = strawberry.Schema(query=Query)
-graphql_router = GraphQLRouter(graphql_schema, graphiql=False)
-app.include_router(graphql_router, prefix="/graphql")
+graphql_app = GraphQLRouter(
+    graphql_schema,
+    graphiql=False,  # Disable built-in GraphiQL
+    context_getter=get_context,
+)
+
+app.include_router(graphql_app, prefix="/graphql")
 
 # Mount custom GraphiQL interface with example queries
 app.include_router(graphiql_custom.router, prefix="/graphiql", tags=["GraphQL"])
