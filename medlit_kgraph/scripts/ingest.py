@@ -27,20 +27,101 @@ from ..pipeline.parser import JournalArticleParser
 from ..pipeline.mentions import MedLitEntityExtractor
 from ..pipeline.resolve import MedLitEntityResolver
 from ..pipeline.relationships import MedLitRelationshipExtractor
-from ..pipeline.embeddings import SimpleMedLitEmbeddingGenerator
+from ..pipeline.embeddings import create_embedding_generator, SimpleMedLitEmbeddingGenerator
+from ..pipeline.llm_client import create_llm_client
 
 
-def build_orchestrator() -> IngestionOrchestrator:
-    """Build the ingestion orchestrator for medical literature domain."""
+def build_orchestrator(
+    ner_provider: str = "none",
+    ner_model: str | None = None,
+    ner_host: str | None = None,
+    embedding_provider: str = "hash",
+    embedding_model: str | None = None,
+    embedding_host: str | None = None,
+    use_pattern_extraction: bool = True,
+    use_llm_extraction: bool = False,
+    llm_provider: str = "ollama",
+    llm_model: str = "llama3.1:8b",
+    llm_host: str = "http://localhost:11434",
+) -> IngestionOrchestrator:
+    """Build the ingestion orchestrator for medical literature domain.
+
+    Args:
+        ner_provider: NER provider ("none", "biobert", "scispacy", "ollama")
+        ner_model: NER model name (provider-specific)
+        ner_host: Ollama host URL (for Ollama NER)
+        embedding_provider: Embedding provider ("hash", "ollama", "sentence-transformers")
+        embedding_model: Embedding model name
+        embedding_host: Ollama host URL (for Ollama embeddings)
+        use_pattern_extraction: Enable pattern-based relationship extraction
+        use_llm_extraction: Enable LLM-based relationship extraction
+        llm_provider: LLM provider ("ollama", "openai")
+        llm_model: LLM model name
+        llm_host: LLM host URL (for Ollama)
+    """
     domain = MedLitDomainSchema()
+
+    # Build entity extractor
+    ner_kwargs = {}
+    if ner_provider == "ollama":
+        if ner_model:
+            ner_kwargs["model"] = ner_model
+        if ner_host:
+            ner_kwargs["host"] = ner_host
+    elif ner_provider == "biobert" and ner_model:
+        ner_kwargs["model_name"] = ner_model
+    elif ner_provider == "scispacy" and ner_model:
+        ner_kwargs["model_name"] = ner_model
+
+    entity_extractor = MedLitEntityExtractor(
+        ner_provider=ner_provider,
+        **ner_kwargs,
+    )
+
+    # Build relationship extractor
+    llm_client = None
+    if use_llm_extraction:
+        llm_kwargs = {"model": llm_model, "host": llm_host}
+        if llm_provider == "openai":
+            # OpenAI uses api_key from env var
+            llm_kwargs.pop("host", None)
+        try:
+            llm_client = create_llm_client(llm_provider, **llm_kwargs)
+        except Exception as e:
+            print(f"Warning: Failed to create LLM client: {e}")
+            print("  Continuing without LLM extraction...")
+            use_llm_extraction = False
+
+    relationship_extractor = MedLitRelationshipExtractor(
+        use_patterns=use_pattern_extraction,
+        use_llm=use_llm_extraction,
+        llm_client=llm_client,
+    )
+
+    # Build embedding generator
+    embedding_kwargs = {}
+    if embedding_provider == "ollama":
+        if embedding_model:
+            embedding_kwargs["model_name"] = embedding_model
+        if embedding_host:
+            embedding_kwargs["host"] = embedding_host
+    elif embedding_provider == "sentence-transformers" and embedding_model:
+        embedding_kwargs["model_name"] = embedding_model
+
+    try:
+        embedding_generator = create_embedding_generator(embedding_provider, **embedding_kwargs)
+    except Exception as e:
+        print(f"Warning: Failed to create embedding generator: {e}")
+        print("  Falling back to hash-based embeddings...")
+        embedding_generator = SimpleMedLitEmbeddingGenerator()
 
     return IngestionOrchestrator(
         domain=domain,
         parser=JournalArticleParser(),
-        entity_extractor=MedLitEntityExtractor(),
+        entity_extractor=entity_extractor,
         entity_resolver=MedLitEntityResolver(domain=domain),
-        relationship_extractor=MedLitRelationshipExtractor(),
-        embedding_generator=SimpleMedLitEmbeddingGenerator(),
+        relationship_extractor=relationship_extractor,
+        embedding_generator=embedding_generator,
         entity_storage=InMemoryEntityStorage(),
         relationship_storage=InMemoryRelationshipStorage(),
         document_storage=InMemoryDocumentStorage(),
@@ -109,6 +190,81 @@ async def main() -> None:
         default="json",
         help="Input file format: json (Paper JSON) or xml (PMC XML)",
     )
+    parser.add_argument(
+        "--ner-provider",
+        type=str,
+        choices=["none", "biobert", "scispacy", "ollama"],
+        default="none",
+        help="NER provider for entity extraction (default: none, uses pre-extracted entities)",
+    )
+    parser.add_argument(
+        "--ner-model",
+        type=str,
+        default=None,
+        help="NER model name (provider-specific, e.g., 'llama3.1:8b' for Ollama)",
+    )
+    parser.add_argument(
+        "--ner-host",
+        type=str,
+        default=None,
+        help="Ollama host URL for NER (default: http://localhost:11434)",
+    )
+    parser.add_argument(
+        "--embedding-provider",
+        type=str,
+        choices=["hash", "ollama", "sentence-transformers"],
+        default="hash",
+        help="Embedding provider (default: hash)",
+    )
+    parser.add_argument(
+        "--embedding-model",
+        type=str,
+        default=None,
+        help="Embedding model name (e.g., 'nomic-embed-text' for Ollama)",
+    )
+    parser.add_argument(
+        "--embedding-host",
+        type=str,
+        default=None,
+        help="Ollama host URL for embeddings (default: http://localhost:11434)",
+    )
+    parser.add_argument(
+        "--use-pattern-extraction",
+        action="store_true",
+        default=True,
+        help="Enable pattern-based relationship extraction (default: True)",
+    )
+    parser.add_argument(
+        "--no-pattern-extraction",
+        action="store_false",
+        dest="use_pattern_extraction",
+        help="Disable pattern-based relationship extraction",
+    )
+    parser.add_argument(
+        "--use-llm-extraction",
+        action="store_true",
+        default=False,
+        help="Enable LLM-based relationship extraction",
+    )
+    parser.add_argument(
+        "--llm-provider",
+        type=str,
+        choices=["ollama", "openai"],
+        default="ollama",
+        help="LLM provider for relationship extraction (default: ollama)",
+    )
+    parser.add_argument(
+        "--llm-model",
+        type=str,
+        default="llama3.1:8b",
+        help="LLM model name (default: llama3.1:8b)",
+    )
+    parser.add_argument(
+        "--llm-host",
+        type=str,
+        default="http://localhost:11434",
+        help="LLM host URL for Ollama (default: http://localhost:11434)",
+    )
 
     args = parser.parse_args()
 
@@ -143,7 +299,24 @@ async def main() -> None:
         print(f"(Limited to {args.limit} papers)")
 
     print("\n[1/3] Initializing pipeline...")
-    orchestrator = build_orchestrator()
+    print(f"  NER provider: {args.ner_provider}")
+    print(f"  Embedding provider: {args.embedding_provider}")
+    print(f"  Pattern extraction: {args.use_pattern_extraction}")
+    print(f"  LLM extraction: {args.use_llm_extraction}")
+
+    orchestrator = build_orchestrator(
+        ner_provider=args.ner_provider,
+        ner_model=args.ner_model,
+        ner_host=args.ner_host,
+        embedding_provider=args.embedding_provider,
+        embedding_model=args.embedding_model,
+        embedding_host=args.embedding_host,
+        use_pattern_extraction=args.use_pattern_extraction,
+        use_llm_extraction=args.use_llm_extraction,
+        llm_provider=args.llm_provider,
+        llm_model=args.llm_model,
+        llm_host=args.llm_host,
+    )
     entity_storage = orchestrator.entity_storage
     relationship_storage = orchestrator.relationship_storage
     document_storage = orchestrator.document_storage
