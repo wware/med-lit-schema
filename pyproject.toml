@@ -54,6 +54,7 @@ dependencies = [
     "mcp>=1.25.0",
     "sentence-transformers>=5.2.0",
     "black[jupyter]>=25.12.0",
+    "kgraph",  # kgraph framework for knowledge graph ingestion
 ]
 
 [project.optional-dependencies]
